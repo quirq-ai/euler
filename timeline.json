@@ -1,0 +1,6 @@
+{
+  "events": [
+    {"ts": "2026-09-23T00:00:00Z", "type": "project.created", "message": "euler bootstrapped"},
+    {"ts": "2026-09-23T00:00:01Z", "type": "watcher.configured", "message": "helloworld tick every 5s"}
+  ]
+}

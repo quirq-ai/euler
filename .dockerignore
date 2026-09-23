@@ -1,0 +1,13 @@
+.git
+.gitignore
+.env
+.quirq
+.xo
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+tests
+*.log

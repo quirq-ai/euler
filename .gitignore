@@ -1,0 +1,54 @@
+# Environment variables - NEVER commit these
+.env
+.env.local
+.env.*.local
+.env.backup
+.env.bak*
+
+.claude/
+
+# Ad-hoc smoke tests, debugging scripts, exploratory work
+experiments/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+
+# Runtime data
+data/
+
+# Service-owned local metadata
+/.quirq/
+.xo/

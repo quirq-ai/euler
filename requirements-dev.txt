@@ -1,0 +1,11 @@
+# Euler development / test dependencies
+#
+# Runtime deps live in requirements.txt. Nothing here is imported by the
+# server: these are the tools the test suite needs.
+#
+#   venv/bin/python -m pip install -r requirements-dev.txt
+#
+# Both gates must stay green with these installed:
+#   venv/bin/python -m unittest discover -s tests
+#   venv/bin/python -m pytest -q
+pytest>=8.4,<9
