@@ -43,6 +43,15 @@ async function dashboard(t, manager = managerStub()) {
 function request(app, path, { method = 'GET', headers = {}, body, agent, send } = {}) {
   const address = new URL(app.url);
   return new Promise((resolve, reject) => {
+    let result;
+    let uploadFinished = false;
+    let requestClosed = false;
+    const complete = () => {
+      // An early 413 may arrive while Node is still flushing the upload. Ordinary
+      // callers must wait for that work before their test closes the server.
+      // Streaming callers explicitly finish and clean up their request themselves.
+      if (result && (send || (uploadFinished && requestClosed))) resolve(result);
+    };
     const req = httpRequest({
       hostname: address.hostname,
       port: address.port,
@@ -59,10 +68,13 @@ function request(app, path, { method = 'GET', headers = {}, body, agent, send } 
         const text = Buffer.concat(chunks).toString('utf8');
         let json;
         try { json = JSON.parse(text); } catch { /* Assertions describe non-JSON responses. */ }
-        resolve({ status: response.statusCode, headers: response.headers, text, json });
+        result = { status: response.statusCode, headers: response.headers, text, json };
+        complete();
       });
     });
-    req.once('error', reject);
+    req.on('error', reject);
+    req.once('finish', () => { uploadFinished = true; complete(); });
+    req.once('close', () => { requestClosed = true; complete(); });
     req.once('timeout', () => req.destroy(new Error(`Dashboard request timed out: ${method} ${path}`)));
     if (send) send(req);
     else req.end(body);

@@ -68,16 +68,27 @@ async function fixture(t) {
       child.once('error', (error) => { spawnError = error; });
       const url = `http://127.0.0.1:${port}`;
       const deadline = Date.now() + 10000;
+      const expectedIds = Object.keys(manifest.projects);
+      let state;
       while (Date.now() < deadline) {
         if (spawnError) throw spawnError;
         if (child.exitCode !== null || child.signalCode !== null) assert.fail(`Dashboard exited before becoming ready: ${output}`);
         try {
           const response = await fetch(`${url}/api/state`, { signal: AbortSignal.timeout(500) });
-          if (response.ok) return { state: await response.json(), url, output };
+          if (response.ok) state = await response.json();
         } catch {}
+        if (state) {
+          const projects = state.projects.filter(({ id }) => expectedIds.includes(id));
+          const failed = projects.find(({ status }) => status === 'error' || status === 'failed');
+          if (failed) assert.fail(`App ${failed.id} failed during startup: ${failed.error || failed.status}\n${output}`);
+          // The HTTP listener is live before compiled apps finish mounting.
+          if (expectedIds.every((id) => projects.some((project) => project.id === id && project.status === 'running'))) {
+            return { state, url, output };
+          }
+        }
         await delay(50);
       }
-      assert.fail(`Dashboard did not become ready: ${output}`);
+      assert.fail(`Dashboard did not become ready: ${output}\nLast state: ${JSON.stringify(state)}`);
     },
   };
 }
@@ -136,6 +147,12 @@ for (const source of ['workspace', 'config']) {
     assert.match(await mounted.text(), /Mounted fixture/);
   });
 }
+
+test('CLI readiness reports an app startup failure instead of accepting the listening server', { timeout: 20000 }, async (t) => {
+  const app = await fixture(t);
+  await rm(join(app.root, 'dist-euler', 'quirq-build.json'));
+  await assert.rejects(app.start(['--config', app.config]), /App fixture failed during startup:/);
+});
 
 test('CLI builds a named app without starting HTTP and rejects unknown app ids', async (t) => {
   const app = await fixture(t);
