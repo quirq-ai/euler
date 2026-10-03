@@ -1,0 +1,39 @@
+{
+  "name": "innernet",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Innernet: a personal internet. Search your folders like the web, read your projects like an encyclopedia.",
+  "scripts": {
+    "index": "tsx scripts/build-index.ts",
+    "index:demo": "tsx scripts/build-demo-index.ts",
+    "db:status": "tsx --conditions=react-server scripts/db.ts status",
+    "db:store": "tsx --conditions=react-server scripts/db.ts store",
+    "db:load": "tsx --conditions=react-server scripts/db.ts load",
+    "dev": "next dev -p 3470 -H 127.0.0.1",
+    "dev:demo": "INNERNET_DEMO=1 next dev -p 3470 -H 127.0.0.1",
+    "build": "next build",
+    "start": "next start -p 3470 -H 127.0.0.1",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@neondatabase/serverless": "^1.2.0",
+    "minisearch": "^7.2.0",
+    "next": "^16.3.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}

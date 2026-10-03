@@ -1,0 +1,400 @@
+{
+  "total": 168.837,
+  "bounds": [
+    [
+      0,
+      15.282
+    ],
+    [
+      15.282,
+      19.682
+    ],
+    [
+      19.682,
+      51.197
+    ],
+    [
+      51.197,
+      62.481
+    ],
+    [
+      62.481,
+      81.567
+    ],
+    [
+      81.567,
+      85.967
+    ],
+    [
+      85.967,
+      120.235
+    ],
+    [
+      120.235,
+      124.635
+    ],
+    [
+      124.635,
+      144.643
+    ],
+    [
+      144.643,
+      156.017
+    ],
+    [
+      156.017,
+      165.137
+    ],
+    [
+      165.137,
+      168.837
+    ]
+  ],
+  "songId": "52SN5hvnyRFn33KrVXru",
+  "request": {
+    "composition_plan": {
+      "chunks": [
+        {
+          "text": "[Intro]",
+          "duration_ms": 15282,
+          "positive_styles": [
+            "cinematic ambient underscore",
+            "instrumental only",
+            "documentary film score",
+            "felt piano, soft and close",
+            "warm analog pads",
+            "dawn light, hopeful and calm",
+            "spacious and sparse",
+            "gentle low mid register",
+            "68 BPM",
+            "D major",
+            "great production quality"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "percussion",
+            "fast tempo"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Swell]\n{strings swell}",
+          "duration_ms": 4400,
+          "positive_styles": [
+            "a slow rising swell",
+            "legato strings bloom in",
+            "warm pads open up",
+            "crescendo into a new section, then settle",
+            "D major"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "abrupt"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Chapter One]",
+          "duration_ms": 31515,
+          "positive_styles": [
+            "gentle forward pulse",
+            "soft low arpeggio on felt piano",
+            "a sense of wonder",
+            "legato strings enter softly",
+            "warm pads",
+            "steady and patient",
+            "melody sparse, leaving room for a narrator"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "staccato brass",
+            "high busy melody"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Interlude]\n{the pulse falls away}",
+          "duration_ms": 11284,
+          "positive_styles": [
+            "intimate and sheltered",
+            "just felt piano and a warm low pad",
+            "quiet, close, reassuring",
+            "a held breath",
+            "very sparse",
+            "safe and still"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "pulse",
+            "arpeggio",
+            "strings swell",
+            "bright"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Chapter One, continued]",
+          "duration_ms": 19086,
+          "positive_styles": [
+            "the gentle pulse returns",
+            "curious wonder",
+            "strings and felt piano",
+            "soft momentum",
+            "warm",
+            "D major"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "high busy melody"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Swell]\n{plucked strings bloom}",
+          "duration_ms": 4400,
+          "positive_styles": [
+            "a gentle swell",
+            "plucked strings bloom in",
+            "lifting and lighter",
+            "crescendo, then settle",
+            "D major"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "abrupt"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Chapter Two]",
+          "duration_ms": 34268,
+          "positive_styles": [
+            "lighter and curious",
+            "plucked textures",
+            "soft pizzicato strings",
+            "felt piano",
+            "airy pads",
+            "playful but calm",
+            "D major"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "heavy",
+            "dark"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Dusk]\n{a slow swell into night}",
+          "duration_ms": 4400,
+          "positive_styles": [
+            "dusk falling",
+            "a slow swell sinking into darkness",
+            "low cello enters",
+            "pads deepen",
+            "moving to B minor"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "bright",
+            "plucks"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Night]",
+          "duration_ms": 20008,
+          "positive_styles": [
+            "night",
+            "deep warm pads",
+            "low solo cello",
+            "introspective",
+            "slow and still",
+            "sparse felt piano notes",
+            "low register",
+            "B minor"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "bright",
+            "pizzicato",
+            "fast",
+            "high melody"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Night, before dawn]",
+          "duration_ms": 11374,
+          "positive_styles": [
+            "a slow swell building",
+            "cello and pads rising",
+            "anticipation of dawn",
+            "light returning",
+            "gradual crescendo"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "abrupt"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Dawn returns]",
+          "duration_ms": 9120,
+          "positive_styles": [
+            "dawn returns",
+            "full warm swell",
+            "strings and felt piano together",
+            "the opening theme returns",
+            "radiant but gentle",
+            "D major"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "bombastic"
+          ],
+          "context_adherence": "high"
+        },
+        {
+          "text": "[Outro]",
+          "duration_ms": 3700,
+          "positive_styles": [
+            "soft resolve",
+            "a final sustained D major chord",
+            "let it ring",
+            "gentle ending",
+            "one last felt piano note"
+          ],
+          "negative_styles": [
+            "vocals",
+            "lyrics",
+            "singing",
+            "choir",
+            "humming",
+            "spoken word",
+            "drum kit",
+            "cymbals",
+            "EDM",
+            "busy lead melody",
+            "bright synth lead",
+            "abrupt ending",
+            "building"
+          ],
+          "context_adherence": "high"
+        }
+      ]
+    },
+    "model_id": "music_v2_5"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "preferences": {
+    "flow": {
+      "value": "automation",
+      "confirmed_in": [
+        "innernet-guide-film"
+      ],
+      "updated_at": "2026-10-02T15:12:45.238Z"
+    },
+    "storyboard": {
+      "value": "yes",
+      "confirmed_in": [
+        "innernet-guide-film"
+      ],
+      "updated_at": "2026-10-02T15:12:45.287Z"
+    },
+    "voice": {
+      "value": "elevenlabs:lily:pFZP5JQG7iQjIQuC4Bku",
+      "confirmed_in": [
+        "innernet-guide-film"
+      ],
+      "updated_at": "2026-10-02T17:15:48.810Z"
+    }
+  },
+  "sightings": {}
+}

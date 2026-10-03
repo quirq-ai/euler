@@ -1,0 +1,378 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" fill="none" stroke="currentColor" data-plate="search" aria-label="How search ranks: a query cut into tokens, looked up in the inverted index, weighed by the prior, and laid out as results">
+<g class="L-con" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M392,956L30,956L30,30L1570,30L1570,956L1208,956"/>
+<path d="M392,949L37,949L37,37L1563,37L1563,949L1208,949"/>
+<path d="M16,30L44,30M30,16L30,44"/><circle cx="30" cy="30" r="5.9"/>
+<path d="M1556,30L1584,30M1570,16L1570,44"/><circle cx="1570" cy="30" r="5.9"/>
+<path d="M16,956L44,956M30,942L30,970"/><circle cx="30" cy="956" r="5.9"/>
+<path d="M1556,956L1584,956M1570,942L1570,970"/><circle cx="1570" cy="956" r="5.9"/>
+<path d="M70,29L70,21.4M89.7,29L89.7,25M109.5,29L109.5,25M129.2,29L129.2,25M148.9,29L148.9,25M168.6,29L168.6,21.4M188.4,29L188.4,25M208.1,29L208.1,25M227.8,29L227.8,25M247.6,29L247.6,25M267.3,29L267.3,21.4M287,29L287,25M306.8,29L306.8,25M326.5,29L326.5,25M346.2,29L346.2,25M365.9,29L365.9,21.4M385.7,29L385.7,25M405.4,29L405.4,25M425.1,29L425.1,25M444.9,29L444.9,25M464.6,29L464.6,21.4M484.3,29L484.3,25M504.1,29L504.1,25M523.8,29L523.8,25M543.5,29L543.5,25M563.2,29L563.2,21.4M583,29L583,25M602.7,29L602.7,25M622.4,29L622.4,25M642.2,29L642.2,25M661.9,29L661.9,21.4M681.6,29L681.6,25M701.4,29L701.4,25M721.1,29L721.1,25M740.8,29L740.8,25M760.5,29L760.5,21.4M780.3,29L780.3,25M800,29L800,25M819.7,29L819.7,25M839.5,29L839.5,25M859.2,29L859.2,21.4M878.9,29L878.9,25M898.6,29L898.6,25M918.4,29L918.4,25M938.1,29L938.1,25M957.8,29L957.8,21.4M977.6,29L977.6,25M997.3,29L997.3,25M1017,29L1017,25M1036.8,29L1036.8,25M1056.5,29L1056.5,21.4M1076.2,29L1076.2,25M1095.9,29L1095.9,25M1115.7,29L1115.7,25M1135.4,29L1135.4,25M1155.1,29L1155.1,21.4M1174.9,29L1174.9,25M1194.6,29L1194.6,25M1214.3,29L1214.3,25M1234.1,29L1234.1,25M1253.8,29L1253.8,21.4M1273.5,29L1273.5,25M1293.2,29L1293.2,25M1313,29L1313,25M1332.7,29L1332.7,25M1352.4,29L1352.4,21.4M1372.2,29L1372.2,25M1391.9,29L1391.9,25M1411.6,29L1411.6,25M1431.4,29L1431.4,25M1451.1,29L1451.1,21.4M1470.8,29L1470.8,25M1490.5,29L1490.5,25M1510.3,29L1510.3,25M1530,29L1530,25"/>
+<path d="M29,70L21.4,70M29,89.2L25,89.2M29,108.5L25,108.5M29,127.7L25,127.7M29,146.9L25,146.9M29,166.1L21.4,166.1M29,185.4L25,185.4M29,204.6L25,204.6M29,223.8L25,223.8M29,243L25,243M29,262.3L21.4,262.3M29,281.5L25,281.5M29,300.7L25,300.7M29,320L25,320M29,339.2L25,339.2M29,358.4L21.4,358.4M29,377.6L25,377.6M29,396.9L25,396.9M29,416.1L25,416.1M29,435.3L25,435.3M29,454.5L21.4,454.5M29,473.8L25,473.8M29,493L25,493M29,512.2L25,512.2M29,531.5L25,531.5M29,550.7L21.4,550.7M29,569.9L25,569.9M29,589.1L25,589.1M29,608.4L25,608.4M29,627.6L25,627.6M29,646.8L21.4,646.8M29,666L25,666M29,685.3L25,685.3M29,704.5L25,704.5M29,723.7L25,723.7M29,743L21.4,743M29,762.2L25,762.2M29,781.4L25,781.4M29,800.6L25,800.6M29,819.9L25,819.9M29,839.1L21.4,839.1M29,858.3L25,858.3M29,877.5L25,877.5M29,896.8L25,896.8M29,916L25,916"/>
+<path d="M1571,70L1578.6,70M1571,89.2L1575,89.2M1571,108.5L1575,108.5M1571,127.7L1575,127.7M1571,146.9L1575,146.9M1571,166.1L1578.6,166.1M1571,185.4L1575,185.4M1571,204.6L1575,204.6M1571,223.8L1575,223.8M1571,243L1575,243M1571,262.3L1578.6,262.3M1571,281.5L1575,281.5M1571,300.7L1575,300.7M1571,320L1575,320M1571,339.2L1575,339.2M1571,358.4L1578.6,358.4M1571,377.6L1575,377.6M1571,396.9L1575,396.9M1571,416.1L1575,416.1M1571,435.3L1575,435.3M1571,454.5L1578.6,454.5M1571,473.8L1575,473.8M1571,493L1575,493M1571,512.2L1575,512.2M1571,531.5L1575,531.5M1571,550.7L1578.6,550.7M1571,569.9L1575,569.9M1571,589.1L1575,589.1M1571,608.4L1575,608.4M1571,627.6L1575,627.6M1571,646.8L1578.6,646.8M1571,666L1575,666M1571,685.3L1575,685.3M1571,704.5L1575,704.5M1571,723.7L1575,723.7M1571,743L1578.6,743M1571,762.2L1575,762.2M1571,781.4L1575,781.4M1571,800.6L1575,800.6M1571,819.9L1575,819.9M1571,839.1L1578.6,839.1M1571,858.3L1575,858.3M1571,877.5L1575,877.5M1571,896.8L1575,896.8M1571,916L1575,916"/>
+<line x1="420" y1="92" x2="420" y2="792"/>
+<line x1="1050" y1="92" x2="1050" y2="792"/>
+<line x1="406" y1="196" x2="1064" y2="196"/>
+<line x1="406" y1="772" x2="1064" y2="772"/>
+<line x1="410" y1="388" x2="416" y2="388"/>
+<line x1="410" y1="424" x2="416" y2="424"/>
+<line x1="410" y1="460" x2="416" y2="460"/>
+<line x1="410" y1="496" x2="416" y2="496"/>
+<line x1="410" y1="594" x2="416" y2="594"/>
+<line x1="410" y1="630" x2="416" y2="630"/>
+<line x1="410" y1="666" x2="416" y2="666"/>
+<line x1="410" y1="702" x2="416" y2="702"/>
+<line x1="636" y1="196" x2="636" y2="112"/>
+<path d="M636,196L645.5,196M636,182L641,182M636,168L641,168M636,154L645.5,154M636,140L641,140M636,126L641,126M636,112L645.5,112"/>
+<line x1="684" y1="112" x2="1084" y2="112"/>
+<line x1="1044" y1="187.6" x2="1084" y2="187.6"/>
+<path d="M44,126L56,126"/>
+<path d="M384,126L404,126"/>
+<path d="M1209,200L1219,200M1224,200L1234,200M1239,200L1249,200M1254,200L1264,200M1269,200L1279,200M1284,200L1294,200M1299,200L1309,200M1314,200L1324,200M1329,200L1339,200M1344,200L1354,200M1359,200L1369,200M1374,200L1384,200M1389,200L1399,200M1404,200L1414,200M1419,200L1429,200M1434,200L1444,200M1449,200L1459,200M1464,200L1474,200M1479,200L1489,200M1494,200L1504,200M1509,200L1515,200"/>
+<circle cx="1360" cy="519" r="23"/>
+<path d="M227,94L227,100M227,104L227,110M227,114L227,120M227,124L227,130M227,134L227,140M227,144L227,150M227,154L227,160"/>
+</g>
+<g class="L-main" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+<rect x="60" y="96" width="320" height="60" rx="30"/>
+<circle cx="94" cy="122" r="11"/>
+<line x1="102" y1="130" x2="112" y2="140"/>
+<circle cx="120" cy="200" r="5"/>
+<rect x="90" y="352" width="150" height="38"/>
+<path d="M90,352L100,342L250,342L240,352"/>
+<path d="M250,342L250,380L240,390"/>
+<rect x="90" y="558" width="150" height="38"/>
+<path d="M90,558L100,548L250,548L240,558"/>
+<path d="M250,548L250,586L240,596"/>
+<rect x="659" y="112" width="22" height="84"/>
+<rect x="699" y="154" width="22" height="42"/>
+<rect x="739" y="168" width="22" height="28"/>
+<rect x="779" y="173.6" width="22" height="22.4"/>
+<rect x="819" y="179.2" width="22" height="16.8"/>
+<rect x="859" y="179.2" width="22" height="16.8"/>
+<rect x="899" y="182" width="22" height="14"/>
+<rect x="939" y="182" width="22" height="14"/>
+<rect x="979" y="182" width="22" height="14"/>
+<rect x="1019" y="187.6" width="22" height="8.4"/>
+<rect x="420" y="196" width="630" height="570"/>
+<line x1="420" y1="201" x2="1050" y2="201"/>
+<line x1="420" y1="349" x2="1050" y2="349"/>
+<line x1="420" y1="772" x2="1050" y2="772"/>
+<line x1="650" y1="201" x2="650" y2="349"/>
+<line x1="650" y1="388" x2="650" y2="532"/>
+<line x1="650" y1="594" x2="650" y2="738"/>
+<line x1="690" y1="201" x2="690" y2="349"/>
+<line x1="690" y1="388" x2="690" y2="532"/>
+<line x1="690" y1="594" x2="690" y2="738"/>
+<line x1="730" y1="201" x2="730" y2="349"/>
+<line x1="730" y1="388" x2="730" y2="532"/>
+<line x1="730" y1="594" x2="730" y2="738"/>
+<line x1="770" y1="201" x2="770" y2="349"/>
+<line x1="770" y1="388" x2="770" y2="532"/>
+<line x1="770" y1="594" x2="770" y2="738"/>
+<line x1="810" y1="201" x2="810" y2="349"/>
+<line x1="810" y1="388" x2="810" y2="532"/>
+<line x1="810" y1="594" x2="810" y2="738"/>
+<line x1="850" y1="201" x2="850" y2="349"/>
+<line x1="850" y1="388" x2="850" y2="532"/>
+<line x1="850" y1="594" x2="850" y2="738"/>
+<line x1="890" y1="201" x2="890" y2="349"/>
+<line x1="890" y1="388" x2="890" y2="532"/>
+<line x1="890" y1="594" x2="890" y2="738"/>
+<line x1="930" y1="201" x2="930" y2="349"/>
+<line x1="930" y1="388" x2="930" y2="532"/>
+<line x1="930" y1="594" x2="930" y2="738"/>
+<line x1="970" y1="201" x2="970" y2="349"/>
+<line x1="970" y1="388" x2="970" y2="532"/>
+<line x1="970" y1="594" x2="970" y2="738"/>
+<line x1="1010" y1="201" x2="1010" y2="349"/>
+<line x1="1010" y1="388" x2="1010" y2="532"/>
+<line x1="1010" y1="594" x2="1010" y2="738"/>
+<line x1="420" y1="354" x2="1050" y2="354"/>
+<line x1="420" y1="388" x2="1050" y2="388"/>
+<line x1="420" y1="532" x2="1050" y2="532"/>
+<path d="M654,546L654,547.7L658,549.1L662,549.9L666,549.9L670,549.2L674,547.8L678,546.1L682,544.4L686,543L690,542.1L694,542.1L698,542.7L702,544.1L706,545.8L710,547.5L714,548.9L718,549.8L722,550L726,549.3L730,548L734,546.4L738,544.6L742,543.1L746,542.2L750,542L754,542.6L758,543.9L762,545.5L766,547.3L770,548.8L774,549.7L778,550L782,549.5L786,548.2L790,546.6L794,544.8L798,543.3L802,542.3L806,542L810,542.5L814,543.7L818,545.3L822,547L826,548.6L830,549.7L834,550L838,549.6L842,548.4L846,546.8L850,545.1L854,543.5L858,542.4L862,542L866,542.4L870,543.5L874,545L878,546.8L882,548.4L886,549.5L890,550L894,549.7L898,548.6L902,547.1L906,545.3L910,543.7L914,542.5L918,542L922,542.3L926,543.3L930,544.8L934,546.6L938,548.2L942,549.4L946,550L950,549.8L954,548.8L958,547.3L962,545.6L966,543.9L970,542.6L974,542L978,542.2L982,543.1L986,544.6L990,546.3L994,548L998,549.3L1002,549.9L1006,549.8L1010,549L1014,547.5L1018,545.8L1022,544.1L1026,542.8L1030,542.1L1034,542.1L1038,542.9L1042,544.3L1046,546.1"/>
+<line x1="420" y1="560" x2="1050" y2="560"/>
+<line x1="420" y1="594" x2="1050" y2="594"/>
+<line x1="420" y1="738" x2="1050" y2="738"/>
+<path d="M654,752L654,753.7L658,755.1L662,755.9L666,755.9L670,755.2L674,753.8L678,752.1L682,750.4L686,749L690,748.1L694,748.1L698,748.7L702,750.1L706,751.8L710,753.5L714,754.9L718,755.8L722,756L726,755.3L730,754L734,752.4L738,750.6L742,749.1L746,748.2L750,748L754,748.6L758,749.9L762,751.5L766,753.3L770,754.8L774,755.7L778,756L782,755.5L786,754.2L790,752.6L794,750.8L798,749.3L802,748.3L806,748L810,748.5L814,749.7L818,751.3L822,753L826,754.6L830,755.7L834,756L838,755.6L842,754.4L846,752.8L850,751.1L854,749.5L858,748.4L862,748L866,748.4L870,749.5L874,751L878,752.8L882,754.4L886,755.5L890,756L894,755.7L898,754.6L902,753.1L906,751.3L910,749.7L914,748.5L918,748L922,748.3L926,749.3L930,750.8L934,752.6L938,754.2L942,755.4L946,756L950,755.8L954,754.8L958,753.3L962,751.6L966,749.9L970,748.6L974,748L978,748.2L982,749.1L986,750.6L990,752.3L994,754L998,755.3L1002,755.9L1006,755.8L1010,755L1014,753.5L1018,751.8L1022,750.1L1026,748.8L1030,748.1L1034,748.1L1038,748.9L1042,750.3L1046,752.1"/>
+<circle cx="1084" cy="519" r="6"/>
+<path d="M1091,712L1109,712L1091,736L1109,736Z"/>
+<line x1="1086" y1="724" x2="1114" y2="724"/>
+<rect x="1221" y="102" width="28" height="196" rx="14"/>
+<line x1="1213" y1="128" x2="1257" y2="128"/>
+<rect x="1346" y="102" width="28" height="196" rx="14"/>
+<line x1="1338" y1="215" x2="1382" y2="215"/>
+<rect x="1471" y="102" width="28" height="196" rx="14"/>
+<line x1="1463" y1="189.7" x2="1507" y2="189.7"/>
+<circle cx="1360" cy="519" r="14"/>
+<path d="M1353,512L1367,526M1367,512L1353,526"/>
+<line x1="1118" y1="590" x2="1344" y2="590"/>
+<line x1="1376" y1="590" x2="1546" y2="590"/>
+<rect x="1118" y="652" width="420" height="266"/>
+<line x1="1138" y1="864" x2="1268" y2="864"/>
+<rect x="1380" y="698" width="148" height="206" rx="6"/>
+<rect x="1394" y="712" width="48" height="48" rx="14.4"/>
+<rect x="411" y="950.5" width="22" height="17" rx="3"/>
+<path d="M415,950.5L415,944.5A7,7 0 0 1 429,944.5L429,950.5"/>
+</g>
+<g class="L-det" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M86,121.9L93.9,114M87.5,126.7L98.7,115.5M91.1,129.5L101.5,119.1M98.1,128.9L100.9,126.1"/>
+<line x1="78" y1="162" x2="362" y2="162"/>
+<line x1="318" y1="110" x2="318" y2="142"/>
+<path d="M222,84L227,92L232,84Z"/>
+<path d="M222,172L227,164L232,172Z"/>
+<path d="M242,353L242,385M244,351L244,383M246,349L246,381M248,347L248,379"/>
+<path d="M104,347L236,347"/>
+<path d="M106,390L106,470"/>
+<line x1="106" y1="414" x2="116" y2="414"/>
+<path d="M219.8,415L221.3,415M226.8,415L228.3,415M233.8,415L235.3,415M240.8,415L242.3,415M247.8,415L249.3,415M254.8,415L256.3,415M261.8,415L263.3,415M268.8,415L270.3,415M275.8,415L277.3,415M282.8,415L284.3,415M289.8,415L291.3,415M296.8,415L298.3,415"/>
+<line x1="106" y1="442" x2="116" y2="442"/>
+<path d="M242.4,443L243.9,443M249.4,443L250.9,443M256.4,443L257.9,443M263.4,443L264.9,443M270.4,443L271.9,443M277.4,443L278.9,443M284.4,443L285.9,443M291.4,443L292.9,443M298.4,443L299.9,443M305.4,443L306.9,443"/>
+<line x1="106" y1="470" x2="116" y2="470"/>
+<path d="M208.5,471L210,471M215.5,471L217,471M222.5,471L224,471M229.5,471L231,471M236.5,471L238,471M243.5,471L245,471M250.5,471L252,471M257.5,471L259,471M264.5,471L266,471M271.5,471L273,471M278.5,471L280,471M285.5,471L287,471M292.5,471L294,471M299.5,471L301,471M306.5,471L308,471"/>
+<path d="M242,559L242,591M244,557L244,589M246,555L246,587M248,553L248,585"/>
+<path d="M104,553L236,553"/>
+<path d="M106,596L106,760"/>
+<line x1="106" y1="620" x2="116" y2="620"/>
+<path d="M208.5,621L210,621M215.5,621L217,621M222.5,621L224,621M229.5,621L231,621M236.5,621L238,621M243.5,621L245,621M250.5,621L252,621M257.5,621L259,621M264.5,621L266,621M271.5,621L273,621M278.5,621L280,621M285.5,621L287,621M292.5,621L294,621M299.5,621L301,621"/>
+<line x1="106" y1="648" x2="116" y2="648"/>
+<path d="M219.8,649L221.3,649M226.8,649L228.3,649M233.8,649L235.3,649M240.8,649L242.3,649M247.8,649L249.3,649M254.8,649L256.3,649M261.8,649L263.3,649M268.8,649L270.3,649M275.8,649L277.3,649M282.8,649L284.3,649M289.8,649L291.3,649M296.8,649L298.3,649"/>
+<line x1="106" y1="676" x2="116" y2="676"/>
+<path d="M219.8,677L221.3,677M226.8,677L228.3,677M233.8,677L235.3,677M240.8,677L242.3,677M247.8,677L249.3,677M254.8,677L256.3,677M261.8,677L263.3,677M268.8,677L270.3,677M275.8,677L277.3,677M282.8,677L284.3,677M289.8,677L291.3,677M296.8,677L298.3,677"/>
+<line x1="106" y1="704" x2="116" y2="704"/>
+<path d="M219.8,705L221.3,705M226.8,705L228.3,705M233.8,705L235.3,705M240.8,705L242.3,705M247.8,705L249.3,705M254.8,705L256.3,705M261.8,705L263.3,705M268.8,705L270.3,705M275.8,705L277.3,705M282.8,705L284.3,705M289.8,705L291.3,705M296.8,705L298.3,705"/>
+<line x1="106" y1="732" x2="116" y2="732"/>
+<path d="M208.5,733L210,733M215.5,733L217,733M222.5,733L224,733M229.5,733L231,733M236.5,733L238,733M243.5,733L245,733M250.5,733L252,733M257.5,733L259,733M264.5,733L266,733M271.5,733L273,733M278.5,733L280,733M285.5,733L287,733M292.5,733L294,733M299.5,733L301,733"/>
+<line x1="106" y1="760" x2="116" y2="760"/>
+<path d="M208.5,761L210,761M215.5,761L217,761M222.5,761L224,761M229.5,761L231,761M236.5,761L238,761M243.5,761L245,761M250.5,761L252,761M257.5,761L259,761M264.5,761L266,761M271.5,761L273,761M278.5,761L280,761M285.5,761L287,761M292.5,761L294,761M299.5,761L301,761M306.5,761L308,761"/>
+<path d="M659,117.7L664.7,112M659,124.8L671.8,112M659,131.9L678.9,112M659,139L681,117M659,146L681,124M659,153.1L681,131.1M659,160.2L681,138.2M659,167.2L681,145.2M659,174.3L681,152.3M659,181.4L681,159.4M659,188.5L681,166.5M659,195.5L681,173.5M665.6,196L681,180.6M672.7,196L681,187.7M679.7,196L681,194.7"/>
+<path d="M699,159.5L704.5,154M699,166.6L711.6,154M699,173.7L718.7,154M699,180.8L721,158.8M699,187.8L721,165.8M699,194.9L721,172.9M705,196L721,180M712,196L721,187M719.1,196L721,194.1"/>
+<path d="M739,174.9L745.9,168M739,182L753,168M739,189L760,168M739.1,196L761,174.1M746.2,196L761,181.2M753.2,196L761,188.2M760.3,196L761,195.3"/>
+<path d="M779,180.7L786.1,173.6M779,187.7L793.1,173.6M779,194.8L800.2,173.6M784.9,196L801,179.9M792,196L801,187M799,196L801,194"/>
+<path d="M819,186.1L825.9,179.2M819,193.2L833,179.2M823.2,196L840,179.2M830.3,196L841,185.3M837.4,196L841,192.4"/>
+<path d="M859,186.1L865.9,179.2M859,193.2L873,179.2M863.2,196L880,179.2M870.3,196L881,185.3M877.4,196L881,192.4"/>
+<path d="M899,188.6L905.6,182M899,195.7L912.7,182M905.8,196L919.8,182M912.8,196L921,187.8M919.9,196L921,194.9"/>
+<path d="M939,188.6L945.6,182M939,195.7L952.7,182M945.8,196L959.8,182M952.8,196L961,187.8M959.9,196L961,194.9"/>
+<path d="M979,188.6L985.6,182M979,195.7L992.7,182M985.8,196L999.8,182M992.8,196L1001,187.8M999.9,196L1001,194.9"/>
+<path d="M1019,193.2L1024.6,187.6M1023.3,196L1031.7,187.6M1030.4,196L1038.8,187.6M1037.4,196L1041,192.4"/>
+<path d="M1076,112L1076,187.6M1072.9,179.1L1076,187.6L1079.1,179.1M1079.1,120.5L1076,112L1072.9,120.5"/>
+<line x1="420" y1="201" x2="650" y2="349"/>
+<line x1="420" y1="358" x2="1050" y2="358"/>
+<line x1="420" y1="424" x2="1050" y2="424"/>
+<circle cx="670" cy="442" r="8"/>
+<circle cx="710" cy="442" r="8"/>
+<circle cx="910" cy="442" r="8"/>
+<line x1="420" y1="460" x2="1050" y2="460"/>
+<circle cx="670" cy="478" r="8"/>
+<circle cx="710" cy="478" r="8"/>
+<circle cx="910" cy="478" r="8"/>
+<line x1="420" y1="496" x2="1050" y2="496"/>
+<circle cx="710" cy="514" r="8"/>
+<circle cx="830" cy="514" r="8"/>
+<circle cx="910" cy="514" r="8"/>
+<path d="M652,542.7L660.7,534M652,552.6L670.6,534M656.5,558L680.5,534M666.4,558L690.4,534M676.3,558L700.3,534M686.2,558L710.2,534M696.1,558L720.1,534M706,558L730,534M715.9,558L739.9,534M725.8,558L749.8,534M735.7,558L759.7,534M745.6,558L769.6,534M755.5,558L779.5,534M765.4,558L789.4,534M775.3,558L799.3,534M785.2,558L809.2,534M795.1,558L819.1,534M805,558L829,534M814.9,558L838.9,534M824.8,558L848.8,534M834.7,558L858.7,534M844.6,558L868.6,534M854.5,558L878.5,534M864.4,558L888.4,534M874.3,558L898.3,534M884.2,558L908.2,534M894.1,558L918.1,534M904,558L928,534M913.9,558L937.9,534M923.8,558L947.8,534M933.7,558L957.7,534M943.6,558L967.6,534M953.5,558L977.5,534M963.4,558L987.4,534M973.3,558L997.3,534M983.2,558L1007.2,534M993,558L1017,534M1002.9,558L1026.9,534M1012.8,558L1036.8,534M1022.7,558L1046.7,534M1032.6,558L1048,542.6M1042.5,558L1048,552.5"/>
+<line x1="420" y1="564" x2="1050" y2="564"/>
+<circle cx="670" cy="612" r="8"/>
+<circle cx="710" cy="612" r="8"/>
+<circle cx="750" cy="612" r="8"/>
+<circle cx="910" cy="612" r="8"/>
+<circle cx="1030" cy="612" r="8"/>
+<line x1="420" y1="630" x2="1050" y2="630"/>
+<line x1="420" y1="666" x2="1050" y2="666"/>
+<circle cx="670" cy="684" r="8"/>
+<circle cx="710" cy="684" r="8"/>
+<circle cx="910" cy="684" r="8"/>
+<line x1="420" y1="702" x2="1050" y2="702"/>
+<circle cx="710" cy="720" r="8"/>
+<circle cx="830" cy="720" r="8"/>
+<circle cx="910" cy="720" r="8"/>
+<path d="M652,748.7L660.7,740M652,758.6L670.6,740M656.5,764L680.5,740M666.4,764L690.4,740M676.3,764L700.3,740M686.2,764L710.2,740M696.1,764L720.1,740M706,764L730,740M715.9,764L739.9,740M725.8,764L749.8,740M735.7,764L759.7,740M745.6,764L769.6,740M755.5,764L779.5,740M765.4,764L789.4,740M775.3,764L799.3,740M785.2,764L809.2,740M795.1,764L819.1,740M805,764L829,740M814.9,764L838.9,740M824.8,764L848.8,740M834.7,764L858.7,740M844.6,764L868.6,740M854.5,764L878.5,740M864.4,764L888.4,740M874.3,764L898.3,740M884.2,764L908.2,740M894.1,764L918.1,740M904,764L928,740M913.9,764L937.9,740M923.8,764L947.8,740M933.7,764L957.7,740M943.6,764L967.6,740M953.5,764L977.5,740M963.4,764L987.4,740M973.3,764L997.3,740M983.2,764L1007.2,740M993,764L1017,740M1002.9,764L1026.9,740M1012.8,764L1036.8,740M1022.7,764L1046.7,740M1032.6,764L1048,748.6M1042.5,764L1048,758.5"/>
+<path d="M1089,524L1093.1,529.6M1096.7,534.5L1100,539M1100,539L1100,546M1100,552L1100,559M1100,565L1100,572M1100,578L1100,585M1100,591L1100,598M1100,604L1100,611M1100,617L1100,624M1100,630L1100,637M1100,643L1100,650M1100,656L1100,663M1100,669L1100,672"/>
+<path d="M1100,736L1100,743M1100,749L1100,756M1100,762L1100,769M1100,775L1100,782M1100,788L1100,795M1100,801L1100,808M1100,814L1100,821"/>
+<path d="M1100,698L1100,712"/>
+<path d="M1100,822L1100,828Q1100,834 1094,834L1064,834M1072.5,830.9L1064,834L1072.5,837.1"/>
+<path d="M1094.5,714.4L1105.5,714.4M1097,718L1103,718M1098,728.8L1102,728.8M1095.5,732.4L1104.5,732.4"/>
+<path d="M1224,130.8L1226.5,128.3M1224,137.2L1232.9,128.3M1224,143.5L1239.2,128.3M1224,149.9L1245.6,128.3M1224,156.3L1245.9,134.3M1224,162.6L1245.9,140.7M1224,169L1245.9,147.1M1224,175.3L1245.9,153.4M1224,181.7L1245.9,159.8M1224,188.1L1245.9,166.2M1224,194.4L1245.9,172.5M1224,200.8L1245.9,178.9M1224,207.2L1245.9,185.2M1224,213.5L1245.9,191.6M1224,219.9L1245.9,198M1224,226.3L1245.9,204.3M1224,232.6L1245.9,210.7M1224,239L1245.9,217.1M1224,245.4L1245.9,223.4M1224,251.7L1245.9,229.8M1224,258.1L1245.9,236.2M1224,264.4L1245.9,242.5M1224,270.8L1245.9,248.9M1224,277.2L1245.9,255.2M1224,283.5L1245.9,261.6M1225.4,288.5L1245.9,268M1227.9,292.4L1245.9,274.3M1232.1,294.5L1245.9,280.7M1238.9,294.1L1245.2,287.8"/>
+<path d="M1217,290L1205,290M1217,267.5L1211,267.5M1217,245L1211,245M1217,222.5L1211,222.5M1217,200L1205,200M1217,177.5L1211,177.5M1217,155L1211,155M1217,132.5L1211,132.5M1217,110L1205,110"/>
+<path d="M1253,200L1263,194L1263,206Z"/>
+<path d="M1349.1,221.3L1355.2,215.3M1349.1,227.7L1361.5,215.3M1349.1,234L1367.9,215.3M1349.1,240.4L1370.7,218.8M1349.1,246.8L1370.7,225.2M1349.1,253.1L1370.7,231.6M1349.1,259.5L1370.7,237.9M1349.1,265.9L1370.7,244.3M1349.1,272.2L1370.7,250.7M1349.1,278.6L1370.7,257M1349.1,285L1370.7,263.4M1350.9,289.6L1370.7,269.8M1354.1,292.7L1370.7,276.1M1358.3,294.9L1370.7,282.5"/>
+<path d="M1342,290L1330,290M1342,267.5L1336,267.5M1342,245L1336,245M1342,222.5L1336,222.5M1342,200L1330,200M1342,177.5L1336,177.5M1342,155L1336,155M1342,132.5L1336,132.5M1342,110L1330,110"/>
+<path d="M1474.3,191.4L1475.8,190M1474.3,197.7L1482.1,190M1474.3,204.1L1488.5,190M1474.3,210.5L1494.8,190M1474.3,216.8L1495.9,195.3M1474.3,223.2L1495.9,201.6M1474.3,229.6L1495.9,208M1474.3,235.9L1495.9,214.3M1474.3,242.3L1495.9,220.7M1474.3,248.6L1495.9,227.1M1474.3,255L1495.9,233.4M1474.3,261.4L1495.9,239.8M1474.3,267.7L1495.9,246.2M1474.3,274.1L1495.9,252.5M1474.3,280.5L1495.9,258.9M1474.7,286.5L1495.9,265.3M1476.8,290.7L1495.9,271.6M1480.4,293.5L1495.9,278M1485.3,295L1495.9,284.4"/>
+<path d="M1467,290L1455,290M1467,267.5L1461,267.5M1467,245L1461,245M1467,222.5L1461,222.5M1467,200L1455,200M1467,177.5L1461,177.5M1467,155L1461,155M1467,132.5L1461,132.5M1467,110L1455,110"/>
+<path d="M1503,177.5L1513,171.5L1513,183.5Z"/>
+<path d="M1235,404L1235,414L1485,414L1485,404M1360,404L1360,422"/>
+<path d="M1360,462L1360,503M1357.3,495.5L1360,503L1362.7,495.5"/>
+<path d="M1122,590L1122,597M1130,590L1130,597M1138,590L1138,597M1146,590L1146,597M1154,590L1154,597M1162,590L1162,597M1170,590L1170,597M1178,590L1178,597M1186,590L1186,597M1194,590L1194,597M1202,590L1202,597M1210,590L1210,597M1218,590L1218,597M1226,590L1226,597M1234,590L1234,597M1242,590L1242,597M1250,590L1250,597M1258,590L1258,597M1266,590L1266,597M1274,590L1274,597M1282,590L1282,597M1290,590L1290,597M1298,590L1298,597M1306,590L1306,597M1314,590L1314,597M1322,590L1322,597M1330,590L1330,597M1338,590L1338,597M1386,590L1386,597M1394,590L1394,597M1402,590L1402,597M1410,590L1410,597M1418,590L1418,597M1426,590L1426,597M1434,590L1434,597M1442,590L1442,597M1450,590L1450,597M1458,590L1458,597M1466,590L1466,597M1474,590L1474,597M1482,590L1482,597M1490,590L1490,597M1498,590L1498,597M1506,590L1506,597M1514,590L1514,597M1522,590L1522,597M1530,590L1530,597M1538,590L1538,597"/>
+<path d="M1538,666.6L1544.6,660M1538,673.6L1545,666.6M1538,680.7L1545,673.7M1538,687.8L1545,680.8M1538,694.9L1545,687.9M1538,701.9L1545,694.9M1538,709L1545,702M1538,716.1L1545,709.1M1538,723.1L1545,716.1M1538,730.2L1545,723.2M1538,737.3L1545,730.3M1538,744.3L1545,737.3M1538,751.4L1545,744.4M1538,758.5L1545,751.5M1538,765.6L1545,758.6M1538,772.6L1545,765.6M1538,779.7L1545,772.7M1538,786.8L1545,779.8M1538,793.8L1545,786.8M1538,800.9L1545,793.9M1538,808L1545,801M1538,815.1L1545,808.1M1538,822.1L1545,815.1M1538,829.2L1545,822.2M1538,836.3L1545,829.3M1538,843.3L1545,836.3M1538,850.4L1545,843.4M1538,857.5L1545,850.5M1538,864.6L1545,857.6M1538,871.6L1545,864.6M1538,878.7L1545,871.7M1538,885.8L1545,878.8M1538,892.8L1545,885.8M1538,899.9L1545,892.9M1538,907L1545,900M1538,914.1L1545,907.1M1541.1,918L1545,914.1"/>
+<path d="M1126,919.3L1127.3,918M1127.4,925L1134.4,918M1134.5,925L1141.5,918M1141.5,925L1148.5,918M1148.6,925L1155.6,918M1155.7,925L1162.7,918M1162.8,925L1169.8,918M1169.8,925L1176.8,918M1176.9,925L1183.9,918M1184,925L1191,918M1191,925L1198,918M1198.1,925L1205.1,918M1205.2,925L1212.2,918M1212.3,925L1219.3,918M1219.3,925L1226.3,918M1226.4,925L1233.4,918M1233.5,925L1240.5,918M1240.5,925L1247.5,918M1247.6,925L1254.6,918M1254.7,925L1261.7,918M1261.7,925L1268.7,918M1268.8,925L1275.8,918M1275.9,925L1282.9,918M1283,925L1290,918M1290,925L1297,918M1297.1,925L1304.1,918M1304.2,925L1311.2,918M1311.2,925L1318.2,918M1318.3,925L1325.3,918M1325.4,925L1332.4,918M1332.5,925L1339.5,918M1339.5,925L1346.5,918M1346.6,925L1353.6,918M1353.7,925L1360.7,918M1360.7,925L1367.7,918M1367.8,925L1374.8,918M1374.9,925L1381.9,918M1382,925L1389,918M1389,925L1396,918M1396.1,925L1403.1,918M1403.2,925L1410.2,918M1410.2,925L1417.2,918M1417.3,925L1424.3,918M1424.4,925L1431.4,918M1431.5,925L1438.5,918M1438.5,925L1445.5,918M1445.6,925L1452.6,918M1452.7,925L1459.7,918M1459.7,925L1466.7,918M1466.8,925L1473.8,918M1473.9,925L1480.9,918M1481,925L1488,918M1488,925L1495,918M1495.1,925L1502.1,918M1502.2,925L1509.2,918M1509.2,925L1516.2,918M1516.3,925L1523.3,918M1523.4,925L1530.4,918M1530.4,925L1537.4,918M1537.5,925L1544.5,918M1544.6,925L1546,923.6"/>
+<path d="M1126,925L1545,925L1545,660"/>
+<path d="M1138,743L1313.5,743M1138,758L1224,758"/>
+<path d="M1138,822L1327.8,822M1138,837L1238.3,837"/>
+<path d="M1138,892L1304.2,892M1138,907L1213.2,907"/>
+<path d="M1152,740.4L1154.4,738M1152,744.7L1158.7,738M1152.9,748L1162.9,738M1157.2,748L1167.2,738M1161.4,748L1171.4,738M1165.6,748L1175.6,738M1169.9,748L1179.9,738M1174.1,748L1184.1,738M1178.4,748L1188.4,738M1182.6,748L1192.6,738M1186.9,748L1196.9,738M1191.1,748L1201.1,738M1195.3,748L1202,741.3M1199.6,748L1202,745.6"/>
+<path d="M1246,739.9L1247.9,738M1246,744.1L1252.1,738M1246.4,748L1256.4,738M1250.6,748L1260.6,738M1254.9,748L1264.9,738M1259.1,748L1269.1,738M1263.3,748L1273.3,738M1267.6,748L1276,739.6M1271.8,748L1276,743.8"/>
+<path d="M1236,817.1L1236.1,817M1236,821.3L1240.3,817M1236,825.6L1244.6,817M1238.8,827L1248.8,817M1243,827L1253,817M1247.3,827L1257.3,817M1251.5,827L1261.5,817M1255.8,827L1265.8,817M1260,827L1270,817M1264.3,827L1274.3,817M1268.5,827L1278.5,817M1272.7,827L1282.7,817M1277,827L1287,817M1281.2,827L1291.2,817M1285.5,827L1295.5,817M1289.7,827L1298,818.7M1294,827L1298,823"/>
+<path d="M1420.4,714.6L1420.4,720.1M1416.2,714.6L1416.2,724.1M1412,714.6L1412,728.1M1407.8,714.6L1407.8,732.6M1403.6,716.1L1403.6,736.6M1399.4,719.1L1399.4,741.1"/>
+<path d="M1397.1,747.5L1429.6,715M1398.6,751.9L1433.6,716.9M1401.6,754.9L1437,719.5M1405.6,756.8L1438.9,723.6"/>
+<path d="M1434.1,733.6L1439.1,733.6M1430.1,737.8L1439.1,737.8M1425.6,742L1439.1,742M1421.6,746.2L1439.1,746.2M1417.6,750.4L1438.1,750.4M1413.1,754.6L1435.1,754.6"/>
+<line x1="1394" y1="816" x2="1514" y2="816"/>
+<path d="M1394,888L1498.6,888M1394,902L1450.9,902"/>
+<rect x="392" y="936" width="816" height="40" rx="4"/>
+<rect x="397" y="941" width="806" height="30" rx="2"/>
+<circle cx="422" cy="958" r="2.4"/>
+<line x1="422" y1="960.4" x2="422" y2="964"/>
+</g>
+<g class="L-acc" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+<path d="M120,156L120,195"/>
+<path d="M120,205L120,339M116.6,329.6L120,339L123.4,329.6"/>
+<path d="M115,200L82,200Q66,200 66,216L66,567Q66,577 76,577L86,577M76.6,580.4L86,577L76.6,573.6"/>
+<path d="M254,371L384,371Q398,371 398,385L398,396Q398,406 408,406L418,406M408.6,409.4L418,406L408.6,402.6"/>
+<path d="M650,406L661,406"/>
+<circle cx="670" cy="406" r="9"/>
+<path d="M679,406L701,406"/>
+<circle cx="710" cy="406" r="9"/>
+<path d="M719,406L741,406"/>
+<circle cx="750" cy="406" r="9"/>
+<path d="M759,406L901,406"/>
+<circle cx="910" cy="406" r="9"/>
+<path d="M919,406L1021,406"/>
+<circle cx="1030" cy="406" r="9"/>
+<path d="M1039,406L1050,406"/>
+<path d="M254,577L384,577Q398,577 398,591L398,638Q398,648 408,648L418,648M408.6,651.4L418,648L408.6,644.6"/>
+<path d="M650,648L661,648"/>
+<circle cx="670" cy="648" r="9"/>
+<path d="M679,648L701,648"/>
+<circle cx="710" cy="648" r="9"/>
+<path d="M719,648L901,648"/>
+<circle cx="910" cy="648" r="9"/>
+<path d="M919,648L1021,648"/>
+<circle cx="1030" cy="648" r="9"/>
+<path d="M1039,648L1050,648"/>
+<path d="M1050,406L1070,406Q1084,406 1084,420L1084,513"/>
+<path d="M1050,648L1070,648Q1084,648 1084,634L1084,525"/>
+<path d="M1090,519L1346,519"/>
+<path d="M1360,533L1360,710"/>
+<circle cx="1360" cy="714" r="4"/>
+<path d="M1356,714L1304,714M1313.4,710.6L1304,714L1313.4,717.4"/>
+<path d="M1364,714L1377,714M1367.6,717.4L1377,714L1367.6,710.6"/>
+<path d="M1138,730L1290,730"/>
+</g>
+<g class="L-lbl" stroke="none">
+<text x="122" y="135" text-anchor="start" font-size="26" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linear clone</text>
+<text x="60" y="82" text-anchor="start" font-size="18" letter-spacing="3" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">01  QUERY</text>
+<text x="150" y="232" text-anchor="start" font-size="18" letter-spacing="3" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">02  TOKENS</text>
+<text x="150" y="264" text-anchor="start" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">lowercased, then split</text>
+<text x="150" y="290" text-anchor="start" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">on spaces and punctuation</text>
+<text x="165" y="379" text-anchor="middle" font-size="23" letter-spacing="1" font-weight="600" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linear</text>
+<text x="122" y="420" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">=</text>
+<text x="142" y="420" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linear</text>
+<text x="330" y="420" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">35</text>
+<text x="122" y="448" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">+</text>
+<text x="142" y="448" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linearly</text>
+<text x="330" y="448" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">1</text>
+<text x="122" y="476" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">~</text>
+<text x="142" y="476" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linea</text>
+<text x="330" y="476" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">1</text>
+<text x="165" y="585" text-anchor="middle" font-size="23" letter-spacing="1" font-weight="600" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">clone</text>
+<text x="122" y="626" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">=</text>
+<text x="142" y="626" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">clone</text>
+<text x="330" y="626" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">93</text>
+<text x="122" y="654" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">+</text>
+<text x="142" y="654" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">cloned</text>
+<text x="330" y="654" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">13</text>
+<text x="122" y="682" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">+</text>
+<text x="142" y="682" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">clones</text>
+<text x="330" y="682" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">12</text>
+<text x="122" y="710" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">~</text>
+<text x="142" y="710" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">rclone</text>
+<text x="330" y="710" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">17</text>
+<text x="122" y="738" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">~</text>
+<text x="142" y="738" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">close</text>
+<text x="330" y="738" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">13</text>
+<text x="122" y="766" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">~</text>
+<text x="142" y="766" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">alone</text>
+<text x="330" y="766" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">5</text>
+<text x="60" y="806" text-anchor="start" font-size="18" letter-spacing="1" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">=  THE WORD ITSELF</text>
+<text x="60" y="832" text-anchor="start" font-size="18" letter-spacing="1" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">+  PREFIX, FROM 2 LETTERS</text>
+<text x="60" y="858" text-anchor="start" font-size="18" letter-spacing="1" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">~  TYPO MATCH, FROM 5 LETTERS</text>
+<text x="60" y="896" text-anchor="start" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">linear_clone, LINEAR-CLONE and</text>
+<text x="60" y="922" text-anchor="start" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">clone linear find the same pages</text>
+<text x="420" y="82" text-anchor="start" font-size="18" letter-spacing="3" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">03  INVERTED INDEX</text>
+<text x="622" y="122" text-anchor="end" font-size="18" letter-spacing="2" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">BOOST</text>
+<text x="622" y="154" text-anchor="end" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">what a word is</text>
+<text x="622" y="178" text-anchor="end" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">worth, by field</text>
+<text x="670" y="103" text-anchor="middle" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">6</text>
+<text x="710" y="145" text-anchor="middle" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">3</text>
+<text x="750" y="159" text-anchor="middle" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">2</text>
+<text x="790" y="164.6" text-anchor="middle" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">1.6</text>
+<text x="830" y="170.2" text-anchor="middle" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">1.2</text>
+<text x="870" y="170.2" text-anchor="middle" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">1.2</text>
+<text x="910" y="173" text-anchor="middle" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">1</text>
+<text x="950" y="173" text-anchor="middle" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">1</text>
+<text x="990" y="173" text-anchor="middle" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">1</text>
+<text x="1030" y="178.6" text-anchor="middle" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">0.6</text>
+<text x="1090" y="156.8" text-anchor="start" font-size="20" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">10×</text>
+<text x="638" y="230" text-anchor="end" font-size="18" letter-spacing="2" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">FIELD</text>
+<text x="434" y="336" text-anchor="start" font-size="18" letter-spacing="2" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">PAGE</text>
+<g transform="rotate(-90 677 341)"><text x="677" y="341" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">NAME</text></g>
+<g transform="rotate(-90 717 341)"><text x="717" y="341" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">TITLE</text></g>
+<g transform="rotate(-90 757 341)"><text x="757" y="341" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">SUMMARY</text></g>
+<g transform="rotate(-90 797 341)"><text x="797" y="341" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">FRAMEWORKS</text></g>
+<g transform="rotate(-90 837 341)"><text x="837" y="341" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">CATEGORIES</text></g>
+<g transform="rotate(-90 877 341)"><text x="877" y="341" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">LANGUAGES</text></g>
+<g transform="rotate(-90 917 341)"><text x="917" y="341" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">PATH</text></g>
+<g transform="rotate(-90 957 341)"><text x="957" y="341" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">DEPENDENCIES</text></g>
+<g transform="rotate(-90 997 341)"><text x="997" y="341" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">AGENT NOTES</text></g>
+<g transform="rotate(-90 1037 341)"><text x="1037" y="341" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">README</text></g>
+<text x="434" y="379" text-anchor="start" font-size="21" letter-spacing="1" font-weight="700" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linear</text>
+<text x="1036" y="378" text-anchor="end" font-size="18" letter-spacing="2" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">37 PAGES</text>
+<text x="434" y="412" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linear-clone</text>
+<text x="434" y="448" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linear</text>
+<text x="434" y="484" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linear_progress</text>
+<text x="434" y="520" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">docs (linear-clone)</text>
+<text x="434" y="552" text-anchor="start" font-size="18" letter-spacing="2" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">33 MORE</text>
+<text x="434" y="585" text-anchor="start" font-size="21" letter-spacing="1" font-weight="700" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">clone</text>
+<text x="1036" y="584" text-anchor="end" font-size="18" letter-spacing="2" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">123 PAGES</text>
+<text x="434" y="618" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">autospawn-clone</text>
+<text x="434" y="654" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linear-clone</text>
+<text x="434" y="690" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">~ rclone</text>
+<text x="434" y="726" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">docs (linear-clone)</text>
+<text x="434" y="758" text-anchor="start" font-size="18" letter-spacing="2" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">119 MORE</text>
+<text x="1050" y="812" text-anchor="end" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">AND first: every word must match, 25 pages.</text>
+<text x="1050" y="840" text-anchor="end" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">OR adds pages with some of the words,</text>
+<text x="1050" y="866" text-anchor="end" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">only when AND finds fewer than 5.</text>
+<text x="1102" y="507" text-anchor="start" font-size="18" letter-spacing="1.5" font-weight="600" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">AND · 25 PAGES</text>
+<text x="1101" y="696" text-anchor="middle" font-size="18" letter-spacing="1" font-weight="600" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">OR</text>
+<text x="1118" y="82" text-anchor="start" font-size="18" letter-spacing="3" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">04  PRIOR</text>
+<text x="1195" y="296" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">0</text>
+<text x="1195" y="206" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">1</text>
+<text x="1195" y="116" text-anchor="end" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">2</text>
+<text x="1235" y="326" text-anchor="middle" font-size="18" letter-spacing="2" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">ARTICLE</text>
+<text x="1235" y="366" text-anchor="middle" font-size="36" class="display" font-family="Instrument Serif, Georgia, serif" fill="currentColor">×1.8</text>
+<text x="1235" y="392" text-anchor="middle" font-size="18" letter-spacing="1" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">STUB ×1</text>
+<text x="1360" y="326" text-anchor="middle" font-size="18" letter-spacing="2" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">SHALLOW</text>
+<text x="1360" y="366" text-anchor="middle" font-size="36" class="display" font-family="Instrument Serif, Georgia, serif" fill="currentColor">×0.83</text>
+<text x="1360" y="392" text-anchor="middle" font-size="18" letter-spacing="1" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">DEPTH 4</text>
+<text x="1485" y="326" text-anchor="middle" font-size="18" letter-spacing="2" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">RECENT</text>
+<text x="1485" y="366" text-anchor="middle" font-size="36" class="display" font-family="Instrument Serif, Georgia, serif" fill="currentColor">×1.11</text>
+<text x="1485" y="392" text-anchor="middle" font-size="18" letter-spacing="1" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">MAX ×1.25</text>
+<text x="1360" y="450" text-anchor="middle" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">1.8 × 0.83 × 1.11 ≈ 1.67</text>
+<text x="1392" y="510" text-anchor="start" font-size="18" letter-spacing="1.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">SCORE ≈ 735</text>
+<text x="1392" y="538" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">440 × 1.67</text>
+<text x="1120" y="580" text-anchor="start" font-size="20" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">lang:</text>
+<text x="1222" y="580" text-anchor="start" font-size="20" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">in:</text>
+<text x="1384" y="580" text-anchor="start" font-size="20" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">kind:</text>
+<text x="1460" y="580" text-anchor="start" font-size="20" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">fw:</text>
+<text x="1510" y="580" text-anchor="start" font-size="20" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">is:</text>
+<text x="1120" y="624" text-anchor="start" font-size="18" letter-spacing="3" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">05  OPERATORS</text>
+<text x="1546" y="624" text-anchor="end" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">filter after scoring</text>
+<text x="1138" y="682" text-anchor="start" font-size="18" letter-spacing="0.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">ABOUT 25 RESULTS</text>
+<text x="1528" y="682" text-anchor="end" font-size="24" class="serif-i" font-family="Newsreader, Georgia, serif" font-style="italic" fill="currentColor">knowledge panel</text>
+<text x="1138" y="721" text-anchor="start" font-size="21" letter-spacing="0" font-weight="600" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">linear-clone</text>
+<text x="1138" y="800" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">docs (linear-clone)</text>
+<text x="1452" y="742" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">PROJECT</text>
+<text x="1394" y="802" text-anchor="start" font-size="27" class="display" font-family="Instrument Serif, Georgia, serif" fill="currentColor">linear-clone</text>
+<text x="1394" y="842" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">TYPESCRIPT</text>
+<text x="1394" y="866" text-anchor="start" font-size="18" letter-spacing="0" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">NEXT.JS</text>
+<text x="446" y="962" text-anchor="start" font-size="18" letter-spacing="1.5" class="mono" font-family="JetBrains Mono, ui-monospace, monospace" fill="currentColor">IN MEMORY ON 127.0.0.1 · YOUR QUERY NEVER LEAVES THIS MACHINE</text>
+</g>
+</svg>

@@ -1,0 +1,17 @@
+node_modules
+.next
+next-env.d.ts
+*.tsbuildinfo
+# The index holds local paths and README text from this machine. Never commit it.
+data/*.json
+data/*.tmp
+# The explainer film is a large binary; rebuild it from film/ (see film/README.md).
+public/guide/innernet-explainer.mp4
+# Clones made by `pnpm index:demo`; only the built data/demo/index.json is committed
+# (public repositories only; that one is meant to ship).
+.demo-cache/
+data/demo/*.tmp
+
+# Vercel link and pulled env files hold secrets (the Neon connection string). Never commit them.
+.vercel
+.env*.local

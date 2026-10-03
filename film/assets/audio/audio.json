@@ -1,0 +1,189 @@
+{
+  "bed": {
+    "file": "assets/audio/music/bed.mp3",
+    "duration": 168.837,
+    "lufs": -20,
+    "true_peak_dbfs": -3.2,
+    "lra": 7.6,
+    "fade_in": 1.5,
+    "fade_out": 3,
+    "source": {
+      "model": "music_v2_5",
+      "song_id": "52SN5hvnyRFn33KrVXru",
+      "raw": "assets/audio/music/bed-raw.mp3",
+      "plan": "assets/audio/music/plan.json",
+      "script": "assets/audio/music/bed.mjs"
+    },
+    "sections": [
+      {
+        "name": "Dawn (open)",
+        "start": 0,
+        "end": 15.282
+      },
+      {
+        "name": "Turn into I (swell)",
+        "start": 15.282,
+        "end": 19.682
+      },
+      {
+        "name": "I: crawl, read, index",
+        "start": 19.682,
+        "end": 51.197
+      },
+      {
+        "name": "I: privacy beat (the bed closes in)",
+        "start": 51.197,
+        "end": 62.481
+      },
+      {
+        "name": "I: the two readers",
+        "start": 62.481,
+        "end": 81.567
+      },
+      {
+        "name": "Turn into II (swell)",
+        "start": 81.567,
+        "end": 85.967
+      },
+      {
+        "name": "II: add a site",
+        "start": 85.967,
+        "end": 120.235
+      },
+      {
+        "name": "Turn into III (dusk swell)",
+        "start": 120.235,
+        "end": 124.635
+      },
+      {
+        "name": "III: night",
+        "start": 124.635,
+        "end": 144.643
+      },
+      {
+        "name": "III: swell before dawn",
+        "start": 144.643,
+        "end": 156.017
+      },
+      {
+        "name": "Close: dawn returns",
+        "start": 156.017,
+        "end": 165.137
+      },
+      {
+        "name": "Close: resolve",
+        "start": 165.137,
+        "end": 168.837
+      }
+    ],
+    "turns": [
+      {
+        "at": 16.482,
+        "frame": "03",
+        "swell": "rises through the card, settles as the voice enters"
+      },
+      {
+        "at": 82.767,
+        "frame": "11",
+        "swell": "rises through the card, settles as the voice enters"
+      },
+      {
+        "at": 121.435,
+        "frame": "17",
+        "swell": "rises through the card, settles as the voice enters"
+      },
+      {
+        "at": 157.217,
+        "frame": "21",
+        "swell": "dawn swell, then the resolve"
+      }
+    ],
+    "baked": "Already carved: -3 dB duck under every spoken line (0.6s in, 1.2s out), +1.5 dB lift across each chapter card, a speech-band dip (-2 dB at 1.2 kHz, -4 dB at 2.8 kHz), and on the privacy beat F07 a low pass closing to 2200 Hz with -2 dB. Play it at a constant volume; do not add a second duck."
+  },
+  "sfx": {
+    "pencil": {
+      "file": "assets/audio/sfx/pencil.mp3",
+      "duration": 1.6,
+      "peak_dbfs": -6.4,
+      "rms_db": -24.3,
+      "use": "plate line work drawing on"
+    },
+    "bell": {
+      "file": "assets/audio/sfx/bell.mp3",
+      "duration": 2.5,
+      "peak_dbfs": -6.3,
+      "rms_db": -23.3,
+      "use": "chapter cards"
+    },
+    "keys": {
+      "file": "assets/audio/sfx/keys.mp3",
+      "duration": 1.4,
+      "peak_dbfs": -6.2,
+      "rms_db": -31.5,
+      "use": "typing a query or a command"
+    },
+    "whoosh": {
+      "file": "assets/audio/sfx/whoosh.mp3",
+      "duration": 0.7,
+      "peak_dbfs": -6.3,
+      "rms_db": -23.1,
+      "use": "plate cuts"
+    },
+    "seal": {
+      "file": "assets/audio/sfx/seal.mp3",
+      "duration": 0.9,
+      "peak_dbfs": -6.3,
+      "rms_db": -27.4,
+      "use": "a stamp or seal landing (privacy plate, the close)"
+    },
+    "page": {
+      "file": "assets/audio/sfx/page.mp3",
+      "duration": 1,
+      "peak_dbfs": -6.6,
+      "rms_db": -21,
+      "use": "camera pans across the sheet"
+    },
+    "tick": {
+      "file": "assets/audio/sfx/tick.mp3",
+      "duration": 0.25,
+      "peak_dbfs": -6.2,
+      "rms_db": -32.8,
+      "use": "the index counter ticking 958 to 959"
+    },
+    "lock": {
+      "file": "assets/audio/sfx/lock.mp3",
+      "duration": 0.8,
+      "peak_dbfs": -6.7,
+      "rms_db": -38.3,
+      "use": "the HUD padlock closing at F07 (private by design)"
+    }
+  },
+  "mix": {
+    "vo": 1,
+    "bed": 0.22,
+    "bed_range": [
+      0.18,
+      0.25
+    ],
+    "sfx": {
+      "pencil": 0.25,
+      "bell": 0.4,
+      "keys": 0.4,
+      "whoosh": 0.3,
+      "seal": 0.45,
+      "page": 0.25,
+      "tick": 0.35,
+      "lock": 0.45
+    },
+    "sfx_range": [
+      0.25,
+      0.5
+    ],
+    "notes": [
+      "Bed at one constant volume: its duck, card lifts and privacy close-in are baked in.",
+      "Sustained marks (pencil, page, whoosh) sit lower than the transients (keys, tick, lock, seal).",
+      "Bell on each chapter card start; it is tuned to A, which sits in the bed's D major and B minor.",
+      "Lock on the HUD padlock closing at F07, with seal as the privacy plate lands; the pair carries the privacy beat."
+    ]
+  }
+}
