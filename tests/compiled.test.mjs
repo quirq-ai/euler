@@ -160,7 +160,7 @@ test('static routing preserves the mount prefix, serves assets and HEAD metadata
   assert.equal((await mutation(app, '/app/alpha/')).status, 405);
 });
 
-test('Euler home and management pages share the dock and old preview routes are absent', async (t) => {
+test('Euler Home contains app controls and statistics, with legacy management links redirected', async (t) => {
   const fixtureApp = await fixture(t);
   const compiled = await fixtureApp.start();
   const home = await request(compiled, '/');
@@ -168,17 +168,23 @@ test('Euler home and management pages share the dock and old preview routes are 
   assert.match(home.text, /src="\/euler-home\.js"/);
   assert.equal(home.text.split('src="/euler-dock.js"').length, 2, 'One shared dock module');
   assert.match(home.text, /href="\/euler-dock\.css"/);
-  const management = await request(compiled, '/manage');
-  assert.equal(management.status, 200);
-  assert.match(management.text, /src="\/app\.js"/);
-  assert.match(management.text, /src="\/euler-dock\.js"/);
-  assert.doesNotMatch(management.text, /src="\/euler-home\.js"/);
-  for (const path of ['/', '/manage']) {
-    const head = await request(compiled, path, { method: 'HEAD' });
-    assert.equal(head.status, 200);
-    assert.equal(head.text, '');
+  for (const id of ['applications', 'apps', 'running-count', 'enabled-count', 'total-count', 'start-enabled', 'stop-all', 'appearance']) {
+    assert.ok(home.text.includes(`id="${id}"`), id);
   }
-  for (const path of ['/preview.js', '/preview.css', '/api/projects/alpha/preview']) {
+  assert.doesNotMatch(home.text, /href="\/manage"|src="\/app\.js"/);
+  const head = await request(compiled, '/', { method: 'HEAD' });
+  assert.equal(head.status, 200);
+  assert.equal(head.text, '');
+  for (const path of ['/manage', '/manage/', '/manage?from=bookmark']) {
+    for (const method of ['GET', 'HEAD']) {
+      const legacy = await request(compiled, path, { method });
+      assert.equal(legacy.status, 302);
+      assert.equal(legacy.headers.location, '/#applications');
+      assert.equal(legacy.text, '');
+    }
+    assert.equal((await request(compiled, path, { headers: { origin: 'https://foreign.example' } })).status, 403);
+  }
+  for (const path of ['/app.js', '/app.css', '/preview.js', '/preview.css', '/api/projects/alpha/preview']) {
     assert.equal((await request(compiled, path)).status, 404, path);
   }
 });

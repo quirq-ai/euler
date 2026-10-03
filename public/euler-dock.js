@@ -102,10 +102,8 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
       this.output = node('output', { for: 'dock-opacity' }); label.append(this.output);
       this.range = node('input', { type: 'range', id: 'dock-opacity', min: '20', max: '100', step: '1', 'aria-label': 'Dock opacity' });
       const hint = node('div', { class: 'range-labels', 'aria-hidden': 'true' }); hint.append(node('span', {}, 'Sheer'), node('span', {}, 'Solid'));
-      const manage = node('a', { href: '/manage', class: 'manage-link' }, 'Manage applications');
-      manage.append(node('span', { 'aria-hidden': 'true' }, '↗'));
       const customize = node('a', { href: '/#appearance', class: 'customize-link' }, 'Customize Euler icon');
-      this.panel.append(title, label, this.range, hint, customize, manage);
+      this.panel.append(title, label, this.range, hint, customize);
       this.status = node('span', { class: 'sr-only', role: 'status', 'aria-live': 'polite' });
       this.nav.append(this.home, node('span', { class: 'divider', 'aria-hidden': 'true' }), this.apps, node('span', { class: 'divider', 'aria-hidden': 'true' }), this.settings);
       this.surface.append(this.panel, this.nav, this.status); shadow.append(this.surface);
@@ -195,20 +193,44 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
     if (currentId()) document.documentElement.dataset.eulerApp = currentId();
   }
   let polling = false;
+  let stateRevision = 0;
+  let mutationPending = false;
+  let requestController;
+  function applyState(data, broadcast = true) {
+    if (data?.dashboard?.mode !== 'compiled' || !Array.isArray(data.projects)) return;
+    latestApps = runningApps(data); dock.render(latestApps);
+    write(sessionStore, STATE_KEY, { at: Date.now(), data: { projects: latestApps.map((app) => ({ ...app, status: 'running', hosting: 'compiled' })), dashboard: data.dashboard } });
+    if (broadcast) window.dispatchEvent(new CustomEvent('euler:state', { detail: data }));
+  }
   async function refresh() {
-    if (polling || document.visibilityState === 'hidden') return;
+    if (polling || mutationPending || document.visibilityState === 'hidden') return;
     polling = true;
+    const revision = stateRevision;
+    const controller = new AbortController();
+    requestController = controller;
+    const timeout = setTimeout(() => controller.abort(), 4000);
     try {
-      const response = await fetch('/api/state', { cache: 'no-store', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(4000) });
+      const response = await fetch('/api/state', { cache: 'no-store', headers: { Accept: 'application/json' }, signal: controller.signal });
       if (!response.ok) throw new Error('State unavailable');
       const data = await response.json();
-      if (data.dashboard?.mode !== 'compiled') return;
-      latestApps = runningApps(data); dock.render(latestApps);
-      write(sessionStore, STATE_KEY, { at: Date.now(), data: { projects: latestApps.map((app) => ({ ...app, status: 'running', hosting: 'compiled' })), dashboard: data.dashboard } });
-      window.dispatchEvent(new CustomEvent('euler:state', { detail: data }));
-    } catch { dock.render(latestApps, false); }
-    finally { polling = false; }
+      if (revision === stateRevision && !mutationPending) applyState(data);
+    } catch { if (revision === stateRevision && !mutationPending) dock.render(latestApps, false); }
+    finally {
+      clearTimeout(timeout);
+      if (revision === stateRevision) { polling = false; requestController = null; }
+    }
   }
+  // Discard any poll begun before a Home action, so a stopped app cannot reappear.
+  window.addEventListener('euler:refresh', (event) => {
+    stateRevision++;
+    requestController?.abort(); requestController = null; polling = false;
+    if (event.detail?.phase === 'start') mutationPending = true;
+    else if (event.detail?.phase === 'end') {
+      mutationPending = false;
+      if (event.detail.state) applyState(event.detail.state, false);
+    }
+    if (!mutationPending) void refresh();
+  });
   function resumeScroll() {
     const resume = read(sessionStore, RESUME_KEY, null);
     if (!resume || resume.id !== currentId() || resume.at < Date.now() - 15000 || safeAppRoute(resume.url, resume.id, location.origin) !== location.pathname + location.search + location.hash) return;

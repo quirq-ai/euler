@@ -1,6 +1,6 @@
 # Euler architecture
 
-Euler is the root application in this repository. Its Node HTTP server serves three precompiled applications under one origin, plus Home and management. Application source is committed under apps/; the original dynamic dashboard is maintained separately in quirq-ai/quirq on the feat/standalone-dashboard branch.
+Euler is the root application in this repository. Its Node HTTP server serves three precompiled applications under one origin, with one Home interface for launching and managing them. Application source is committed under apps/; the original dynamic dashboard is maintained separately in quirq-ai/quirq on the feat/standalone-dashboard branch.
 
 ## Startup and builds
 
@@ -12,7 +12,7 @@ Next apps use separate .next-euler output; Quitter uses dist-euler. The build ma
 
 ## HTTP and lifecycle
 
-Home is served at /, management at /manage, and applications below /app/<id>. Static builds use confined real paths and HTML-only SPA fallbacks. Next applications retain their production request handler for pages, APIs, assets, and React streams. The host does not proxy to a child listener or embed an iframe.
+Home is served at / and applications below /app/<id>. Legacy /manage links redirect to /#applications, the controls section on Home. Static builds use confined real paths and HTML-only SPA fallbacks. Next applications retain their production request handler for pages, APIs, assets, and React streams. The host does not proxy to a child listener or embed an iframe.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
@@ -33,13 +33,19 @@ Saved settings use .workspace-state/euler/config.json with queued atomic writes.
 
 ## Browser interface
 
-The framework-free host UI polls state while visible, reconciles existing rows/icons to preserve focus, and uses native dialogs. Text from the server is inserted as text, and URLs are validated. Home shows running applications and the avatar editor; management offers lifecycle controls, an enabled toggle, search, and logs.
+The framework-free host UI presents workspace counts and an app card for every registry entry on Home. Cards combine an icon, status dot and text, launch and lifecycle actions, an enabled toggle, and logs. Running state and the saved enabled preference remain distinct. These controls use the existing state, lifecycle, configuration, and logs APIs; they do not introduce another manager or server.
+
+The UI polls state while visible and reconciles existing app controls to preserve focus. Text from the server is inserted as text, and URLs are validated. The avatar editor stays on Home with its own draft and saved-state lifecycle, so app refreshes do not replace its controls or discard an unsaved avatar.
+
+Search and status filters operate on the current registry snapshot; summary counts always describe the full workspace. The card switch applies its enabled setting immediately, while the Settings dialog holds a draft until saved. Logs use a separate native dialog. Appearance is a collapsed disclosure containing the existing Blobatar editor, with a header link that opens it directly.
+
+Lifecycle mutations temporarily disable conflicting controls, invalidate older state reads, and notify the dock before and after the request. Both consumers reject stale poll results so a delayed response cannot restore an app that was just stopped. A disconnected Home retains its last known cards, disables actions, and offers an explicit retry while background reconnection continues.
 
 ## Dock and avatar
 
 `public/euler-dock.js` defines a shared custom element. Its Shadow DOM isolates dock styles from each app's CSS. The isolated UI stylesheet is preloaded, and the element mounts once the document has been parsed without waiting for images to finish loading. A manual popover places it in the browser's top layer, with a fixed-position fallback for browsers without that API. It sits at the bottom center with safe-area spacing. The dock's opacity setting changes the glass background rather than fading its controls, and is stored in local storage. App status refreshes reconcile existing icons, preserving keyboard focus and open preferences.
 
-Compiled HTML pages load the shared dock resources so Home, app documents, and management display the same controls. The dock is browser navigation chrome; apps still render their own documents and handle their own routes. Server-side API responses and assets keep their original content. The dock does not use an iframe, execute a copied app document inside another DOM, or require a separate HTTP listener.
+Compiled HTML pages load the shared dock resources so Home and app documents display the same controls. Home is the single entry point for app management; the dock has no separate Manage destination. The dock is browser navigation chrome; apps still render their own documents and handle their own routes. Server-side API responses and assets keep their original content. The dock does not use an iframe, execute a copied app document inside another DOM, or require a separate HTTP listener.
 
 The document stylesheet exposes `--euler-dock-clearance`, including the bottom safe-area inset, for app layout integration. App-specific selectors are scoped by `data-euler-app`: Quitter and Instants move their mobile fixed navigation and nearby controls above this clearance, while their scrollable content reserves space below. Innernet's landing section accounts for the same reserved area. These targeted adjustments keep app controls reachable beneath the floating dock without applying a global transform or padding change to every app layout. Additional apps with bottom-fixed controls should use the clearance variable in their own layout.
 

@@ -4,7 +4,7 @@ Euler is the root application in [quirq-ai/euler](https://github.com/quirq-ai/eu
 
 ## Home and dock
 
-Home shows running apps as simple icons. The floating dock sits at the bottom center above page content, with device safe-area spacing. It appears on Home, app pages, and `/manage`; its icons update as apps start or stop.
+Home brings every app's status, launch controls, enabled setting, and lifecycle actions together with Euler's avatar editor. Summary counts show the workspace at a glance; each app has a status dot and a text label. The floating dock sits at the bottom center above page content, with device safe-area spacing. It appears on Home and app pages; its icons update as apps start or stop and show only running apps.
 
 **Dock appearance** changes the glass background opacity between 20% and 100% (default 72%). Icons stay opaque. This preference is saved in browser storage for the Euler address and synchronized across tabs.
 
@@ -14,15 +14,21 @@ Switching uses same-origin links. Supporting browsers animate document changes w
 
 ## Personalize Euler
 
-Home includes a local Blobatar editor. Adjust the seed, Shape, Color, Eyes, and Details, or use **Randomize**. The preview is a draft: **Save avatar** applies it to Euler's logo and Home dock icon, while **Cancel** returns to the saved avatar. **Reset** previews the default and takes effect after saving.
+Choose **Personalize** in Home's header or expand **Make Euler yours.** below the apps to open the local Blobatar editor. Adjust the seed, Shape, Color, Eyes, and Details, or use **Randomize**. The preview is a draft: **Save avatar** applies it to Euler's logo and Home dock icon, while **Cancel** returns to the saved avatar. **Reset** previews the default and takes effect after saving. App status refreshes and lifecycle actions preserve the draft.
 
 Saved choices belong to this browser and Euler address. Other tabs update when a choice is saved. If storage is unavailable, the editor reports the failure. No external avatar service is contacted.
 
 ## Manage apps
 
-Open **Manage apps** from Home or the dock appearance panel. **Enable in Euler** determines whether an app is available immediately, starts with the next Euler session, and is included in the default build. Saving applies the setting immediately.
+Use **Your apps** on Home to launch and manage apps. Older `/manage` links redirect to `/#applications`; there is no separate management page or dock icon. **Running**, **Enabled**, and **Connected** summarize all registered apps, including apps outside the current search or filter. Stopped apps remain visible under **All apps**.
+
+Each card's **On / Off** switch determines whether an app is available immediately, starts with the next Euler session, and is included in the default build. Changing it applies and saves the setting immediately. You can also open **Settings**, change **Enable in Euler**, and choose **Save settings**; cancelling that dialog discards its draft. An enabled app can still be stopped for the current session, so its saved preference and running status are shown separately.
 
 **Start** mounts an existing build. **Stop** unmounts its route for the current session. **Restart** reactivates the existing build. These controls do not open separate listening ports. Prepared Next runtimes remain in memory while routes are disabled and close when Euler exits.
+
+**Logs** shows recent lifecycle output and errors for the selected app. Build failures remain visible on Home so you can identify which app needs attention.
+
+Use **Start enabled** or **Stop all** to control app routes together. **Find an app** searches the list, and **All apps**, **Running**, **Enabled**, and **Stopped** filter it without changing app settings. Clearing the filters restores the full list. If Euler disconnects, the last known cards remain visible while controls wait for a successful reconnection.
 
 Stop Euler before rebuilding changed source with `npm run build`, then run `npm start`. To build one app even while disabled, use `npm run build -- --app innernet`; this does not change its enabled setting.
 

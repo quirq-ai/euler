@@ -25,7 +25,7 @@ export async function main(args = process.argv.slice(2)) {
   try {
     const options = parseArgs(args);
     if (options.help) {
-      console.log('Euler - your local app workspace\n\nUsage: node bin/euler.mjs [options]\n\n  --workspace PATH  Use euler.workspace.json in this folder\n  --config FILE     Use a specific Euler workspace manifest\n  --port NUMBER     Euler port (default 2713)\n  --build           Build enabled apps and exit\n  --app ID          Build only this app (requires --build; includes disabled apps)\n  --help            Show this help\n\nBy default, use euler.workspace.json in this repository, regardless of the\ncurrent folder. Run npm run build once, then npm start. Enabled apps are\nserved directly at /app/<name>/; manage them at /manage.');
+      console.log('Euler - your local app workspace\n\nUsage: node bin/euler.mjs [options]\n\n  --workspace PATH  Use euler.workspace.json in this folder\n  --config FILE     Use a specific Euler workspace manifest\n  --port NUMBER     Euler port (default 2713)\n  --build           Build enabled apps and exit\n  --app ID          Build only this app (requires --build; includes disabled apps)\n  --help            Show this help\n\nBy default, use euler.workspace.json in this repository, regardless of the\ncurrent folder. Run npm run build once, then npm start. Enabled apps are\nserved directly at /app/<name>/; manage them on Home at /.');
       return;
     }
     const workspace = await loadWorkspace(options);

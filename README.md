@@ -12,9 +12,9 @@ Euler brings **Innernet**, **Quitter**, and **Instants** into one local workspac
 
 [Quick start](#quick-start) · [How it works](#how-it-works) · [Deploy](#deployment) · [Development](#development) · [Data and settings](#data-and-settings)
 
-![Euler Home with its three app icons, avatar editor, and floating dock](docs/images/euler-home.png)
+![Euler Home with app status, lifecycle controls, avatar editor, and floating dock](docs/images/euler-home.png)
 
-*Home is the launcher and avatar editor. Saving an avatar updates Euler's logo and the dock's Home icon; app icons keep their identities.*
+*Home brings app status, launch controls, enabled settings, and the avatar editor together. Saving an avatar updates Euler's logo and the dock's Home icon; app icons keep their identities.*
 
 ## Quick start
 
@@ -45,13 +45,11 @@ The app sources and routing changes are already included. No sibling repositorie
 ```mermaid
 flowchart TB
     Browser["Browser · localhost:2713"] --> Euler["Euler · one Node.js server"]
-    Euler --> Home["Home /<br/>Launcher + avatar editor"]
-    Euler --> Manage["Manage /manage<br/>Enable · start · stop · logs"]
+    Euler --> Home["Home /<br/>App status + controls + avatar editor"]
     Euler --> Innernet["/app/innernet<br/>Next.js pages + APIs"]
     Euler --> Quitter["/app/quitter/<br/>Built Vite app"]
     Euler --> Instants["/app/instants<br/>Next.js pages + APIs"]
     Dock["Shared floating dock<br/>Home · running apps · opacity"] -. "on every page" .-> Home
-    Dock -.-> Manage
     Dock -.-> Innernet
     Dock -.-> Quitter
     Dock -.-> Instants
@@ -67,17 +65,19 @@ The dock is added to HTML pages. API responses, assets, and React server compone
 
 | Control | Behavior |
 | --- | --- |
-| **Home** | Launch running apps and customize Euler's avatar. |
+| **Home** | See app status and counts, launch and manage apps, and customize Euler's avatar. |
 | **Dock appearance** | Adjust the glass background opacity from 20–100%. |
-| **Manage apps** | Open lifecycle controls at `/manage`. |
-| **Enable in Euler** | Apply availability immediately and remember it for startup and default builds. |
+| **App On / Off switch** | Apply availability immediately and remember it for startup and default builds. |
+| **Settings** | Edit **Enable in Euler**, then choose **Save settings** to apply it. |
 | **Start / Stop** | Mount or unmount an app's existing build. |
 | **Restart** | Reactivate the prepared build. Source changes still require rebuilding. |
 | **Logs** | Inspect recent lifecycle output and errors. |
+| **Start enabled / Stop all** | Control the workspace's app routes together. |
+| **Search and filters** | Find apps by name or show running, enabled, or stopped apps. |
 
-![Euler management page showing three running applications and their controls](docs/images/euler-manage.png)
+Each app's status dot and controls are together on Home. Enabled settings persist across sessions; stopping an app affects its current running state. The dock shows running apps and stays available on Home and app pages. Older `/manage` links redirect to the [applications section](http://localhost:2713/#applications) on Home.
 
-*Each app can be controlled separately. Home and the app pages retain the same dock.*
+Choose **Personalize** or expand **Make Euler yours.** below the apps to open the avatar editor. App refreshes preserve any avatar draft you are editing.
 
 Use **Alt+0** for Home, **Alt+1…9** for running apps, and arrow keys to move between focused dock items. Reduced-motion preferences are respected.
 

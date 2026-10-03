@@ -181,7 +181,7 @@ export function createCompiledManager({ workspace, dashboardPort, createHandler 
       if (!match) return false;
       const id = match[1];
       const item = record(id);
-      if (!item.handler) throw failure(item.error || `${id} is stopped. Enable it from /manage.`, 503);
+      if (!item.handler) throw failure(item.error || `${id} is stopped. Start it from Euler Home.`, 503);
       if (path === prefix(id) && workspace.projects[id].compiled.type === 'static') {
         const query = new URL(request.url, 'http://localhost').search;
         response.writeHead(308, { Location: `${prefix(id)}/${query}` }); response.end();

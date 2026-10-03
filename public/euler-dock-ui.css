@@ -36,8 +36,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .opacity-label output { color: #bdcad9; font-size: 11px; font-variant-numeric: tabular-nums; }
 input[type='range'] { display: block; width: 100%; margin: 0; height: 24px; cursor: pointer; accent-color: #d9eaff; }
 .range-labels { display: flex; justify-content: space-between; margin-top: 7px; font-size: 10px; color: #a4b2c4; }
-.manage-link { display: flex; justify-content: space-between; margin-top: 21px; padding-top: 16px; border-top: 1px solid #ffffff1c; font-size: 12px; color: #dee8f6; }
-.manage-link:hover { color: #fff; }
 .customize-link { display: block; margin-top: 18px; font-size: 12px; color: #d9eaff; }
 .customize-link:hover { text-decoration: underline; }
 :host([data-offline]) .dock { border-color: #dab66c80; }

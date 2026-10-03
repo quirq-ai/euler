@@ -35,8 +35,7 @@ export async function createEulerServer({ port = 2713, manager, workspace } = {}
   let controller = manager;
   let actualPort;
   const assets = {
-    '/': ['euler.html', 'text/html; charset=utf-8'], '/manage': ['index.html', 'text/html; charset=utf-8'],
-    '/app.css': ['app.css', 'text/css; charset=utf-8'], '/app.js': ['app.js', 'text/javascript; charset=utf-8'],
+    '/': ['euler.html', 'text/html; charset=utf-8'],
     '/euler.css': ['euler.css', 'text/css; charset=utf-8'], '/euler-home.js': ['euler-home.js', 'text/javascript; charset=utf-8'],
     '/euler-avatar.js': ['euler-avatar.js', 'text/javascript; charset=utf-8'], '/euler-avatar-editor.js': ['euler-avatar-editor.js', 'text/javascript; charset=utf-8'],
     '/vendor/blobatar/index.js': ['vendor/blobatar/index.js', 'text/javascript; charset=utf-8'], '/vendor/blobatar/expression.js': ['vendor/blobatar/expression.js', 'text/javascript; charset=utf-8'],
@@ -57,6 +56,9 @@ export async function createEulerServer({ port = 2713, manager, workspace } = {}
       if (request.headers.origin && request.headers.origin !== expectedOrigin) throw error('Cross-origin access is not allowed.', 403);
       if (request.headers['sec-fetch-site'] === 'cross-site') throw error('Cross-site access is not allowed.', 403);
       const path = new URL(request.url, expectedOrigin).pathname;
+      if (['GET', 'HEAD'].includes(request.method) && ['/manage', '/manage/'].includes(path)) {
+        response.writeHead(302, { Location: '/#applications' }); response.end(); return;
+      }
       if (!controller) throw error('Euler is preparing the workspace.', 503);
       if (controller.handle && await controller.handle(request, response, path)) return;
       const asset = Object.hasOwn(assets, path) ? assets[path] : null;
