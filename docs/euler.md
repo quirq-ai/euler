@@ -8,6 +8,8 @@ Home brings every app's status, launch controls, enabled setting, and lifecycle 
 
 Home lives in [`app/home`](../app/home/README.md) and remains available at `/`, even when every bundled app is stopped. It has no enable switch. For Home development, run `npm run dev` or `npm start` from that folder to launch the same Euler host on port 2713; stop an existing Euler process first. Run `npm run build` there to validate Home's source and `npm test` for its focused tests. No separate Home dependencies or generated bundle are needed.
 
+The dock, avatar, icons, and their UI logic also belong to Home. Home supplies the shared dock on mounted app pages; the repository root provides the HTTP host, security, configuration, builds, and app lifecycle. This source organization keeps the same pages, URLs, and controls.
+
 **Dock appearance** changes the glass background opacity between 20% and 100% (default 72%). Icons stay opaque. This preference is saved in browser storage for the Euler address and synchronized across tabs.
 
 Use **Alt+0** for Home and **Alt+1** through **Alt+9** for running apps in dock order. Typing fields are excluded. Tab focuses controls; Left/Right and Home/End move focus within the dock. Escape closes the appearance panel.

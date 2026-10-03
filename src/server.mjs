@@ -1,8 +1,6 @@
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
 import { createCompiledManager } from './compiled.mjs';
-import { attachEulerDock } from './dock.mjs';
-import { homeAssets } from '../app/home/assets.mjs';
+import { homeApplication } from '../app/home/server.mjs';
 
 const bodyLimit = 64 * 1024;
 const error = (message, statusCode) => Object.assign(new Error(message), { statusCode });
@@ -32,15 +30,6 @@ export async function createEulerServer({ port = 2713, manager, workspace } = {}
   if (!manager && !workspace) throw new Error('Provide an Euler workspace or app manager.');
   let controller = manager;
   let actualPort;
-  const sharedAssets = {
-    '/euler-avatar.js': ['euler-avatar.js', 'text/javascript; charset=utf-8'],
-    '/vendor/blobatar/index.js': ['vendor/blobatar/index.js', 'text/javascript; charset=utf-8'], '/vendor/blobatar/expression.js': ['vendor/blobatar/expression.js', 'text/javascript; charset=utf-8'],
-    '/euler-dock.css': ['euler-dock.css', 'text/css; charset=utf-8'], '/euler-dock.js': ['euler-dock.js', 'text/javascript; charset=utf-8'],
-    '/euler-dock-ui.css': ['euler-dock-ui.css', 'text/css; charset=utf-8'],
-    ...Object.fromEntries(['innernet', 'quitter', 'instants', 'home', 'settings'].map((id) => [`/euler-icons/${id}.svg`, [`euler-icons/${id}.svg`, 'image/svg+xml']])),
-  };
-  const assets = { ...homeAssets, ...Object.fromEntries(Object.entries(sharedAssets)
-    .map(([path, [file, type]]) => [path, [new URL(`../public/${file}`, import.meta.url), type]])) };
   const server = createServer(async (request, response) => {
     response.setHeader('Cache-Control', 'no-store');
     response.setHeader('X-Content-Type-Options', 'nosniff');
@@ -54,21 +43,9 @@ export async function createEulerServer({ port = 2713, manager, workspace } = {}
       if (request.headers.origin && request.headers.origin !== expectedOrigin) throw error('Cross-origin access is not allowed.', 403);
       if (request.headers['sec-fetch-site'] === 'cross-site') throw error('Cross-site access is not allowed.', 403);
       const path = new URL(request.url, expectedOrigin).pathname;
-      if (['GET', 'HEAD'].includes(request.method) && ['/manage', '/manage/'].includes(path)) {
-        response.writeHead(302, { Location: '/#applications' }); response.end(); return;
-      }
+      if (await homeApplication.handle(request, response, path)) return;
       if (!controller) throw error('Euler is preparing the workspace.', 503);
-      if (controller.handle && await controller.handle(request, response, path)) return;
-      const asset = Object.hasOwn(assets, path) ? assets[path] : null;
-      if (['GET', 'HEAD'].includes(request.method) && asset) {
-        const [file, type] = asset;
-        const content = await readFile(file);
-        if (type.startsWith('text/html')) attachEulerDock(request, response);
-        response.writeHead(200, { 'Content-Type': type });
-        response.end(request.method === 'HEAD' ? undefined : content);
-        return;
-      }
-      if (path === '/favicon.ico' && request.method === 'GET') { response.writeHead(204); response.end(); return; }
+      if (controller.handle && await controller.handle(request, response, path, homeApplication.prepareAppResponse)) return;
       if (path === '/api/state') {
         if (request.method !== 'GET') throw error('Method not allowed.', 405);
         send(200, await controller.state()); return;

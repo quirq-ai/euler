@@ -3,6 +3,7 @@ import { mkdtemp, mkdir, readFile, realpath, rm, symlink, writeFile } from 'node
 import { request as httpRequest } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { gzipSync } from 'node:zlib';
 import test from 'node:test';
 import { parseArgs } from '../src/cli.mjs';
 import { buildCompiledWorkspace, compiledStore, createCompiledManager, inspectBuild } from '../src/compiled.mjs';
@@ -58,10 +59,11 @@ function request(app, path, { method = 'GET', headers = {}, body } = {}) {
       response.on('data', (chunk) => chunks.push(chunk));
       response.once('error', reject);
       response.once('end', () => {
-        const text = Buffer.concat(chunks).toString('utf8');
+        const bytes = Buffer.concat(chunks);
+        const text = bytes.toString('utf8');
         let json;
         try { json = JSON.parse(text); } catch { /* App HTML, assets, and HEAD responses are not JSON. */ }
-        resolvePromise({ status: response.statusCode, headers: response.headers, text, json });
+        resolvePromise({ status: response.statusCode, headers: response.headers, bytes, text, json });
       });
     });
     req.once('error', reject);
@@ -207,8 +209,56 @@ test('Euler public assets use an explicit allowlist with existing origin and tra
   for (const path of ['/euler-icons/missing.svg', '/euler-icons/../euler.html', '/euler-icons/%2e%2e/euler.html', '/euler-icons/%5c..%5ceuler.html', '/vendor/blobatar/provenance.json', '/vendor/blobatar/../../euler.html']) {
     assert.equal((await request(app, path)).status, 404, path);
   }
-  for (const path of ['/app/home/package.json', '/app/home/build.mjs', '/app/home/assets.mjs', '/app/home/public/euler.html']) {
+  for (const path of ['/app/home/package.json', '/app/home/build.mjs', '/app/home/assets.mjs', '/app/home/server.mjs', '/app/home/src/dock.mjs', '/app/home/public/euler.html', '/app/home/public/euler-dock.js']) {
     assert.equal((await request(app, path)).status, 404, 'Home package internals are not public routes');
+  }
+});
+
+test('Home document integration runs before app compression and preserves non-document responses', async (t) => {
+  const value = manifest();
+  value.projects.alpha.compiled.type = 'next';
+  delete value.projects.beta;
+  const fixtureApp = await fixture(t, { value });
+  const manager = createCompiledManager({ workspace: fixtureApp.workspace, dashboardPort: 4500,
+    createHandler: async () => ({
+      async handle(req, res) {
+        const encoding = req.headers['accept-encoding'];
+        const content = encoding === 'gzip' ? gzipSync(index) : Buffer.from(index);
+        res.writeHead(200, {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Content-Length': content.length,
+          'Content-Encoding': encoding,
+        });
+        res.end(req.method === 'HEAD' ? undefined : content);
+      },
+      async close() {},
+    }),
+  });
+  const app = await fixtureApp.start(manager);
+  const document = await request(app, '/app/alpha', { headers: { 'accept-encoding': 'gzip', 'sec-fetch-dest': 'document' } });
+  assert.equal(document.status, 200);
+  assert.equal(document.headers['content-encoding'], 'identity');
+  assert.equal(document.headers['content-length'], undefined);
+  assert.equal(withoutDock(document.text), index);
+  assert.match(document.text, /src="\/euler-dock\.js"/);
+
+  // Even HTML from these requests must bypass Home's presentation hook.
+  for (const [path, options] of [
+    ['/app/alpha/api/items', {}],
+    ['/app/alpha/_next/static/file.js', {}],
+    ['/app/alpha', { method: 'HEAD' }],
+    ['/app/alpha', { method: 'POST' }],
+    ['/app/alpha', { headers: { rsc: '1' } }],
+    ['/app/alpha', { headers: { accept: 'text/x-component' } }],
+    ['/app/alpha', { headers: { 'next-router-prefetch': '1' } }],
+    ['/app/alpha', { headers: { 'sec-fetch-dest': 'script' } }],
+    ['/app/alpha', { headers: { range: 'bytes=0-10' } }],
+  ]) {
+    const response = await request(app, path, { ...options, headers: { 'accept-encoding': 'gzip', ...options.headers } });
+    assert.equal(response.status, 200, path);
+    assert.equal(response.headers['content-encoding'], 'gzip', path);
+    assert.equal(Number(response.headers['content-length']), gzipSync(index).length, path);
+    assert.deepEqual(response.bytes, options.method === 'HEAD' ? Buffer.alloc(0) : gzipSync(index), path);
   }
 });
 

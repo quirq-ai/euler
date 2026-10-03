@@ -7,9 +7,12 @@ These directories contain ordinary source code tracked by the Euler repository:
 - `quitter` — the agent activity workspace.
 - `instants` — the visual workspace and replies.
 
-Home is maintained directly in Euler. Its `public/` directory owns the Home HTML,
-stylesheet, controller, and avatar editor; root `public/` keeps the shared dock,
-avatar renderer, icons, and Blobatar. Run `npm run dev` or `npm start` inside
+Home is maintained directly in Euler and owns all Euler UI. Its `public/`
+directory contains the Home page, controller, dock, avatar editor and renderer,
+icons, and locally vendored Blobatar. Its server module serves these assets and
+provides document hooks that add the dock to mounted app pages. UI tests live
+alongside Home in `home/tests/`; the repository root handles hosting, security,
+configuration, builds, and app lifecycle. Run `npm run dev` or `npm start` inside
 `home/` to launch the existing Euler host at http://localhost:2713/. Home's build
 validates browser-ready files, setup needs no dependencies, and `npm test` runs
 its focused tests. Its Nx project is `euler-home`. Home always remains available

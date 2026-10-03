@@ -1,7 +1,7 @@
 {
   "name": "euler-home",
   "projectType": "application",
-  "sourceRoot": "app/home/public",
+  "sourceRoot": "app/home",
   "targets": {
     "setup": {
       "executor": "nx:run-commands",

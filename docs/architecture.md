@@ -1,6 +1,6 @@
 # Euler architecture
 
-Euler's root Node HTTP host serves Home and three precompiled applications under one origin. Application source is committed under app/: Home lives in app/home alongside innernet, quitter, and instants. Shared browser resources remain in root public/. The original dynamic dashboard is maintained separately in quirq-ai/quirq on the feat/standalone-dashboard branch.
+Euler's root Node HTTP host serves Home and three precompiled applications under one origin. Application source is committed under app/: Home lives in app/home alongside innernet, quitter, and instants. Home owns all Euler UI, including the dock and shared browser resources. The repository root owns hosting, security, configuration, builds, and app lifecycle. The original dynamic dashboard is maintained separately in quirq-ai/quirq on the feat/standalone-dashboard branch.
 
 ## Startup and builds
 
@@ -15,6 +15,8 @@ Next apps use separate .next-euler output; Quitter uses dist-euler. The build ma
 ## HTTP and lifecycle
 
 Home is served at / and applications below /app/<id>. Legacy /manage links redirect to /#applications, the controls section on Home. Static builds use confined real paths and HTML-only SPA fallbacks. Next applications retain their production request handler for pages, APIs, assets, and React streams. The host does not proxy to a child listener or embed an iframe.
+
+Root `src/server.mjs` enforces HTTP security and exposes the lifecycle and configuration APIs. It delegates Home assets, the favicon, and legacy management redirects to `app/home/server.mjs`. Root `src/compiled.mjs` handles app runtimes and accepts document integration from Home; it does not own dock markup or UI asset paths. Home's server module supplies the document hooks implemented in `app/home/src/dock.mjs`, keeping UI integration with the app that owns it.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
@@ -35,7 +37,7 @@ Saved settings use .workspace-state/euler/config.json with queued atomic writes.
 
 ## Browser interface
 
-`app/home/public/` owns `euler.html`, `euler.css`, `euler-home.js`, and `euler-avatar-editor.js`. The host maps those files to their existing browser URLs and serves Home at `/`. Root `public/` owns the shared dock, avatar renderer, app icons, and vendored Blobatar used across pages. Moving Home into its app directory changes source ownership without changing bookmarks or introducing another HTTP server.
+`app/home/public/` owns the Home page, stylesheet, app controller, avatar editor and renderer, dock scripts and styles, app icons, and vendored Blobatar with its license. `app/home/assets.mjs` declares the asset routes and `app/home/server.mjs` serves them at their existing browser URLs, with Home at `/`. Home also owns UI unit tests in `app/home/tests/`. This keeps the complete UI in one application without changing bookmarks or introducing another HTTP server.
 
 The framework-free host UI presents workspace counts and an app card for every registry entry on Home. Cards combine an icon, status dot and text, launch and lifecycle actions, an enabled toggle, and logs. Running state and the saved enabled preference remain distinct. These controls use the existing state, lifecycle, configuration, and logs APIs; they do not introduce another manager or server.
 
@@ -47,9 +49,9 @@ Lifecycle mutations temporarily disable conflicting controls, invalidate older s
 
 ## Dock and avatar
 
-`public/euler-dock.js` defines a shared custom element. Its Shadow DOM isolates dock styles from each app's CSS. The isolated UI stylesheet is preloaded, and the element mounts once the document has been parsed without waiting for images to finish loading. A manual popover places it in the browser's top layer, with a fixed-position fallback for browsers without that API. It sits at the bottom center with safe-area spacing. The dock's opacity setting changes the glass background rather than fading its controls, and is stored in local storage. App status refreshes reconcile existing icons, preserving keyboard focus and open preferences.
+`app/home/public/euler-dock.js` defines a shared custom element. Its Shadow DOM isolates dock styles from each app's CSS. The isolated UI stylesheet is preloaded, and the element mounts once the document has been parsed without waiting for images to finish loading. A manual popover places it in the browser's top layer, with a fixed-position fallback for browsers without that API. It sits at the bottom center with safe-area spacing. The dock's opacity setting changes the glass background rather than fading its controls, and is stored in local storage. App status refreshes reconcile existing icons, preserving keyboard focus and open preferences.
 
-Compiled HTML pages load the shared dock resources so Home and app documents display the same controls. Home is the single entry point for app management; the dock has no separate Manage destination. The dock is browser navigation chrome; apps still render their own documents and handle their own routes. Server-side API responses and assets keep their original content. The dock does not use an iframe, execute a copied app document inside another DOM, or require a separate HTTP listener.
+Home's document integration adds its shared dock resources to compiled HTML pages so Home and app documents display the same controls. Home is the single entry point for app management; the dock has no separate Manage destination. The dock is browser navigation chrome; apps still render their own documents and handle their own routes. Server-side API responses and assets keep their original content. The dock does not use an iframe, execute a copied app document inside another DOM, or require a separate HTTP listener.
 
 The document stylesheet exposes `--euler-dock-clearance`, including the bottom safe-area inset, for app layout integration. App-specific selectors are scoped by `data-euler-app`: Quitter and Instants move their mobile fixed navigation and nearby controls above this clearance, while their scrollable content reserves space below. Innernet's landing section accounts for the same reserved area. These targeted adjustments keep app controls reachable beneath the floating dock without applying a global transform or padding change to every app layout. Additional apps with bottom-fixed controls should use the clearance variable in their own layout.
 
@@ -63,6 +65,6 @@ The home avatar editor uses the actual Blobatar 2.7.0 renderer, vendored locally
 
 ## Nx and verification
 
-The root Nx project euler-app exposes startup, setup, build, and tests. Home's euler-home project exposes dev, start, setup, build, and test targets; its focused tests check browser assets, and the host tests cover routing and launch integration. Each upstream app has its own named Nx project, development command, setup target, and a build target calling the same Euler build engine. Framework dependencies remain isolated within each app. Targets that depend on local state have caching disabled.
+The root Nx project euler-app exposes startup, setup, build, and tests. Home's euler-home project exposes dev, start, setup, build, and test targets; its tests cover browser assets, avatar behavior, and dock integration. The root host tests cover HTTP security, runtime lifecycle, routing, and launch integration. Each upstream app has its own named Nx project, development command, setup target, and a build target calling the same Euler build engine. Framework dependencies remain isolated within each app. Targets that depend on local state have caching disabled.
 
 The portable setup script installs each committed app lockfile using Node to launch npm or the pinned pnpm runtime. Host tests exercise CLI/manifest independence, build selection, configuration persistence, HTTP protections, route confinement, streaming injection, and browser preference helpers. CI runs host tests with Node 22/24 and app builds with Node 24 on Windows, macOS, and Linux.

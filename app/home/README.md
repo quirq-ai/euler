@@ -1,7 +1,8 @@
 # Euler Home
 
 Home is Euler's built-in application for app status, lifecycle controls, workspace
-statistics, and avatar customization. Its source lives beside the other apps in
+statistics, and avatar customization. It owns all Euler UI, including the shared
+dock shown on mounted app pages. Its source lives beside the other apps in
 `app/home`, and its page remains at `/` on Euler's address.
 
 ## Run from this folder
@@ -40,12 +41,21 @@ or iframe is added. Home cannot stop or disable itself through the app controls.
 
 ## Source and build
 
-- `public/` contains the Home page, styling, app controller, and avatar editor.
-- `assets.mjs` declares the exact Home files and HTTP routes the host may serve.
+- `public/` contains the Home page, styling, app controller, dock, avatar editor
+  and renderer, icons, and locally vendored Blobatar with its license.
+- `assets.mjs` declares the exact UI files and HTTP routes the app may serve.
+- `server.mjs` serves Home assets and the favicon, redirects legacy `/manage`
+  links, and supplies document hooks to the host.
+- `src/dock.mjs` integrates the dock into mounted app HTML, while preserving
+  non-HTML responses and streams.
+- `tests/` contains Home's UI, avatar, and dock regression tests.
 - `build.mjs` verifies required files and checks JavaScript syntax. These assets
   are already browser-ready, so there is no transpilation or generated copy.
-- The shared dock, avatar renderer, icons, and locally vendored Blobatar remain
-  in the repository's root `public/`, available to every mounted app.
+
+The repository root provides HTTP hosting and security, workspace configuration,
+build orchestration, and app lifecycle APIs. Home provides the UI and its document
+integration through that host, so the dock remains shared across app pages while
+its implementation stays here.
 
 Home is maintained directly in the Euler repository. It has no separate upstream
 repository and is not included in the `apps:sync` subtree workflow.

@@ -5,7 +5,6 @@ import { createRequire } from 'node:module';
 import { extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { createConfigStore } from './config.mjs';
-import { attachEulerDock, isDockDocumentRequest } from './dock.mjs';
 
 const failure = (message, statusCode = 409) => Object.assign(new Error(message), { statusCode });
 const prefix = (id) => `/app/${id}`;
@@ -106,10 +105,6 @@ async function nextHandler(build, id, port) {
   return {
     async handle(request, response) {
       response.removeHeader('Content-Security-Policy');
-      // Next rereads its built config in custom-server mode. Negotiate identity
-      // for documents so the shared dock can be added before bytes reach HTTP.
-      // Assets, RSC streams, and API compression keep their original behavior.
-      if (isDockDocumentRequest(request)) request.headers['accept-encoding'] = 'identity';
       await handler(request, response);
     },
     close: () => app.close(),
@@ -176,7 +171,7 @@ export function createCompiledManager({ workspace, dashboardPort, createHandler 
       return state();
     },
     async stopAll() { await queue(async () => { for (const id of records.keys()) await stopOne(id); }); return state(); },
-    async handle(request, response, path) {
+    async handle(request, response, path, prepareResponse) {
       const match = /^\/app\/([^/]+)(?:\/|$)/.exec(path);
       if (!match) return false;
       const id = match[1];
@@ -186,7 +181,9 @@ export function createCompiledManager({ workspace, dashboardPort, createHandler 
         const query = new URL(request.url, 'http://localhost').search;
         response.writeHead(308, { Location: `${prefix(id)}/${query}` }); response.end();
       } else {
-        attachEulerDock(request, response);
+        // Presentation is supplied by the host application; the runtime only
+        // controls routing and lifecycle for the mounted app.
+        prepareResponse?.(request, response);
         await item.handler.handle(request, response);
       }
       return true;

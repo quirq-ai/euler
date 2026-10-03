@@ -212,10 +212,13 @@ euler/
 ├── bin/euler.mjs           # executable
 ├── euler.workspace.json   # apps and build commands
 ├── nx.json                # task orchestration
-├── src/                   # HTTP host, builds, settings, dock injection
-├── public/                # shared dock, avatar renderer, icons, Blobatar
+├── src/                   # HTTP host, builds, settings, app lifecycle
 ├── app/
-│   ├── home/               # Home, controls, avatar editor; served at /
+│   ├── home/               # all Euler UI; Home served at /
+│   │   ├── public/        # Home, dock, avatar, icons, Blobatar
+│   │   ├── src/           # dock document integration
+│   │   ├── server.mjs     # Home assets, routes, document hooks
+│   │   └── tests/         # Home and shared UI tests
 │   ├── innernet/           # Next.js
 │   ├── quitter/            # Vite + React
 │   └── instants/           # Next.js
@@ -241,7 +244,7 @@ You can also `cd app/quitter` and run `npm run dev`, or use the other apps' own 
 
 Home is a first-class local app in [`app/home`](app/home/README.md). From that folder, `npm run dev` or `npm start` launches the same Euler host, API, and enabled apps at **http://localhost:2713/**. Stop an existing Euler process before starting another on that port. `npm run build` validates Home's HTML, CSS, and JavaScript, and `npm test` runs its focused tests. Home uses browser-ready source with no app dependencies or generated bundle; Nx also exposes its `start` and `setup` targets.
 
-Home stays available as Euler's control surface, so it has no enable switch or upstream repository to synchronize. The shared dock, avatar renderer, icons, and vendored Blobatar remain in root `public/` for use across apps. Hosting Home requires the full Euler host described in [Deployment](#deployment).
+Home stays available as Euler's control surface, so it has no enable switch or upstream repository to synchronize. All Euler UI belongs to `app/home`, including the dock, avatar renderer, icons, vendored Blobatar, and the integration that adds the dock to app pages. The repository root handles hosting, security, builds, configuration, and app lifecycle. Hosting Home requires the full Euler host described in [Deployment](#deployment).
 
 `npm start` resolves `euler.workspace.json` from this repository, regardless of your terminal's current directory. Use `--workspace /path/to/euler` or `--config /path/to/euler.workspace.json` to choose a custom installation. Nx runtime/build targets disable caching because local settings and data affect their behavior.
 
@@ -285,5 +288,5 @@ Keep a persistent disk for server-hosted Euler and back up local data with the s
 - The original iframe-based quirq dashboard remains separate on [quirq-ai/quirq's `feat/standalone-dashboard`](https://github.com/quirq-ai/quirq/tree/feat/standalone-dashboard), at port 4400.
 - In the larger local quirq workspace, `npm run euler` starts `apps/euler`, while `npm start` opens the separate dashboard. This repository also works as a fresh independent clone.
 - [Source provenance](app/upstream.json) records imported app revisions and adapters. [Architecture](docs/architecture.md) and the [user guide](docs/euler.md) explain the host in more detail.
-- Blobatar is vendored locally under its MIT license in [public/vendor/blobatar](public/vendor/blobatar). Avatar rendering and saving do not contact an external service.
+- Blobatar is vendored locally under its MIT license in [app/home/public/vendor/blobatar](app/home/public/vendor/blobatar). Avatar rendering and saving do not contact an external service.
 - [CI](https://github.com/quirq-ai/euler/actions/workflows/check.yml) runs host tests on Node 22/24 and application builds on Node 24 across Windows, macOS, and Linux.
