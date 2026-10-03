@@ -1,18 +1,25 @@
 {
   "version": 1,
-  "description": "Pinned upstream source snapshots with Euler adapters already incorporated as ordinary tracked source.",
+  "description": "Embedded Git subtrees with pinned upstream revisions and Euler adapters maintained as ordinary tracked source. Use npm run apps:check and npm run apps:sync -- <app> to update.",
+  "synchronization": {
+    "method": "git subtree --squash",
+    "mode": "manual",
+    "documentation": "docs/app-updates.md"
+  },
   "applications": [
     {
       "id": "innernet",
       "directory": "apps/innernet",
       "upstream": {
         "repository": "https://github.com/quirq-ai/innernet.git",
+        "branch": "main",
         "commit": "4e9becef4af1593b05405fc9f2c4e698b980913d",
         "trackedFiles": 314,
         "trackedBytes": 102578406
       },
       "import": {
         "method": "git archive of the pinned commit",
+        "importedCommit": "4e9becef4af1593b05405fc9f2c4e698b980913d",
         "includesUncommittedChanges": false,
         "excludedTrackedPaths": []
       },
@@ -68,12 +75,14 @@
       "directory": "apps/quitter",
       "upstream": {
         "repository": "https://github.com/quirq-ai/quitter.git",
+        "branch": "main",
         "commit": "f4ac9ca1ae6f9f82968a4c47af063ed859912773",
         "trackedFiles": 41,
         "trackedBytes": 690412
       },
       "import": {
         "method": "git archive of the pinned commit",
+        "importedCommit": "f4ac9ca1ae6f9f82968a4c47af063ed859912773",
         "includesUncommittedChanges": false,
         "excludedTrackedPaths": []
       },
@@ -107,12 +116,14 @@
       "directory": "apps/instants",
       "upstream": {
         "repository": "https://github.com/quirq-ai/instants.git",
+        "branch": "main",
         "commit": "d89db7982fa356e09cba8a01ff810bb9a6759587",
         "trackedFiles": 183,
         "trackedBytes": 3605597
       },
       "import": {
         "method": "git archive of the pinned commit",
+        "importedCommit": "d89db7982fa356e09cba8a01ff810bb9a6759587",
         "includesUncommittedChanges": false,
         "excludedTrackedPaths": []
       },

@@ -9,6 +9,8 @@
     "dev": { "cache": false },
     "build": { "cache": false },
     "setup": { "cache": false },
+    "apps:check": { "cache": false },
+    "apps:sync": { "cache": false },
     "test": { "cache": false }
   },
   "tui": { "enabled": false }

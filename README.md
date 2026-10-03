@@ -235,6 +235,24 @@ You can also `cd apps/quitter` and run `npm run dev`, or use the other apps' own
 
 `npm start` resolves `euler.workspace.json` from this repository, regardless of your terminal's current directory. Use `--workspace /path/to/euler` or `--config /path/to/euler.workspace.json` to choose a custom installation. Nx runtime/build targets disable caching because local settings and data affect their behavior.
 
+### Update an app from its upstream repository
+
+App updates are manual. Innernet, Quitter, and Instants keep their own repositories; Euler tracks their sources as Git subtrees under `apps/`. Ordinary cloning, setup, and builds are unchanged.
+
+Commit your local Euler changes first, then run these commands from the repository root:
+
+```sh
+npm run apps:check
+npm run apps:sync -- innernet
+npm run setup -- innernet
+npm run build -- --app innernet
+npm test
+```
+
+`apps:check` fetches upstream information without changing app files. `apps:sync` merges **one app at a time** and creates a local Euler commit containing its source changes and updated upstream pin. Replace `innernet` with `quitter` or `instants` as needed. Stop Euler before rebuilding an app it is serving.
+
+If a merge conflicts, resolve the files, stage them with `git add`, then run `npm run apps:sync -- --continue`; use `npm run apps:sync -- --abort` to cancel that merge. After validation, push your Euler branch through your normal workflow. These commands do not push changes to the standalone app repositories or schedule future updates. See the [app maintenance guide](docs/app-updates.md) for the full workflow and recovery steps.
+
 ## Data and settings
 
 | Data | Stored in | Lifetime |
