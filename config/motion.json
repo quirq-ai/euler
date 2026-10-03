@@ -1,0 +1,20 @@
+{
+  "durations": {
+    "press": 120,
+    "standard": 240,
+    "navigation": 320,
+    "sheet": 360,
+    "like": 650
+  },
+  "easing": {
+    "standard": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+    "spring": "cubic-bezier(0.22, 1, 0.36, 1)"
+  },
+  "gestures": {
+    "swipeThreshold": 44,
+    "verticalDismissThreshold": 96,
+    "axisDominance": 1.25,
+    "doubleTapWindow": 280
+  },
+  "respectReducedMotion": true
+}
