@@ -1,6 +1,6 @@
 # Euler architecture
 
-Euler is the root application in this repository. Its Node HTTP server serves three precompiled applications under one origin, with one Home interface for launching and managing them. Application source is committed under apps/; the original dynamic dashboard is maintained separately in quirq-ai/quirq on the feat/standalone-dashboard branch.
+Euler is the root application in this repository. Its Node HTTP server serves three precompiled applications under one origin, with one Home interface for launching and managing them. Application source is committed under app/; the original dynamic dashboard is maintained separately in quirq-ai/quirq on the feat/standalone-dashboard branch.
 
 ## Startup and builds
 

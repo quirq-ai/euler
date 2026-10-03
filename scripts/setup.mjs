@@ -39,7 +39,7 @@ export async function setup(args = process.argv.slice(2)) {
   if (!npmCli) throw new Error('Cannot find npm. Run this setup with npm run setup.');
 
   for (const id of selected.length ? selected : knownApps) {
-    const directory = join(root, 'apps', id);
+    const directory = join(root, 'app', id);
     const pkg = JSON.parse(await readFile(join(directory, 'package.json'), 'utf8'));
     console.log(`Installing ${pkg.name}…`);
     const pnpmCli = join(root, 'node_modules/pnpm/bin/pnpm.cjs');

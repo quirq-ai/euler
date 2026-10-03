@@ -14,7 +14,7 @@ const index = '<!doctype html><html><body><h1>Compiled fixture</h1><script src="
 const withoutDock = (html) => html.replace(/<link rel="stylesheet" href="\/euler-dock\.css" data-euler-dock>/g, '').replace(/<link rel="preload" href="\/euler-dock-ui\.css" as="style" data-euler-dock>/g, '').replace(/<script type="module" src="\/euler-dock\.js" blocking="render" data-euler-dock><\/script>/g, '');
 
 function manifest() {
-  const project = (id, port) => ({ name: id, directory: `apps/${id}`, port, scripts: ['dev'], commands: { dev: ['{node}', 'unused-dev.mjs'] },
+  const project = (id, port) => ({ name: id, directory: `app/${id}`, port, scripts: ['dev'], commands: { dev: ['{node}', 'unused-dev.mjs'] },
     compiled: { type: 'static', output: 'dist-euler', build: ['{node}', 'build-fixture.mjs', 'an argument with spaces', '{projectRoot}', '{workspaceRoot}', '{port}', 'literal;$value'] } });
   return { version: 1, name: 'Euler', projects: { alpha: project('alpha', 5301), beta: project('beta', 5302) } };
 }

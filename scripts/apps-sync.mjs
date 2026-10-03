@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 const execute = promisify(execFile);
-const manifestPath = 'apps/upstream.json';
+const manifestPath = 'app/upstream.json';
 const help = `Update Euler's embedded applications from their upstream Git repositories.
 
   node scripts/apps-sync.mjs check [id|all]
@@ -57,14 +57,14 @@ async function context(cwd) {
 async function loadManifest(ctx) {
   const raw = await readFile(join(ctx.root, manifestPath), 'utf8');
   const data = JSON.parse(raw);
-  if (data.version !== 1 || !Array.isArray(data.applications)) fail('Invalid apps/upstream.json.');
+  if (data.version !== 1 || !Array.isArray(data.applications)) fail('Invalid app/upstream.json.');
   const seen = new Set();
   for (const app of data.applications) {
     if (!/^[a-z][a-z0-9-]*$/.test(app.id) || seen.has(app.id)
-      || !/^apps\/[a-z][a-z0-9-]*$/.test(app.directory)
+      || !/^app\/[a-z][a-z0-9-]*$/.test(app.directory)
       || typeof app.upstream?.repository !== 'string' || !app.upstream.repository
       || app.upstream.repository.startsWith('-') || !oid(app.upstream.commit)) {
-      fail('Invalid application entry in apps/upstream.json.');
+      fail('Invalid application entry in app/upstream.json.');
     }
     seen.add(app.id);
     const branch = app.upstream.branch || 'main';
@@ -113,6 +113,9 @@ async function fetchLatest(ctx, app) {
 }
 
 async function subtreeBaseline(ctx, app) {
+  // Prefix changes must include a raw-source tracking commit in shared Git
+  // history. Reusing the old path silently would make git subtree choose a
+  // different baseline from the one validated here.
   const escaped = app.directory.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const log = await output(ctx.root, ['log', '--format=%H%x00%B%x00', `--grep=^git-subtree-dir: ${escaped}/*$`, 'HEAD']);
   const entries = log.split('\0');
@@ -130,7 +133,7 @@ async function subtreeBaseline(ctx, app) {
     if (tree !== upstreamTree) fail(`${app.id}: the subtree baseline must contain the unmodified upstream source.`);
     return commit;
   }
-  fail(`${app.id}: missing Git subtree tracking history. Use a full clone containing Euler's subtree bootstrap commits.`);
+  fail(`${app.id}: missing Git subtree tracking history. Use a full clone containing Euler's subtree bootstrap and directory-migration commits.`);
 }
 
 async function sourceStats(ctx, commit) {
@@ -206,7 +209,7 @@ async function readState(ctx) {
   if (!raw) return null;
   const state = JSON.parse(raw);
   if (state.version !== 1 || !oid(state.originalHead) || !oid(state.target) || !oid(state.baseline)
-    || !/^apps\/[a-z][a-z0-9-]*$/.test(state.directory)
+    || !/^app\/[a-z][a-z0-9-]*$/.test(state.directory)
     || typeof state.message !== 'string' || typeof state.before !== 'string' || typeof state.after !== 'string') {
     fail('Invalid Euler update recovery state. Inspect it before performing another update.');
   }
@@ -226,13 +229,13 @@ async function ensureOwnedChanges(ctx, state) {
   const untracked = await output(ctx.root, ['ls-files', '--others', '--exclude-standard']);
   if (untracked) fail('Untracked files are present. Add resolved app files or move unrelated files before continuing.');
   const current = await readFile(join(ctx.root, manifestPath), 'utf8');
-  if (current !== state.before && current !== state.after) fail('apps/upstream.json was edited independently. Restore it before continuing.');
+  if (current !== state.before && current !== state.after) fail('app/upstream.json was edited independently. Restore it before continuing.');
   const indexed = await output(ctx.root, ['rev-parse', `:${manifestPath}`]);
   const original = await output(ctx.root, ['rev-parse', `${state.originalHead}:${manifestPath}`]);
   // Compare Git blobs, not checkout bytes: clean filters/autocrlf may normalize
   // the LF metadata we write differently from the original working copy.
   const updated = (await git(ctx.root, ['hash-object', `--path=${manifestPath}`, '--stdin'], { input: state.after })).stdout.trim();
-  if (indexed !== original && indexed !== updated) fail('apps/upstream.json has independent staged edits. Preserve and unstage those edits before continuing or aborting.');
+  if (indexed !== original && indexed !== updated) fail('app/upstream.json has independent staged edits. Preserve and unstage those edits before continuing or aborting.');
 }
 
 async function finish(ctx, state) {

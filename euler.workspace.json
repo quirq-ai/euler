@@ -4,7 +4,7 @@
   "projects": {
     "innernet": {
       "name": "Innernet",
-      "directory": "apps/innernet",
+      "directory": "app/innernet",
       "kind": "node",
       "port": 3470,
       "scripts": [
@@ -33,7 +33,7 @@
     },
     "quitter": {
       "name": "Quitter",
-      "directory": "apps/quitter",
+      "directory": "app/quitter",
       "kind": "node",
       "port": 5174,
       "scripts": [
@@ -62,7 +62,7 @@
     },
     "instants": {
       "name": "Instants",
-      "directory": "apps/instants",
+      "directory": "app/instants",
       "kind": "node",
       "port": 5180,
       "scripts": [

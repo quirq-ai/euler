@@ -1,16 +1,54 @@
 # Maintaining Euler's app sources
 
 Euler includes Innernet, Quitter, and Instants as ordinary tracked directories under
-`apps/`. Each directory is a Git subtree connected to its standalone upstream
+`app/`. Each directory is a Git subtree connected to its standalone upstream
 repository. You choose when to check for updates and which app to merge.
 
 A normal clone already contains the app sources. `npm ci`, `npm run setup`, builds,
 and startup do not synchronize source repositories. There are no submodule
 initialization steps or runtime patches to apply.
 
+## Upgrade from the `apps/` folder
+
+New clones already use `app/`. For an existing installation, stop Euler and any
+standalone app servers, finish any pending app synchronization, and commit the
+source changes you want to keep before updating. Back up your local app data.
+
+Run from the Euler repository root on Windows, macOS, or Linux:
+
+```sh
+git pull --ff-only
+npm run migrate:app-data
+npm ci
+npm run setup
+npm run build
+npm start
+```
+
+Git moves the tracked source files. The migration command moves local app data
+left in the old `apps/<name>` directories to matching paths under `app/<name>`.
+It preserves local environment files, Innernet indexes, Instants journals, and
+other files that are not generated. Before moving any files, it checks all
+destinations and refuses collisions, unknown old app directories, and data
+symlinks or junctions. It skips generated dependencies and build output; setup
+and build recreate those in the new paths. Use
+`npm run migrate:app-data -- --dry-run` to preview the migration. Fresh clones
+and repeated migrations have nothing to move. Existing `.workspace-state`
+settings and browser preferences keep their locations.
+
+If the command reports a collision, compare and back up both copies before
+resolving it and rerunning the command. The helper does not overwrite either copy
+or remove the old directory; skipped generated artifacts remain there. Update
+any hosting project's app Root Directory or Base directory, custom manifests,
+editor tasks, and external scripts from
+`apps/<name>` to `app/<name>`. App URLs and the `apps:check` / `apps:sync` commands
+stay the same.
+
+## How synchronization works
+
 ```mermaid
 flowchart TB
-    Upstream["Standalone app repository"] -->|manual apps:sync| Merge["Git subtree merge into apps/name"]
+    Upstream["Standalone app repository"] -->|manual apps:sync| Merge["Git subtree merge into app/name"]
     Local["Committed Euler app changes"] --> Merge
     Merge --> Commit["Local Euler commit<br/>App sources + upstream pin"]
     Commit --> Verify["Install dependencies, build, test"]
@@ -44,7 +82,7 @@ time; there is no `apps:sync -- all` operation.
 ## Check and update
 
 1. **Commit your local changes in Euler.** Check `git status` and commit the work
-   you intend to keep, including edits inside `apps/`. The synchronization command
+   you intend to keep, including edits inside `app/`. The synchronization command
    requires a clean working tree, including untracked files that Git does not
    ignore. It does not stash changes for you or interrupt another merge or rebase.
 
@@ -68,7 +106,7 @@ time; there is no `apps:sync -- all` operation.
 
    Euler merges upstream changes with the changes already committed in its app
    directory. A successful update creates a local commit containing the merged
-   source and the new pin in `apps/upstream.json`. It does not install dependencies,
+   source and the new pin in `app/upstream.json`. It does not install dependencies,
    build apps, restart Euler, or push to a remote. If the app is already current,
    there is nothing to merge.
 
@@ -109,7 +147,7 @@ upstream behavior together with Euler's `/app/innernet` integration. Stage the
 resolved app files and let the synchronization command finish its commit:
 
 ```sh
-git add apps/innernet
+git add app/innernet
 npm run apps:sync -- --continue
 ```
 
@@ -144,9 +182,9 @@ The standalone repositories remain independently maintained:
 
 | Euler directory | Upstream repository |
 | --- | --- |
-| `apps/innernet` | [quirq-ai/innernet](https://github.com/quirq-ai/innernet) |
-| `apps/quitter` | [quirq-ai/quitter](https://github.com/quirq-ai/quitter) |
-| `apps/instants` | [quirq-ai/instants](https://github.com/quirq-ai/instants) |
+| `app/innernet` | [quirq-ai/innernet](https://github.com/quirq-ai/innernet) |
+| `app/quitter` | [quirq-ai/quitter](https://github.com/quirq-ai/quitter) |
+| `app/instants` | [quirq-ai/instants](https://github.com/quirq-ai/instants) |
 
 Edits committed directly in Euler stay in Euler. These commands never send them
 back to an upstream app repository. To contribute a change upstream, use that
@@ -177,7 +215,7 @@ This fetch restores the history needed to locate the subtree baseline; it does
 not synchronize any app's source files. Use the corresponding Euler remote name
 if your clone calls it something other than `origin`.
 
-[`apps/upstream.json`](../apps/upstream.json) records each upstream repository,
+[`app/upstream.json`](../app/upstream.json) records each upstream repository,
 branch, and current integrated revision in `upstream.commit`. Its tracked-file and
 byte counts describe that upstream revision. Synchronization advances those
 current revision fields as part of its local commit.

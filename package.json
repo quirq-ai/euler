@@ -10,6 +10,7 @@
     "start": "node bin/euler.mjs",
     "dev": "node bin/euler.mjs",
     "setup": "node scripts/setup.mjs",
+    "migrate:app-data": "node scripts/migrate-app-data.mjs",
     "apps:check": "node scripts/apps-sync.mjs check",
     "apps:sync": "node scripts/apps-sync.mjs sync",
     "build": "node bin/euler.mjs --build",
@@ -20,6 +21,6 @@
   "devDependencies": { "nx": "23.2.1", "pnpm": "9.12.3" },
   "nx": {
     "name": "euler-app",
-    "includedScripts": ["start", "setup", "build", "test", "apps:check", "apps:sync"]
+    "includedScripts": ["start", "setup", "migrate:app-data", "build", "test", "apps:check", "apps:sync"]
   }
 }

@@ -1,4 +1,6 @@
 node_modules/
+# Legacy app data and builds can remain here after upgrading to app/.
+/apps/
 .workspace-state/
 .workspace-tmp/
 .nx/

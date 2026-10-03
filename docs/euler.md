@@ -44,4 +44,4 @@ Settings are stored in `.workspace-state/euler/config.json`. The original dashbo
 
 Innernet's `/api/suggest`, for example, is mounted at `/app/innernet/api/suggest`. Next canonicalizes its home URL without the final slash. API responses and assets do not receive the dock; HTML documents do.
 
-The repository's `euler.workspace.json` selects the tracked app folders and their compile commands. Commands are argument arrays, executed without a shell. Build directories stay separate from standalone app development output. Import revisions and adaptation details are recorded in [apps/upstream.json](../apps/upstream.json); changes are ordinary source files and require no patch-preparation step.
+The repository's `euler.workspace.json` selects the tracked app folders and their compile commands. Commands are argument arrays, executed without a shell. Build directories stay separate from standalone app development output. Import revisions and adaptation details are recorded in [app/upstream.json](../app/upstream.json); changes are ordinary source files and require no patch-preparation step.

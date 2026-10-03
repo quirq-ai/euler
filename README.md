@@ -164,17 +164,17 @@ Import `quirq-ai/euler` once for each app you want. Select production branch **`
 
 | App | Root Directory | Framework | Install command | Build command | Output |
 | --- | --- | --- | --- | --- | --- |
-| Quitter | `apps/quitter` | Vite | `npm ci` | `npm run build` | `dist` |
-| Innernet | `apps/innernet` | Next.js | `npx --yes pnpm@9.12.3 install --frozen-lockfile` | `npm run build` | Next.js default |
-| Instants | `apps/instants` | Next.js | `npm ci` | `npm run build` | Next.js default |
+| Quitter | `app/quitter` | Vite | `npm ci` | `npm run build` | `dist` |
+| Innernet | `app/innernet` | Next.js | `npx --yes pnpm@9.12.3 install --frozen-lockfile` | `npm run build` | Next.js default |
+| Instants | `app/instants` | Next.js | `npm ci` | `npm run build` | Next.js default |
 
 Use each app's build script, not the repository-root Euler build command. Leave `QUIRQ_BASE_PATH`, `QUIRQ_DIST_DIR`, `INNERNET_BASE_PATH`, `INNERNET_DIST_DIR`, `INSTANTS_BASE_PATH`, and `INSTANTS_DIST_DIR` unset: standalone deployments use `/` and their normal build output. Clear stale framework/output overrides when reusing an old Vercel project.
 
 Keep **Enable access to System Environment Variables** turned on in the Vercel project's Environment Variables settings. Innernet and Instants use Vercel's `VERCEL` variable to select their hosted behavior. See [Vercel system environment variables](https://vercel.com/docs/environment-variables/system-environment-variables#enable-system-environment-variables).
 
 - **Quitter:** deploys its in-memory demonstration UI. It has no production collaboration backend.
-- **Innernet:** Vercel selects public demo mode and uses the committed `data/demo/index.json`. It does not index your computer. No database is needed for the bundled demo; optional Neon configuration is described in the [Innernet README](apps/innernet/README.md#the-public-demo-vercel).
-- **Instants:** on Vercel, the existing adapter keeps the session journal in browser storage. It is a device-local prototype, not shared team persistence. See the [Instants README](apps/instants/README.md#deploy-to-vercel).
+- **Innernet:** Vercel selects public demo mode and uses the committed `data/demo/index.json`. It does not index your computer. No database is needed for the bundled demo; optional Neon configuration is described in the [Innernet README](app/innernet/README.md#the-public-demo-vercel).
+- **Instants:** on Vercel, the existing adapter keeps the session journal in browser storage. It is a device-local prototype, not shared team persistence. See the [Instants README](app/instants/README.md#deploy-to-vercel).
 
 After deployment, open the app, inspect browser/network errors, and refresh a nested route. For Instants, make a sample change and refresh to confirm browser persistence. Hosting instructions are provided here; this repository does not provision your Vercel projects or credentials.
 
@@ -188,12 +188,12 @@ Quitter is a static Vite app, so it can also be published independently:
 | --- | --- | --- |
 | Repository | `quirq-ai/euler` | `quirq-ai/euler` |
 | Production branch | `main` | `main` |
-| Base / root directory | `apps/quitter` | `apps/quitter` |
+| Base / root directory | `app/quitter` | `app/quitter` |
 | Build command | `npm run build` | `npm run build` |
 | Publish / output directory | `dist` | `dist` |
 | Build Node version | `NODE_VERSION=24` | `NODE_VERSION=24` |
 
-Set Netlify's **Base directory** explicitly to `apps/quitter`, so dependencies are installed there; it is not enough to select only its Package directory. The publish directory is relative to that base. Keep `QUIRQ_BASE_PATH` and `QUIRQ_DIST_DIR` unset. These deployments do not include Euler's Node server, dock, or the two Next.js apps.
+Set Netlify's **Base directory** explicitly to `app/quitter`, so dependencies are installed there; it is not enough to select only its Package directory. The publish directory is relative to that base. Keep `QUIRQ_BASE_PATH` and `QUIRQ_DIST_DIR` unset. These deployments do not include Euler's Node server, dock, or the two Next.js apps.
 
 Reference: [Netlify monorepo settings](https://docs.netlify.com/build/configure-builds/monorepos/) and [Cloudflare Pages build settings](https://developers.cloudflare.com/pages/configuration/build-configuration/).
 
@@ -214,7 +214,7 @@ euler/
 ├── nx.json                # task orchestration
 ├── src/                   # HTTP host, builds, settings, dock injection
 ├── public/                # Home, avatar editor, controls, shared dock
-├── apps/
+├── app/
 │   ├── innernet/           # Next.js
 │   ├── quitter/            # Vite + React
 │   └── instants/           # Next.js
@@ -231,13 +231,15 @@ euler/
 | `npm run build -- --app instants` | Build one app even if disabled; leave its enabled setting unchanged. |
 | `npm test` | Run the host test suite. |
 
-You can also `cd apps/quitter` and run `npm run dev`, or use the other apps' own commands. Standalone development uses the app's original port and root path. Euler builds go into `.next-euler` or `dist-euler` to keep development output separate. Stop Euler before rebuilding a build it is serving.
+You can also `cd app/quitter` and run `npm run dev`, or use the other apps' own commands. Standalone development uses the app's original port and root path. Euler builds go into `.next-euler` or `dist-euler` to keep development output separate. Stop Euler before rebuilding a build it is serving.
 
 `npm start` resolves `euler.workspace.json` from this repository, regardless of your terminal's current directory. Use `--workspace /path/to/euler` or `--config /path/to/euler.workspace.json` to choose a custom installation. Nx runtime/build targets disable caching because local settings and data affect their behavior.
 
+Already have an older checkout with sources in `apps/`? Stop Euler and follow the [folder migration instructions](docs/app-updates.md#upgrade-from-the-apps-folder) to preserve local app data, then reinstall and rebuild under `app/`. Existing hosting projects must also update their app Root Directory or Base directory to the paths above.
+
 ### Update an app from its upstream repository
 
-App updates are manual. Innernet, Quitter, and Instants keep their own repositories; Euler tracks their sources as Git subtrees under `apps/`. Ordinary cloning, setup, and builds are unchanged.
+App updates are manual. Innernet, Quitter, and Instants keep their own repositories; Euler tracks their sources as Git subtrees under `app/`. Ordinary cloning, setup, and builds are unchanged.
 
 Commit your local Euler changes first, then run these commands from the repository root:
 
@@ -258,10 +260,10 @@ If a merge conflicts, resolve the files, stage them with `git add`, then run `np
 | Data | Stored in | Lifetime |
 | --- | --- | --- |
 | Enabled apps | `.workspace-state/euler/config.json` | Across server restarts |
-| Innernet local index | `apps/innernet/data/*.json` | On the host machine |
+| Innernet local index | `app/innernet/data/*.json` | On the host machine |
 | Innernet local database | `~/.innernet/db` by default | On the host machine; optional `INNERNET_DB_DIR` override |
 | Innernet local history | `~/.innernet/history` by default | On the host machine; optional `INNERNET_HISTORY_DIR` override |
-| Instants local journals | `apps/instants/session/<id>/session.json` | On the host machine |
+| Instants local journals | `app/instants/session/<id>/session.json` | On the host machine |
 | Avatar and dock opacity | Browser local storage | Per browser and origin |
 | Last route and scroll | Browser session storage | Per browser tab |
 
@@ -272,6 +274,6 @@ Keep a persistent disk for server-hosted Euler and back up local data with the s
 - This repository is [quirq-ai/euler](https://github.com/quirq-ai/euler). It replaces the older Python watcher with the standalone app workspace.
 - The original iframe-based quirq dashboard remains separate on [quirq-ai/quirq's `feat/standalone-dashboard`](https://github.com/quirq-ai/quirq/tree/feat/standalone-dashboard), at port 4400.
 - In the larger local quirq workspace, `npm run euler` starts `apps/euler`, while `npm start` opens the separate dashboard. This repository also works as a fresh independent clone.
-- [Source provenance](apps/upstream.json) records imported app revisions and adapters. [Architecture](docs/architecture.md) and the [user guide](docs/euler.md) explain the host in more detail.
+- [Source provenance](app/upstream.json) records imported app revisions and adapters. [Architecture](docs/architecture.md) and the [user guide](docs/euler.md) explain the host in more detail.
 - Blobatar is vendored locally under its MIT license in [public/vendor/blobatar](public/vendor/blobatar). Avatar rendering and saving do not contact an external service.
 - [CI](https://github.com/quirq-ai/euler/actions/workflows/check.yml) runs host tests on Node 22/24 and application builds on Node 24 across Windows, macOS, and Linux.

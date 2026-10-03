@@ -7,8 +7,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const script = fileURLToPath(new URL('../scripts/apps-sync.mjs', import.meta.url));
-const manifestPath = 'apps/upstream.json';
-const appPath = 'apps/innernet';
+const manifestPath = 'app/upstream.json';
+const appPath = 'app/innernet';
 
 function run(command, args, cwd, env, expected = 0) {
   const result = spawnSync(command, args, { cwd, env, encoding: 'utf8', windowsHide: true, timeout: 60000 });
@@ -22,7 +22,7 @@ async function put(root, path, content) {
   await writeFile(file, content);
 }
 
-async function fixture(t) {
+async function fixture(t, { directory = appPath } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'euler sync fixture '));
   t.after(() => rm(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }));
   const upstream = join(root, 'upstream source');
@@ -57,18 +57,18 @@ async function fixture(t) {
   const manifest = {
     version: 1,
     applications: [{
-      id: 'innernet', directory: appPath,
+      id: 'innernet', directory,
       upstream: { repository: remote, branch: 'main', commit: base, trackedFiles: 4, trackedBytes: 999 },
       import: { method: 'git subtree add --squash', includesUncommittedChanges: false, excludedTrackedPaths: [] },
       eulerAdapters: { trackedAsSource: true, files: ['adapter.txt'] },
     }],
   };
-  await put(host, manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  await put(host, `${directory.split('/')[0]}/upstream.json`, `${JSON.stringify(manifest, null, 2)}\n`);
   await put(host, 'host-only.txt', 'Euler outside the app\n');
   git(host, 'add', '.');
   git(host, 'commit', '-m', 'Euler host');
-  git(host, 'subtree', 'add', `--prefix=${appPath}`, remote, 'main', '--squash');
-  await put(host, `${appPath}/adapter.txt`, 'Euler adapter stays\n');
+  git(host, 'subtree', 'add', `--prefix=${directory}`, remote, 'main', '--squash');
+  await put(host, `${directory}/adapter.txt`, 'Euler adapter stays\n');
   git(host, 'add', '.');
   git(host, 'commit', '-m', 'Euler adapter');
   return {
@@ -217,7 +217,7 @@ test('conflicted sync supports abort and resolved continuation without premature
   const before = await app.snapshot();
   app.cli(['sync', 'innernet'], app.host, 1);
   assert.ok(app.git(app.host, 'rev-parse', '--verify', 'MERGE_HEAD'));
-  assert.match(app.git(app.host, 'diff', '--name-only', '--diff-filter=U'), /apps\/innernet\/shared\.txt/);
+  assert.match(app.git(app.host, 'diff', '--name-only', '--diff-filter=U'), /app\/innernet\/shared\.txt/);
   assert.equal((await app.manifest()).applications[0].upstream.commit, app.base);
   app.cli(['sync', '--abort']);
   assert.deepEqual(await app.snapshot(), before);
@@ -232,6 +232,58 @@ test('conflicted sync supports abort and resolved continuation without premature
   assert.equal(await readFile(join(app.host, appPath, 'shared.txt'), 'utf8'), 'Euler and upstream reconciled\n');
   assert.equal(app.git(app.host, 'status', '--porcelain=v1'), '');
   assert.equal(run('git', ['rev-parse', '--verify', 'MERGE_HEAD'], app.host, app.env, null).status, 128);
+});
+
+test('renaming apps to app retains three-way subtree updates through an ancestry-only prefix migration', async (t) => {
+  const app = await fixture(t, { directory: 'apps/innernet' });
+  await put(app.host, 'apps/innernet/shared.txt', 'Euler local implementation\n');
+  app.git(app.host, 'add', '.');
+  app.git(app.host, 'commit', '-m', 'Euler edits source before the folder rename');
+  const oldBaseline = app.git(app.host, 'log', '-1', '--format=%H', '--grep=^git-subtree-dir: apps/innernet$');
+  assert.ok(oldBaseline);
+  app.git(app.host, 'mv', 'apps', 'app');
+  const manifest = await app.manifest();
+  manifest.applications[0].directory = appPath;
+  await put(app.host, manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  app.git(app.host, 'add', '.');
+  app.git(app.host, 'commit', '-m', 'Rename the bundled application folder');
+  await put(app.upstream, 'shared.txt', 'Upstream new implementation\n');
+  const latest = await app.publish();
+
+  // A directory rename alone must not silently invent a baseline or overwrite
+  // Euler's edits. The migration belongs in shared history for every clone.
+  const beforeMigration = await app.snapshot();
+  const missingHistory = app.cli(['sync', 'innernet'], app.host, 1);
+  assert.match(`${missingHistory.stdout}\n${missingHistory.stderr}`, /subtree tracking history/i);
+  assert.deepEqual(await app.snapshot(), beforeMigration);
+  const upstreamTree = app.git(app.host, 'rev-parse', `${app.base}^{tree}`);
+  const newBaseline = app.git(app.host, 'commit-tree', upstreamTree, '-p', oldBaseline, '-m',
+    `Track Innernet under app/innernet\n\ngit-subtree-dir: ${appPath}\ngit-subtree-split: ${app.base}`);
+  const sourceTree = app.git(app.host, 'rev-parse', 'HEAD^{tree}');
+  app.git(app.host, 'merge', '--no-ff', '-s', 'ours', newBaseline, '-m', 'Retarget subtree tracking after the folder rename');
+  assert.equal(app.git(app.host, 'rev-parse', 'HEAD^{tree}'), sourceTree, 'Tracking migration must leave all source and metadata unchanged');
+
+  const beforeUpdate = await app.snapshot();
+  app.cli(['sync', 'innernet'], join(app.host, appPath), 1);
+  assert.equal(app.git(app.host, 'diff', '--name-only', '--diff-filter=U'), `${appPath}/shared.txt`);
+  assert.equal((await app.manifest()).applications[0].upstream.commit, app.base);
+  app.cli(['sync', '--abort']);
+  assert.deepEqual(await app.snapshot(), beforeUpdate);
+  app.cli(['sync', 'innernet'], app.host, 1);
+  await put(app.host, `${appPath}/shared.txt`, 'Euler and upstream reconciled\n');
+  app.git(app.host, 'add', `${appPath}/shared.txt`);
+  app.cli(['sync', '--continue']);
+  assert.equal((await app.manifest()).applications[0].upstream.commit, latest);
+  assert.equal(await readFile(join(app.host, appPath, 'shared.txt'), 'utf8'), 'Euler and upstream reconciled\n');
+  assert.equal(await readFile(join(app.host, appPath, 'adapter.txt'), 'utf8'), 'Euler adapter stays\n');
+  assert.equal(app.git(app.host, 'ls-files', 'apps'), '');
+  await put(app.upstream, 'after migration.txt', 'Later upstream changes still sync\n');
+  const next = await app.publish('Second upstream update after the directory rename');
+  app.cli(['sync', 'innernet']);
+  assert.equal((await app.manifest()).applications[0].upstream.commit, next);
+  assert.equal(await readFile(join(app.host, appPath, 'after migration.txt'), 'utf8'), 'Later upstream changes still sync\n');
+  assert.equal(await readFile(join(app.host, appPath, 'shared.txt'), 'utf8'), 'Euler and upstream reconciled\n');
+  assert.equal(app.git(app.host, 'status', '--porcelain=v1'), '');
 });
 
 test('sync continuation and abort preserve independent staged provenance even when the working copy is restored', async (t) => {

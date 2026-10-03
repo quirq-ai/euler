@@ -1,18 +1,18 @@
 {
-  "name": "euler-quitter",
+  "name": "euler-instants",
   "projectType": "application",
   "targets": {
     "setup": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node scripts/setup.mjs quitter"
+        "command": "node scripts/setup.mjs instants"
       },
       "cache": false
     },
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node bin/euler.mjs --build --app quitter"
+        "command": "node bin/euler.mjs --build --app instants"
       },
       "cache": false
     },
@@ -20,7 +20,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "npm run dev",
-        "cwd": "apps/quitter"
+        "cwd": "app/instants"
       },
       "cache": false
     }
