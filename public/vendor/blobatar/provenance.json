@@ -1,0 +1,31 @@
+{
+  "package": "blobatar",
+  "version": "2.7.0",
+  "license": "MIT",
+  "repository": "https://github.com/Alain00/blobatar",
+  "commit": "ebb7ea4808b1263629fc8fa65e2398b9cbdb6f6b",
+  "tarball": "https://registry.npmjs.org/blobatar/-/blobatar-2.7.0.tgz",
+  "integrity": "sha512-tL1p2J3dXE/Z9U/ITwHqU7HBHmTH+Am+hif1J1hWAhvFT1VYC2HG+eXtN7081yuY+L2lrp9bs/VaF7dVH3S2jw==",
+  "files": {
+    "expression.js": {
+      "packagePath": "dist/expression.js",
+      "sha256": "56cc04164d8d004fb6985c1b118415b05617c086dcd8549b5bdd701e61c41731"
+    },
+    "expression.js.map": {
+      "packagePath": "dist/expression.js.map",
+      "sha256": "e5c4898a8a51abe51c4b11966e058020021ce4dc38e6922c47bb65bb1ef97d5f"
+    },
+    "LICENSE": {
+      "packagePath": "LICENSE",
+      "sha256": "939e45eec9b4a8a904657acccda2beb0ff4c83d451a1e4971608cecaaad4d34a"
+    },
+    "index.js": {
+      "packagePath": "dist/index.js",
+      "sha256": "3d3548400eb6553d78580172e409a14f1ccc27ed74bf45833b47103bf35a6e28"
+    },
+    "index.js.map": {
+      "packagePath": "dist/index.js.map",
+      "sha256": "3267ac98d9553fd991651ac17e0202d3998e7cec167763b2ac82c638d25bb3d0"
+    }
+  }
+}

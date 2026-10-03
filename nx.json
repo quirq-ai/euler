@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "analytics": false,
+  "neverConnectToCloud": true,
+  "useDaemonProcess": false,
+  "targetDefaults": {
+    "start": { "cache": false },
+    "dev": { "cache": false },
+    "build": { "cache": false },
+    "setup": { "cache": false },
+    "test": { "cache": false }
+  },
+  "tui": { "enabled": false }
+}

@@ -1,79 +1,90 @@
 # Euler
 
-A small Python watcher service. It boots a FastAPI server on port 2718 and runs
-a background tick loop that logs `helloworld` and reloads `timeline.json` on
-every pass. The setup, configuration and startup commands mirror xo-space so
-the two projects are operated the same way.
+Euler is a local home for **Innernet**, **Quitter**, and **Instants**. One Node.js server serves the home screen, management controls, and all three applications at [localhost:2713](http://localhost:2713). The shared dock stays above every app; its opacity and Euler's Blobatar logo can be customized from Home.
 
-## Quick start
+This is [quirq-ai/euler](https://github.com/quirq-ai/euler). Euler is the application at the repository root. The original Quirq dashboard lives separately in [quirq-ai/quirq on `feat/standalone-dashboard`](https://github.com/quirq-ai/quirq/tree/feat/standalone-dashboard), with its original iframe viewer and port 4400.
 
-```sh
-./euler.sh dev        # creates venv, installs requirements, runs with reload on 127.0.0.1:2718
-```
+## Install and run
 
-Process manager (detached, logs to /tmp/euler.log, PID in /tmp/euler.pid):
+Use Node.js **22.13 or newer** (Node 24 recommended) on Windows, macOS, or Linux:
 
 ```sh
-./euler.sh install    # create venv and install requirements.txt
-./euler.sh start      # start in the background
-./euler.sh status
-./euler.sh logs       # tail -f /tmp/euler.log
-./euler.sh restart
-./euler.sh stop
+git clone https://github.com/quirq-ai/euler.git
+cd euler
+npm ci
+npm run setup
+npm run build
+npm start
 ```
 
-Or run the server directly, as the Dockerfile does:
+Open http://localhost:2713. All three apps are enabled initially. Setup installs each app's dependencies from its committed lockfile. Build compiles enabled apps with their Euler route prefix; start serves those builds. Source changes require another build and a server restart. Stop the server with Ctrl+C before rebuilding apps it is serving.
+
+No patch application or sibling repositories are needed. Application source and routing adapters are tracked directly under `apps/`. [apps/upstream.json](apps/upstream.json) records the imported revisions. The source snapshot deliberately excludes uncommitted changes from other local checkouts.
+
+If a Windows npm launcher is unavailable, invoke npm's JavaScript entrypoint with Node; the setup script itself never requires Bash or Windows command-shell syntax.
+
+## Workspace layout
+
+```text
+bin/euler.mjs             Euler's executable
+src/                     HTTP host, build manager, settings, dock injection
+public/                  Home, avatar editor, management UI, shared dock
+euler.workspace.json     Apps and their build commands
+apps/innernet/           Adapted Innernet source (Next.js)
+apps/quitter/            Adapted Quitter source (Vite)
+apps/instants/           Adapted Instants source (Next.js)
+scripts/setup.mjs        Portable, lockfile-based dependency setup
+nx.json                  Nx task configuration
+```
+
+The root manifest is resolved from this repository, regardless of the terminal's current directory. Euler does not discover a parent dashboard workspace or fall back to a demo. For a custom installation, use `npm start -- --workspace /path/to/euler` or `--config /path/to/euler.workspace.json`. Use `--port 2800` to change the host port.
+
+## Nx and individual apps
+
+Euler has its own Nx workspace:
 
 ```sh
-venv/bin/python server.py
+npx nx show projects
+npx nx run euler-app:start
+npx nx run euler-app:build
+npx nx run euler-innernet:build
+npx nx run euler-quitter:dev
 ```
 
-## Configuration
+Per-app Nx builds use the same Euler build engine and produce the required mount metadata. Runtime/build targets do not use Nx caching because settings and local data affect their behavior. `npm run build -- --app quitter` explicitly builds that app, even if it is disabled; it does not enable its routes. Without `--app`, the build includes only enabled apps.
 
-Copy `.env.example` to `.env`. Every key is documented there. Shell exports
-outrank `.env`.
-
-| Key | Default | Meaning |
-| --- | --- | --- |
-| `HOST` | `0.0.0.0` | bind address |
-| `PORT` | `2718` | under `STAGE=local`, 2719 is used when 2718 is busy |
-| `STAGE` | `beta` | `local` on a laptop (`euler.sh dev` sets it) |
-| `UVICORN_RELOAD` | `false` | restart on code changes |
-| `EULER_WATCHER_ENABLED` | `true` | run the tick loop |
-| `EULER_WATCHER_INTERVAL_S` | `5` | seconds between ticks |
-| `EULER_TIMELINE_PATH` | `timeline.json` | file the watcher loads each tick; `.jsonl` is also accepted |
-
-## Endpoints
-
-| Route | Returns |
-| --- | --- |
-| `GET /` | service name and stage |
-| `GET /health` | status plus a watcher snapshot |
-| `GET /api/watcher` | tick count, last tick time, timeline path and event count |
-| `GET /api/timeline` | the events currently in the timeline file |
-
-## Layout
-
-```
-server.py            FastAPI app, lifespan starts the watcher, uvicorn entrypoint
-services/periodic.py run_forever, the shared poll loop
-services/watcher.py  the tick: log helloworld, reload timeline.json
-utils/local_port.py  2718 -> 2719 fallback under STAGE=local
-tests/               plain unittest.TestCase, runnable under pytest too
-timeline.json        the file the watcher loads
-euler.sh             dev | install | start | stop | restart | status | logs
-```
-
-## Tests
+You can also work in any app folder using its original commands:
 
 ```sh
-venv/bin/python -m unittest discover -s tests -v
-venv/bin/python -m pytest -q
+cd apps/quitter
+npm run dev
 ```
 
-## Docker
+Standalone app commands use their own development ports and root URLs. Euler-specific builds use separate `.next-euler` or `dist-euler` directories. For Innernet demo development, use `npm run dev:demo`; the imported app includes a portable launcher. App READMEs document their own features and data setup.
+
+When this checkout sits inside the larger Quirq workspace at `apps/euler`, outer-root `npm run euler` starts it and `npm run build:euler` builds it. Outer-root `npm start` continues to launch the original dashboard. The unrelated Python repository at outer-root `euler/` keeps its existing Nx project and port.
+
+## How requests work
+
+- `/` serves Euler Home and the avatar editor.
+- `/manage` controls enabled apps, start/stop/restart, and logs.
+- `/app/innernet` and every nested asset/API route go to Innernet's production Next handler.
+- `/app/quitter/` serves Quitter's built assets and client-side routes.
+- `/app/instants` and its nested routes go to Instants's production Next handler.
+
+These handlers share Euler's HTTP listener. Each app has the base-path changes in its own tracked source; no iframe or separate app HTTP server is used. HTML responses receive the shared dock, while API responses, assets, and React server component streams pass through unchanged. The apps keep their framework boundaries, so ordinary links navigate between documents. Supported browsers use native view transitions; others use normal navigation. Scroll/location restoration is supported; unsaved in-memory state is not guaranteed across app switches.
+
+Stopping an app unmounts its route. Restart reactivates its already prepared build; it does not compile source changes. Enabled settings persist in `.workspace-state/euler/config.json`. The host binds to loopback and validates local request origins. Browser preferences (avatar and dock opacity) remain local to this host/port, so keeping port 2713 preserves them.
+
+Innernet's index/data and Instants's session files belong to their app directories. Fresh clones contain source and bundled sample material, not another checkout's private state. Existing personal data can be copied locally into these ignored app data directories; it must not be committed.
+
+## Validation
 
 ```sh
-docker build -t euler .
-docker run -p 2718:2718 euler
+npm test
+npm run build
 ```
+
+Host tests cover manifest selection, CLI arguments, configuration persistence, direct app routing, security boundaries, lifecycle behavior, streaming dock injection, and avatar preferences. CI runs the host tests on Windows, macOS, and Linux with Node 22 and 24. App dependency installation and build checks run on all three operating systems too.
+
+Blobatar is vendored locally under `public/vendor/blobatar` with its MIT license and provenance. Euler does not contact Blobatar to render or save your avatar.

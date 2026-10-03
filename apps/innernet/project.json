@@ -1,0 +1,28 @@
+{
+  "name": "euler-innernet",
+  "projectType": "application",
+  "targets": {
+    "setup": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node scripts/setup.mjs innernet"
+      },
+      "cache": false
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node bin/euler.mjs --build --app innernet"
+      },
+      "cache": false
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run dev",
+        "cwd": "apps/innernet"
+      },
+      "cache": false
+    }
+  }
+}

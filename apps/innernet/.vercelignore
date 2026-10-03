@@ -1,0 +1,11 @@
+# What `vercel deploy` from this folder must never upload. Vercel builds the demo, which
+# reads only data/demo/index.json; this machine's own index (local paths, README text),
+# the demo's clones and the film's sources stay here. .gitignore keeps them out of git;
+# this keeps them out of a CLI upload too.
+data/index.json
+data/*.tmp
+data/demo/*.tmp
+.demo-cache
+film
+public/guide/innernet-explainer.mp4
+.env*.local

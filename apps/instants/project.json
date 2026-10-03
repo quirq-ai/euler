@@ -1,0 +1,28 @@
+{
+  "name": "euler-instants",
+  "projectType": "application",
+  "targets": {
+    "setup": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node scripts/setup.mjs instants"
+      },
+      "cache": false
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node bin/euler.mjs --build --app instants"
+      },
+      "cache": false
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run dev",
+        "cwd": "apps/instants"
+      },
+      "cache": false
+    }
+  }
+}

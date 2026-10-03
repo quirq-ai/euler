@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#e8edf1">
+    <title>Home · Euler</title>
+    <link rel="icon" href="/euler-icons/home.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/euler.css">
+    <script type="module" src="/euler-dock.js" blocking="render"></script>
+    <script type="module" src="/euler-home.js"></script>
+    <script type="module" src="/euler-avatar-editor.js" blocking="render"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#applications">Skip to apps</a>
+    <div class="wallpaper" aria-hidden="true"><div class="wallpaper-fold fold-one"></div><div class="wallpaper-fold fold-two"></div><div class="wallpaper-fold fold-three"></div><div class="wallpaper-grain"></div></div>
+    <header class="home-header">
+      <a class="euler-brand" href="/" aria-label="Euler home"><img id="euler-logo" class="euler-logo" src="/euler-icons/home.svg" width="40" height="40" alt=""><span>euler</span></a>
+      <div class="header-right"><time id="header-clock" class="header-clock"></time><a class="manage-link" href="/manage"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 14h14"/><circle cx="7" cy="6" r="2"/><circle cx="13" cy="14" r="2"/></svg><span>Manage apps</span></a></div>
+    </header>
+    <main class="home-main" id="applications" tabindex="-1">
+      <section class="launcher" aria-labelledby="welcome-title">
+        <div class="welcome-heading"><p id="today" class="today"></p><h1 id="welcome-title">Welcome home.</h1><p class="welcome-copy">A little space for everything you do.</p></div>
+        <div class="launcher-apps">
+        <div class="apps-region">
+          <ul id="app-grid" class="app-grid" aria-label="Running apps" hidden></ul>
+          <div id="empty-state" class="empty-state" role="status">
+            <span id="loading-indicator" class="loading-indicator" aria-hidden="true"></span>
+            <h2 id="empty-title">Opening your space</h2>
+            <p id="empty-copy">Your apps will be here in a moment.</p>
+            <a id="empty-manage" class="empty-action" href="/manage" hidden>Choose your apps <span aria-hidden="true">↗</span></a>
+            <button id="retry" class="empty-action" type="button" hidden>Try again <span aria-hidden="true">↻</span></button>
+          </div>
+        </div>
+        <p id="space-status" class="space-status" role="status"><span class="status-light" aria-hidden="true"></span><span id="space-status-text">Connecting to Euler</span></p>
+        </div>
+      </section>
+      <section id="appearance" class="avatar-editor" aria-labelledby="avatar-title">
+        <div class="avatar-section-heading"><div><p class="avatar-eyebrow">A FACE FOR YOUR SPACE</p><h2 id="avatar-title">Make Euler yours.</h2></div><p>One little character.<br>Your logo and your Home icon.</p></div>
+        <div id="avatar-editor" class="avatar-editor-card">
+          <div class="avatar-stage">
+            <div class="avatar-seed-row"><label for="avatar-seed">Name / seed</label><input id="avatar-seed" type="text" maxlength="80" value="Euler" autocomplete="off" spellcheck="false" aria-describedby="avatar-seed-help"></div>
+            <p id="avatar-seed-help" class="avatar-seed-help">Every name has a character. Find yours.</p>
+            <div class="avatar-preview-wrap"><img id="avatar-preview" src="/euler-icons/home.svg" width="280" height="280" alt="Euler avatar preview"><span class="avatar-preview-label">LIVE PREVIEW</span></div>
+            <div class="avatar-variants" id="avatar-variants" aria-label="Try another seed"></div>
+            <div class="avatar-preview-actions"><button id="avatar-randomize" class="avatar-button avatar-button-soft" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h2.5c3.5 0 5.5 10 9 10H17m-3-3 3 3-3 3M3 15h2.5c1.5 0 2.8-1.8 4-4m2-3c1.2-1.8 2.3-3 3-3H17m-3-3 3 3-3 3"/></svg>Randomize</button><button id="avatar-reset" class="avatar-button avatar-button-quiet" type="button">Reset</button></div>
+            <p class="avatar-credit">Made with <a href="https://blobatar.dev/" target="_blank" rel="noopener noreferrer">Blobatar <span aria-hidden="true">↗</span></a></p>
+          </div>
+          <div class="avatar-controls">
+            <div class="avatar-tabs" role="tablist" aria-label="Avatar customization">
+              <button id="avatar-tab-shape" type="button" role="tab" data-avatar-tab="shape" aria-controls="avatar-panel-shape" aria-selected="true">Shape</button>
+              <button id="avatar-tab-color" type="button" role="tab" data-avatar-tab="color" aria-controls="avatar-panel-color" aria-selected="false" tabindex="-1">Color</button>
+              <button id="avatar-tab-eyes" type="button" role="tab" data-avatar-tab="eyes" aria-controls="avatar-panel-eyes" aria-selected="false" tabindex="-1">Eyes</button>
+              <button id="avatar-tab-details" type="button" role="tab" data-avatar-tab="details" aria-controls="avatar-panel-details" aria-selected="false" tabindex="-1">Details</button>
+            </div>
+            <div class="avatar-panels">
+              <div id="avatar-panel-shape" class="avatar-panel" role="tabpanel" aria-labelledby="avatar-tab-shape"><div class="avatar-panel-heading"><h3>A shape with personality.</h3><p>Pick a silhouette, or let your name decide.</p></div><div id="avatar-shapes" class="avatar-option-grid avatar-shapes" role="group" aria-label="Avatar shape"></div></div>
+              <div id="avatar-panel-color" class="avatar-panel" role="tabpanel" aria-labelledby="avatar-tab-color" hidden><div class="avatar-panel-heading"><h3>Find your shade.</h3><p>A little color goes a long way.</p></div><div id="avatar-colors" class="avatar-colors" role="group" aria-label="Color presets"></div><div class="avatar-slider-row"><div class="avatar-slider-label"><label for="avatar-hue">Hue</label><output id="avatar-hue-value" for="avatar-hue"></output></div><input id="avatar-hue" class="avatar-range hue-range" type="range" min="0" max="359" step="1"></div><div class="avatar-slider-row"><div class="avatar-slider-label"><label for="avatar-tone">Color tone</label><output id="avatar-tone-value" for="avatar-tone"></output></div><input id="avatar-tone" class="avatar-range tone-range" type="range" min="0" max="0.999" step="0.001"></div><p class="avatar-control-note">Color stays the same when you try another name.</p></div>
+              <div id="avatar-panel-eyes" class="avatar-panel" role="tabpanel" aria-labelledby="avatar-tab-eyes" hidden><div class="avatar-panel-heading"><h3>Say it with a look.</h3><p>Choose an expression, then make it your own.</p></div><div id="avatar-expressions" class="avatar-option-grid avatar-expressions" role="group" aria-label="Avatar expression"></div><div id="avatar-eye-traits" class="avatar-traits"></div></div>
+              <div id="avatar-panel-details" class="avatar-panel" role="tabpanel" aria-labelledby="avatar-tab-details" hidden><div class="avatar-panel-heading"><h3>The little things.</h3><p>Tune the proportions and finish the edges.</p></div><div class="avatar-select-row"><label for="avatar-background">Icon background</label><select id="avatar-background"></select></div><div id="avatar-body-traits" class="avatar-traits"></div><button id="avatar-unpin" type="button" class="avatar-text-button">Use name-derived traits</button><p class="avatar-control-note">Custom sliders stay put when the name changes. Reset a slider to let the name decide again.</p></div>
+            </div>
+            <div class="avatar-save-bar"><p id="avatar-status" role="status">Your Euler avatar</p><div class="avatar-save-actions"><button id="avatar-cancel" type="button" class="avatar-button avatar-button-quiet" disabled>Cancel</button><button id="avatar-save" type="button" class="avatar-button avatar-button-primary" disabled>Save avatar <span aria-hidden="true">↗</span></button></div></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <noscript><p class="no-script">Enable JavaScript to show your running apps, or <a href="/manage">open app management</a>.</p></noscript>
+  </body>
+</html>
