@@ -1,0 +1,73 @@
+/* The home page's own motion: the cue at the foot of the first screen, and the hand-off
+   from the search to the field guide below it. As the first screen scrolls away its
+   pool of aurora lags and dims and the wordmark lifts off, so the light seems to pass
+   down the page to the guide's title. Colours come only from the tokens in
+   app/globals.css. Nothing moves for readers who ask for less motion. */
+
+/* The cue: a hairline with a drop of ink running down it, now and then. */
+.home-cue-line {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 44px;
+  overflow: hidden;
+  background: var(--line-strong);
+}
+.home-cue-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 18px;
+  background: linear-gradient(to bottom, transparent, var(--ink));
+  transform: translateY(-18px);
+  animation: home-cue 3.2s cubic-bezier(0.45, 0, 0.25, 1) 1.4s infinite;
+}
+@keyframes home-cue {
+  0% {
+    transform: translateY(-18px);
+  }
+  55%,
+  100% {
+    transform: translateY(44px);
+  }
+}
+
+/* The hand-off, where the browser can tie motion to scrolling. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home-first {
+      view-timeline: --home-first block;
+    }
+    .home-first > .aurora {
+      animation: home-aurora-out linear both;
+      animation-timeline: --home-first;
+      animation-range: exit 0% exit 100%;
+    }
+    .home-lift {
+      animation: home-lift linear both;
+      animation-timeline: --home-first;
+      animation-range: exit 0% exit 75%;
+    }
+  }
+}
+@keyframes home-aurora-out {
+  to {
+    opacity: calc(var(--aurora-opacity) * 0.2);
+    transform: translateY(14%);
+  }
+}
+@keyframes home-lift {
+  to {
+    opacity: 0;
+    transform: translateY(-56px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-cue-line::after {
+    animation: none;
+    transform: none;
+  }
+}

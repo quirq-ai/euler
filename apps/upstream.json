@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "description": "Pinned upstream source snapshots with Euler adapters already incorporated as ordinary tracked source.",
+  "applications": [
+    {
+      "id": "innernet",
+      "directory": "apps/innernet",
+      "upstream": {
+        "repository": "https://github.com/quirq-ai/innernet.git",
+        "commit": "4e9becef4af1593b05405fc9f2c4e698b980913d",
+        "trackedFiles": 314,
+        "trackedBytes": 102578406
+      },
+      "import": {
+        "method": "git archive of the pinned commit",
+        "includesUncommittedChanges": false,
+        "excludedTrackedPaths": []
+      },
+      "eulerAdapters": {
+        "appliedDuringImport": true,
+        "trackedAsSource": true,
+        "patchSource": "https://github.com/quirq-ai/quirq/blob/7f2c8033934cfe001bc0301f001d2d657328f721/integrations/euler/innernet.patch",
+        "patchSha256": "2efafc2dd5d6581d9c0741a5f7654469ec19396ce642d8b7b6568e45d9b8b4a7",
+        "files": [
+          ".gitignore",
+          "app/api/db/store/route.ts",
+          "app/apple-icon/route.ts",
+          "app/guide/page.tsx",
+          "app/layout.tsx",
+          "components/activity/database-card.tsx",
+          "components/activity/trail.ts",
+          "components/apple-icon.tsx",
+          "components/guide/contribute.tsx",
+          "components/guide/hero.tsx",
+          "components/guide/plate.tsx",
+          "components/guide/source.ts",
+          "components/search-box.tsx",
+          "lib/base-path.ts",
+          "lib/data.ts",
+          "lib/db/sync.ts",
+          "lib/logo.ts",
+          "lib/project-root.ts",
+          "next.config.ts",
+          "package.json",
+          "scripts/verify-mount.mjs",
+          "tsconfig.json"
+        ],
+        "sourceCommit": "7f2c8033934cfe001bc0301f001d2d657328f721"
+      },
+      "additionalChanges": [
+        {
+          "files": [
+            "package.json",
+            "scripts/dev-demo.mjs"
+          ],
+          "reason": "Replace POSIX-only INNERNET_DEMO=1 npm script with a portable Node launcher; preserve defaults and forwarded arguments."
+        },
+        {
+          "files": [
+            "project.json"
+          ],
+          "reason": "Add Euler-owned Nx project targets so root commands and individual application folders both remain usable."
+        }
+      ]
+    },
+    {
+      "id": "quitter",
+      "directory": "apps/quitter",
+      "upstream": {
+        "repository": "https://github.com/quirq-ai/quitter.git",
+        "commit": "f4ac9ca1ae6f9f82968a4c47af063ed859912773",
+        "trackedFiles": 41,
+        "trackedBytes": 690412
+      },
+      "import": {
+        "method": "git archive of the pinned commit",
+        "includesUncommittedChanges": false,
+        "excludedTrackedPaths": []
+      },
+      "eulerAdapters": {
+        "appliedDuringImport": true,
+        "trackedAsSource": true,
+        "patchSource": "https://github.com/quirq-ai/quirq/blob/7f2c8033934cfe001bc0301f001d2d657328f721/integrations/euler/quitter.patch",
+        "patchSha256": "ee7c8eb43ab634d55424095a418e4b0841eb0cfe5fbee5f3d9002a19dc5e1780",
+        "files": [
+          ".gitignore",
+          "README.md",
+          "package-lock.json",
+          "package.json",
+          "src/ui/components/QuitterNavigation.tsx",
+          "src/ui/components/Screens.tsx",
+          "vite.config.ts"
+        ],
+        "sourceCommit": "7f2c8033934cfe001bc0301f001d2d657328f721"
+      },
+      "additionalChanges": [
+        {
+          "files": [
+            "project.json"
+          ],
+          "reason": "Add Euler-owned Nx project targets so root commands and individual application folders both remain usable."
+        }
+      ]
+    },
+    {
+      "id": "instants",
+      "directory": "apps/instants",
+      "upstream": {
+        "repository": "https://github.com/quirq-ai/instants.git",
+        "commit": "d89db7982fa356e09cba8a01ff810bb9a6759587",
+        "trackedFiles": 183,
+        "trackedBytes": 3605597
+      },
+      "import": {
+        "method": "git archive of the pinned commit",
+        "includesUncommittedChanges": false,
+        "excludedTrackedPaths": []
+      },
+      "eulerAdapters": {
+        "appliedDuringImport": true,
+        "trackedAsSource": true,
+        "patchSource": "https://github.com/quirq-ai/quirq/blob/7f2c8033934cfe001bc0301f001d2d657328f721/integrations/euler/instants.patch",
+        "patchSha256": "dfac96a2dcf35e343e27324aa376c56cdf833c23a508d66c00ad7ddc644ac20d",
+        "files": [
+          ".gitignore",
+          "README.md",
+          "app/api/session/route.ts",
+          "app/layout.tsx",
+          "components/instagram/app.tsx",
+          "components/instagram/overlays.tsx",
+          "components/instagram/shared.tsx",
+          "engine/session-store.mjs",
+          "eslint.config.mjs",
+          "hooks/use-session.ts",
+          "next.config.ts",
+          "tsconfig.json",
+          "lib/app-path.d.mts",
+          "lib/app-path.mjs",
+          "tests/app-path.test.mjs"
+        ],
+        "sourceCommit": "7f2c8033934cfe001bc0301f001d2d657328f721"
+      },
+      "additionalChanges": [
+        {
+          "files": [
+            "project.json"
+          ],
+          "reason": "Add Euler-owned Nx project targets so root commands and individual application folders both remain usable."
+        }
+      ]
+    }
+  ]
+}

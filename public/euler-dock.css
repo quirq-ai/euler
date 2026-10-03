@@ -1,0 +1,36 @@
+/* Shared document transitions. Dock controls are styled in their shadow tree. */
+@view-transition { navigation: auto; }
+::view-transition-group(root) { animation-duration: 200ms; animation-timing-function: cubic-bezier(.22,.68,0,1); }
+::view-transition-old(root) { animation: euler-page-out 150ms ease-out both; }
+::view-transition-new(root) { animation: euler-page-in 220ms cubic-bezier(.22,.68,0,1) both; }
+::view-transition-group(euler-dock) { animation-duration: 200ms; z-index: 2; }
+::view-transition-old(euler-dock) { animation: none; opacity: 0; }
+::view-transition-new(euler-dock) { animation: none; mix-blend-mode: normal; }
+@keyframes euler-page-out { to { opacity: 0; transform: scale(.992); } }
+@keyframes euler-page-in { from { opacity: 0; transform: translateY(5px) scale(1.008); } to { opacity: 1; transform: none; } }
+html.euler-shell { --euler-dock-clearance: calc(116px + env(safe-area-inset-bottom, 0px)); scroll-padding-bottom: var(--euler-dock-clearance); }
+euler-dock { position: fixed; z-index: 2147483646; }
+
+/* Known app integration: keep Quitter's fixed controls above the shared dock. */
+html.euler-shell[data-euler-app='quitter'] .toast { bottom: calc(var(--euler-dock-clearance) + 12px); }
+html.euler-shell[data-euler-app='innernet'] .home-first { min-height: calc(100dvh - var(--demo-bar, 0px) - var(--euler-dock-clearance)); }
+@media (max-width: 767px) {
+  html.euler-shell[data-euler-app='instants'] { scroll-padding-bottom: calc(var(--ig-dock-height, 64px) + 45px + var(--euler-dock-clearance)); }
+  html.euler-shell[data-euler-app='instants'] .mobile-nav { bottom: var(--euler-dock-clearance); }
+  html.euler-shell[data-euler-app='instants'] .ig-main { padding-bottom: calc(var(--ig-dock-height, 64px) + 38px + var(--euler-dock-clearance)); }
+  html.euler-shell[data-euler-app='instants'] .messages-page { height: calc(100dvh - 79px - var(--ig-dock-height, 64px) - 31px - var(--euler-dock-clearance)); }
+  html.euler-shell[data-euler-app='instants'] .reel-copy { bottom: calc(var(--ig-dock-height, 64px) + 35px + var(--euler-dock-clearance)); }
+  html.euler-shell[data-euler-app='instants'] .reel-actions,
+  html.euler-shell[data-euler-app='instants'] [data-sonner-toaster] { bottom: calc(var(--ig-dock-height, 64px) + 28px + var(--euler-dock-clearance)) !important; }
+}
+@media (max-width: 640px) {
+  html.euler-shell[data-euler-app='quitter'] .mobile-navigation { bottom: var(--euler-dock-clearance); height: 64px; padding-bottom: 0; }
+  html.euler-shell[data-euler-app='quitter'] .timeline { padding-bottom: calc(70px + var(--euler-dock-clearance)); }
+  html.euler-shell[data-euler-app='quitter'] .toast { bottom: calc(var(--euler-dock-clearance) + 78px); }
+  html.euler-shell[data-euler-app='quitter'] .messages-layout { min-height: calc(100dvh - var(--timeline-header-height, 73px) - 64px - var(--euler-dock-clearance)); }
+  html.euler-shell[data-euler-app='quitter'] .conversation-open .conversation-detail { height: calc(100dvh - var(--timeline-header-height, 73px) - 64px - var(--euler-dock-clearance)); }
+}
+@media (max-width: 520px) { html.euler-shell { --euler-dock-clearance: calc(100px + env(safe-area-inset-bottom, 0px)); } }
+
+@media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }
+html.euler-shell:not([data-euler-app]) #toast { bottom: calc(var(--euler-dock-clearance) + 12px); }

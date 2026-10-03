@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "name": "Euler",
+  "projects": {
+    "innernet": {
+      "name": "Innernet",
+      "directory": "apps/innernet",
+      "kind": "node",
+      "port": 3470,
+      "scripts": [
+        "dev"
+      ],
+      "commands": {
+        "dev": [
+          "{node}",
+          "node_modules/next/dist/bin/next",
+          "dev",
+          "--hostname",
+          "127.0.0.1",
+          "--port",
+          "{port}"
+        ]
+      },
+      "compiled": {
+        "type": "next",
+        "output": ".next-euler",
+        "build": [
+          "{node}",
+          "node_modules/next/dist/bin/next",
+          "build"
+        ]
+      }
+    },
+    "quitter": {
+      "name": "Quitter",
+      "directory": "apps/quitter",
+      "kind": "node",
+      "port": 5174,
+      "scripts": [
+        "dev"
+      ],
+      "commands": {
+        "dev": [
+          "{node}",
+          "node_modules/vite/bin/vite.js",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "{port}",
+          "--strictPort"
+        ]
+      },
+      "compiled": {
+        "type": "static",
+        "output": "dist-euler",
+        "build": [
+          "{node}",
+          "node_modules/vite/bin/vite.js",
+          "build"
+        ]
+      }
+    },
+    "instants": {
+      "name": "Instants",
+      "directory": "apps/instants",
+      "kind": "node",
+      "port": 5180,
+      "scripts": [
+        "dev"
+      ],
+      "commands": {
+        "dev": [
+          "{node}",
+          "node_modules/next/dist/bin/next",
+          "dev",
+          "--hostname",
+          "127.0.0.1",
+          "--port",
+          "{port}"
+        ]
+      },
+      "compiled": {
+        "type": "next",
+        "output": ".next-euler",
+        "build": [
+          "{node}",
+          "node_modules/next/dist/bin/next",
+          "build"
+        ]
+      }
+    }
+  }
+}
