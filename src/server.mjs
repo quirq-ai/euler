@@ -18,10 +18,14 @@ async function jsonBody(request) {
   if ((request.headers['content-type'] || '').split(';')[0].trim().toLowerCase() !== 'application/json') throw error('Send configuration as application/json.', 415);
   if (Number(request.headers['content-length']) > bodyLimit) { request.resume(); throw error('Request body is too large.', 413); }
   let body = '';
-  for await (const chunk of request) {
+  let oversized = false;
+  // Rejecting a streaming body must leave the socket open long enough to send 413.
+  // The default async iterator destroys the request when this loop exits early.
+  for await (const chunk of request.iterator({ destroyOnReturn: false })) {
     body += chunk;
-    if (Buffer.byteLength(body) > bodyLimit) throw error('Request body is too large.', 413);
+    if (Buffer.byteLength(body) > bodyLimit) { oversized = true; break; }
   }
+  if (oversized) { request.resume(); throw error('Request body is too large.', 413); }
   try { const parsed = JSON.parse(body || '{}'); if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error(); return parsed; }
   catch { throw error('Send a valid JSON object.', 400); }
 }

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { request as httpRequest } from 'node:http';
+import { once } from 'node:events';
+import { Agent, request as httpRequest } from 'node:http';
 import test from 'node:test';
 import { createEulerServer } from '../src/server.mjs';
 
@@ -39,7 +40,7 @@ async function dashboard(t, manager = managerStub()) {
   return { ...app, manager };
 }
 
-function request(app, path, { method = 'GET', headers = {}, body } = {}) {
+function request(app, path, { method = 'GET', headers = {}, body, agent, send } = {}) {
   const address = new URL(app.url);
   return new Promise((resolve, reject) => {
     const req = httpRequest({
@@ -48,6 +49,7 @@ function request(app, path, { method = 'GET', headers = {}, body } = {}) {
       path,
       method,
       headers,
+      agent,
       timeout: 3000,
     }, (response) => {
       const chunks = [];
@@ -62,7 +64,8 @@ function request(app, path, { method = 'GET', headers = {}, body } = {}) {
     });
     req.once('error', reject);
     req.once('timeout', () => req.destroy(new Error(`Dashboard request timed out: ${method} ${path}`)));
-    req.end(body);
+    if (send) send(req);
+    else req.end(body);
   });
 }
 
@@ -185,6 +188,46 @@ test('chunked oversized bodies also return JSON 413 without dispatching', async 
   });
   assertJsonError(response, 413);
   assert.deepEqual(app.manager.calls, []);
+});
+
+test('an oversized streaming upload receives JSON 413 before ending and leaves its connection usable', { timeout: 10000 }, async (t) => {
+  const app = await dashboard(t);
+  const agent = new Agent({ keepAlive: true, maxSockets: 1 });
+  t.after(() => agent.destroy());
+  let connections = 0;
+  app.server.on('connection', () => { connections += 1; });
+  const accepted = once(app.server, 'request');
+  let upload;
+  const pendingResponse = request(app, '/api/projects/euler/config', {
+    method: 'PUT', agent,
+    headers: { origin: new URL(app.url).origin, 'content-type': 'application/json', 'transfer-encoding': 'chunked' },
+    send(req) {
+      upload = req;
+      // Deliberately keep the upload open after crossing the 64 KiB limit.
+      req.write('x'.repeat(128 * 1024));
+    },
+  });
+  const [incoming] = await accepted;
+  const response = await pendingResponse;
+  assertJsonError(response, 413);
+  assert.equal(incoming.complete, false, 'The rejection must not wait for the upload to end');
+  assert.equal(incoming.destroyed, false, 'Rejecting the body must not destroy the response socket');
+  assert.deepEqual(app.manager.calls, []);
+  const drained = once(incoming, 'end');
+  const clientSocket = upload.socket;
+  await Promise.all([
+    drained,
+    new Promise((resolve, reject) => upload.end('remaining upload', (error) => error ? reject(error) : resolve())),
+  ]);
+  const state = await request(app, '/api/state', { agent });
+  assert.equal(state.status, 200);
+  assert.deepEqual(state.json, app.manager.state());
+  assert.equal(connections, 1, 'The server must drain the rejected body before accepting another request on the same connection');
+  assert.deepEqual(app.manager.calls, []);
+  // Await transport cleanup so no socket work escapes the lifetime of this test.
+  const closed = once(clientSocket, 'close');
+  agent.destroy();
+  await closed;
 });
 
 test('unknown commands and unregistered project ids are not dispatched', async (t) => {
