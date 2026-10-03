@@ -207,6 +207,9 @@ test('Euler public assets use an explicit allowlist with existing origin and tra
   for (const path of ['/euler-icons/missing.svg', '/euler-icons/../euler.html', '/euler-icons/%2e%2e/euler.html', '/euler-icons/%5c..%5ceuler.html', '/vendor/blobatar/provenance.json', '/vendor/blobatar/../../euler.html']) {
     assert.equal((await request(app, path)).status, 404, path);
   }
+  for (const path of ['/app/home/package.json', '/app/home/build.mjs', '/app/home/assets.mjs', '/app/home/public/euler.html']) {
+    assert.equal((await request(app, path)).status, 404, 'Home package internals are not public routes');
+  }
 });
 
 test('static handler does not expose build markers, dotfiles, traversal targets, or malformed paths', async (t) => {

@@ -14,7 +14,7 @@
     "apps:check": "node scripts/apps-sync.mjs check",
     "apps:sync": "node scripts/apps-sync.mjs sync",
     "build": "node bin/euler.mjs --build",
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --test tests/*.test.mjs app/home/tests/*.test.mjs",
     "nx": "nx"
   },
   "repository": { "type": "git", "url": "https://github.com/quirq-ai/euler.git" },

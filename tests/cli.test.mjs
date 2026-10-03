@@ -56,10 +56,10 @@ async function fixture(t) {
   await writeFile(join(root, 'build-fixture.mjs'), `import { writeFile } from 'node:fs/promises'; await writeFile('build-cwd.txt', process.cwd());`);
   return {
     root, port, config, marker,
-    async start(args) {
+    async start(args, { cwd = root, entry = executable } = {}) {
       let output = '';
-      child = spawn(process.execPath, [executable, ...args, '--port', String(port)], {
-        cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'],
+      child = spawn(process.execPath, [entry, ...args, '--port', String(port)], {
+        cwd, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'],
       });
       child.stdout.on('data', (data) => { output += data; });
       child.stderr.on('data', (data) => { output += data; });
@@ -168,4 +168,37 @@ test('CLI builds a named app without starting HTTP and rejects unknown app ids',
   });
   assert.equal(unknown.status, 1);
   assert.match(unknown.stderr, /Unknown app: unknown/);
+  assert.doesNotMatch(unknown.stdout, /Home assets validated/);
 });
+
+test('CLI can build only Home, while full builds include Home and the selected workspace', async (t) => {
+  const app = await fixture(t);
+  const home = spawnSync(process.execPath, [executable, '--config', app.config, '--build', '--app', 'home'], {
+    cwd: tmpdir(), encoding: 'utf8', timeout: 10000, windowsHide: true,
+  });
+  assert.equal(home.status, 0, home.stderr || home.error?.message);
+  assert.match(home.stdout, /Home assets validated/);
+  assert.doesNotMatch(home.stdout, /Building fixture/);
+  await assert.rejects(readFile(join(app.root, 'build-cwd.txt')), { code: 'ENOENT' });
+  const all = spawnSync(process.execPath, [executable, '--config', app.config, '--build'], {
+    cwd: tmpdir(), encoding: 'utf8', timeout: 10000, windowsHide: true,
+  });
+  assert.equal(all.status, 0, all.stderr || all.error?.message);
+  assert.match(all.stdout, /Home assets validated[\s\S]*Building fixture/);
+  assert.equal(await realpath(await readFile(join(app.root, 'build-cwd.txt'), 'utf8')), await realpath(app.root));
+});
+
+for (const script of ['dev', 'start']) {
+  test(`Home's ${script} entry runs from app/home against the same Euler API`, { timeout: 20000 }, async (t) => {
+    const app = await fixture(t);
+    const homeDirectory = fileURLToPath(new URL('../app/home/', import.meta.url));
+    const pkg = JSON.parse(await readFile(join(homeDirectory, 'package.json'), 'utf8'));
+    const [command, entry, ...args] = pkg.scripts[script].split(' ');
+    assert.equal(command, 'node');
+    const { url, state } = await app.start([...args, '--config', app.config], { cwd: homeDirectory, entry });
+    assert.deepEqual(state.projects.map((project) => project.id), ['fixture']);
+    for (const path of ['/', '/euler-home.js', '/euler-avatar-editor.js', '/euler-avatar.js', '/euler-dock.js']) {
+      assert.equal((await fetch(`${url}${path}`)).status, 200, path);
+    }
+  });
+}

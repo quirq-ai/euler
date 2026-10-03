@@ -29,13 +29,13 @@ npm run build
 npm start
 ```
 
-Open **http://localhost:2713**. All three apps are enabled initially. Stop Euler with **Ctrl+C** in its terminal; closing the browser tab leaves it running.
+Open **http://localhost:2713**. All three bundled apps are enabled initially; Home stays available. Stop Euler with **Ctrl+C** in its terminal; closing the browser tab leaves it running.
 
 | Step | What it does |
 | --- | --- |
 | `npm ci` | Installs the root Nx and package-manager tools. |
-| `npm run setup` | Installs each app from its committed lockfile. |
-| `npm run build` | Compiles enabled apps for their `/app/<name>` routes. |
+| `npm run setup` | Installs the bundled apps from their committed lockfiles; Home needs no dependencies. |
+| `npm run build` | Validates Home and compiles enabled apps for their `/app/<name>` routes. |
 | `npm start` | Starts one HTTP server and mounts the enabled builds. |
 
 The app sources and routing changes are already included. No sibling repositories or patch-preparation step is required. For another port, use `npm start -- --port 2800`.
@@ -213,8 +213,9 @@ euler/
 ├── euler.workspace.json   # apps and build commands
 ├── nx.json                # task orchestration
 ├── src/                   # HTTP host, builds, settings, dock injection
-├── public/                # Home, avatar editor, controls, shared dock
+├── public/                # shared dock, avatar renderer, icons, Blobatar
 ├── app/
+│   ├── home/               # Home, controls, avatar editor; served at /
 │   ├── innernet/           # Next.js
 │   ├── quitter/            # Vite + React
 │   └── instants/           # Next.js
@@ -223,15 +224,24 @@ euler/
 
 | Command | Purpose |
 | --- | --- |
-| `npx nx show projects` | List the host and three app projects. |
+| `npx nx show projects` | List the host, Home, and three bundled app projects. |
 | `npx nx run euler-app:start` | Start Euler. |
-| `npx nx run euler-app:build` | Build enabled apps. |
+| `npx nx run euler-app:build` | Validate Home and build enabled apps. |
+| `npx nx run euler-home:dev` | Start Home through the Euler host at port 2713. |
+| `npx nx run euler-home:build` | Validate Home's browser-ready source files. |
+| `npx nx run euler-home:test` | Run the focused Home tests. |
 | `npx nx run euler-innernet:build` | Build Innernet for its Euler route. |
 | `npx nx run euler-quitter:dev` | Start standalone Quitter development. |
+| `npm run setup -- home` | Confirm Home needs no dependency installation. |
+| `npm run build -- --app home` | Validate Home without building the other apps. |
 | `npm run build -- --app instants` | Build one app even if disabled; leave its enabled setting unchanged. |
-| `npm test` | Run the host test suite. |
+| `npm test` | Run the host and Home test suites. |
 
 You can also `cd app/quitter` and run `npm run dev`, or use the other apps' own commands. Standalone development uses the app's original port and root path. Euler builds go into `.next-euler` or `dist-euler` to keep development output separate. Stop Euler before rebuilding a build it is serving.
+
+Home is a first-class local app in [`app/home`](app/home/README.md). From that folder, `npm run dev` or `npm start` launches the same Euler host, API, and enabled apps at **http://localhost:2713/**. Stop an existing Euler process before starting another on that port. `npm run build` validates Home's HTML, CSS, and JavaScript, and `npm test` runs its focused tests. Home uses browser-ready source with no app dependencies or generated bundle; Nx also exposes its `start` and `setup` targets.
+
+Home stays available as Euler's control surface, so it has no enable switch or upstream repository to synchronize. The shared dock, avatar renderer, icons, and vendored Blobatar remain in root `public/` for use across apps. Hosting Home requires the full Euler host described in [Deployment](#deployment).
 
 `npm start` resolves `euler.workspace.json` from this repository, regardless of your terminal's current directory. Use `--workspace /path/to/euler` or `--config /path/to/euler.workspace.json` to choose a custom installation. Nx runtime/build targets disable caching because local settings and data affect their behavior.
 

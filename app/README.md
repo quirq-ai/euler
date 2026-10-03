@@ -2,12 +2,22 @@
 
 These directories contain ordinary source code tracked by the Euler repository:
 
-- `innernet` — local search and the personal encyclopedia.
+- [`home`](./home/README.md) - Euler's Home, app controls, and avatar editor.
+- `innernet` - local search and the personal encyclopedia.
 - `quitter` — the agent activity workspace.
 - `instants` — the visual workspace and replies.
 
-The initial source snapshots were exported from the exact upstream commits in
-[`upstream.json`](./upstream.json). The existing Euler subpath adapters were applied
+Home is maintained directly in Euler. Its `public/` directory owns the Home HTML,
+stylesheet, controller, and avatar editor; root `public/` keeps the shared dock,
+avatar renderer, icons, and Blobatar. Run `npm run dev` or `npm start` inside
+`home/` to launch the existing Euler host at http://localhost:2713/. Home's build
+validates browser-ready files, setup needs no dependencies, and `npm test` runs
+its focused tests. Its Nx project is `euler-home`. Home always remains available
+and is not part of the upstream synchronization manifest.
+
+The three other applications' initial source snapshots were exported from the
+exact upstream commits in [`upstream.json`](./upstream.json). The existing Euler
+subpath adapters were applied
 once during import. Their resulting source changes are checked in here, including
 Innernet's explicit Apple icon route and component relocation. Building and starting
 Euler do not apply patches or fetch source repositories.

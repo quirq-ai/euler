@@ -19,6 +19,7 @@ export function validateManifest(value) {
   const projects = {};
   const ports = new Map();
   for (const [id, project] of Object.entries(value.projects)) {
+    if (id === 'home') throw invalid('home is reserved for Euler\'s built-in control page.');
     if (!identifier.test(id) || ['constructor', 'prototype'].includes(id)) throw invalid(`unsupported project id: ${id}.`);
     if (!object(project)) throw invalid(`${id} must be an object.`);
     if (!Number.isInteger(project.port) || project.port < 1024 || project.port > 65535) throw invalid(`${id}.port must be an integer from 1024 to 65535.`);

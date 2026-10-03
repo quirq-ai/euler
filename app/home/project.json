@@ -1,0 +1,32 @@
+{
+  "name": "euler-home",
+  "projectType": "application",
+  "sourceRoot": "app/home/public",
+  "targets": {
+    "setup": {
+      "executor": "nx:run-commands",
+      "options": { "command": "node scripts/setup.mjs home" },
+      "cache": false
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": { "command": "node bin/euler.mjs --build --app home" },
+      "cache": false
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": { "command": "npm run dev", "cwd": "app/home" },
+      "cache": false
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": { "command": "npm start", "cwd": "app/home" },
+      "cache": false
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "npm test", "cwd": "app/home" },
+      "cache": false
+    }
+  }
+}

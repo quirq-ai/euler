@@ -3,7 +3,7 @@ import test from 'node:test';
 import { npmCliCandidates, setupApps } from '../scripts/setup.mjs';
 
 test('setup selects only bundled apps and avoids duplicate installation requests', () => {
-  assert.deepEqual(setupApps([]), ['innernet', 'quitter', 'instants']);
+  assert.deepEqual(setupApps([]), ['home', 'innernet', 'quitter', 'instants']);
   assert.deepEqual(setupApps(['quitter', 'innernet', 'quitter']), ['quitter', 'innernet']);
   assert.throws(() => setupApps(['../innernet']), /Unknown app/);
 });

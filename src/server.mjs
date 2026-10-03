@@ -1,11 +1,9 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createCompiledManager } from './compiled.mjs';
 import { attachEulerDock } from './dock.mjs';
+import { homeAssets } from '../app/home/assets.mjs';
 
-const directory = dirname(fileURLToPath(import.meta.url));
 const bodyLimit = 64 * 1024;
 const error = (message, statusCode) => Object.assign(new Error(message), { statusCode });
 const contentPolicy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
@@ -34,15 +32,15 @@ export async function createEulerServer({ port = 2713, manager, workspace } = {}
   if (!manager && !workspace) throw new Error('Provide an Euler workspace or app manager.');
   let controller = manager;
   let actualPort;
-  const assets = {
-    '/': ['euler.html', 'text/html; charset=utf-8'],
-    '/euler.css': ['euler.css', 'text/css; charset=utf-8'], '/euler-home.js': ['euler-home.js', 'text/javascript; charset=utf-8'],
-    '/euler-avatar.js': ['euler-avatar.js', 'text/javascript; charset=utf-8'], '/euler-avatar-editor.js': ['euler-avatar-editor.js', 'text/javascript; charset=utf-8'],
+  const sharedAssets = {
+    '/euler-avatar.js': ['euler-avatar.js', 'text/javascript; charset=utf-8'],
     '/vendor/blobatar/index.js': ['vendor/blobatar/index.js', 'text/javascript; charset=utf-8'], '/vendor/blobatar/expression.js': ['vendor/blobatar/expression.js', 'text/javascript; charset=utf-8'],
     '/euler-dock.css': ['euler-dock.css', 'text/css; charset=utf-8'], '/euler-dock.js': ['euler-dock.js', 'text/javascript; charset=utf-8'],
     '/euler-dock-ui.css': ['euler-dock-ui.css', 'text/css; charset=utf-8'],
     ...Object.fromEntries(['innernet', 'quitter', 'instants', 'home', 'settings'].map((id) => [`/euler-icons/${id}.svg`, [`euler-icons/${id}.svg`, 'image/svg+xml']])),
   };
+  const assets = { ...homeAssets, ...Object.fromEntries(Object.entries(sharedAssets)
+    .map(([path, [file, type]]) => [path, [new URL(`../public/${file}`, import.meta.url), type]])) };
   const server = createServer(async (request, response) => {
     response.setHeader('Cache-Control', 'no-store');
     response.setHeader('X-Content-Type-Options', 'nosniff');
@@ -64,7 +62,7 @@ export async function createEulerServer({ port = 2713, manager, workspace } = {}
       const asset = Object.hasOwn(assets, path) ? assets[path] : null;
       if (['GET', 'HEAD'].includes(request.method) && asset) {
         const [file, type] = asset;
-        const content = await readFile(join(directory, '..', 'public', file));
+        const content = await readFile(file);
         if (type.startsWith('text/html')) attachEulerDock(request, response);
         response.writeHead(200, { 'Content-Type': type });
         response.end(request.method === 'HEAD' ? undefined : content);

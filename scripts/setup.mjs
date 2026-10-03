@@ -5,7 +5,7 @@ import { dirname, join, posix, resolve, win32 } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const knownApps = ['innernet', 'quitter', 'instants'];
+const knownApps = ['home', 'innernet', 'quitter', 'instants'];
 export function setupApps(args) {
   if (args.some((id) => !knownApps.includes(id))) throw new Error(`Unknown app. Choose: ${knownApps.join(', ')}.`);
   return args.length ? [...new Set(args)] : [...knownApps];
@@ -35,10 +35,11 @@ export async function setup(args = process.argv.slice(2)) {
   const selected = setupApps(args);
   // Run npm through Node instead of a shell so spaces and Windows .cmd launchers
   // do not change argument handling. npm itself supplies npm_execpath.
-  const npmCli = npmCliCandidates().find((file) => existsSync(file));
-  if (!npmCli) throw new Error('Cannot find npm. Run this setup with npm run setup.');
+  const npmCli = selected.some((id) => id !== 'home') ? npmCliCandidates().find((file) => existsSync(file)) : null;
+  if (selected.some((id) => id !== 'home') && !npmCli) throw new Error('Cannot find npm. Run this setup with npm run setup.');
 
   for (const id of selected.length ? selected : knownApps) {
+    if (id === 'home') { console.log('Home is ready; no dependencies to install.'); continue; }
     const directory = join(root, 'app', id);
     const pkg = JSON.parse(await readFile(join(directory, 'package.json'), 'utf8'));
     console.log(`Installing ${pkg.name}…`);

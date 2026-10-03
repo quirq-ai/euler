@@ -1,0 +1,15 @@
+{
+  "name": "@quirq-ai/euler-home",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Euler Home: app controls, workspace statistics, and avatar customization",
+  "type": "module",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "setup": "node ../../scripts/setup.mjs home",
+    "dev": "node ../../bin/euler.mjs",
+    "start": "node ../../bin/euler.mjs",
+    "build": "node build.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

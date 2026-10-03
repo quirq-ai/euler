@@ -1,10 +1,12 @@
 # Using Euler
 
-Euler is the root application in [quirq-ai/euler](https://github.com/quirq-ai/euler). Follow the [repository setup instructions](../README.md) to install, build, and launch it at http://localhost:2713.
+Euler is the shared host in [quirq-ai/euler](https://github.com/quirq-ai/euler), with Home and the bundled applications maintained in `app/`. Follow the [repository setup instructions](../README.md) to install, build, and launch it at http://localhost:2713.
 
 ## Home and dock
 
 Home brings every app's status, launch controls, enabled setting, and lifecycle actions together with Euler's avatar editor. Summary counts show the workspace at a glance; each app has a status dot and a text label. The floating dock sits at the bottom center above page content, with device safe-area spacing. It appears on Home and app pages; its icons update as apps start or stop and show only running apps.
+
+Home lives in [`app/home`](../app/home/README.md) and remains available at `/`, even when every bundled app is stopped. It has no enable switch. For Home development, run `npm run dev` or `npm start` from that folder to launch the same Euler host on port 2713; stop an existing Euler process first. Run `npm run build` there to validate Home's source and `npm test` for its focused tests. No separate Home dependencies or generated bundle are needed.
 
 **Dock appearance** changes the glass background opacity between 20% and 100% (default 72%). Icons stay opaque. This preference is saved in browser storage for the Euler address and synchronized across tabs.
 
@@ -38,6 +40,7 @@ Settings are stored in `.workspace-state/euler/config.json`. The original dashbo
 
 | App | Route | Handler |
 | --- | --- | --- |
+| Home | `/` | Browser-ready UI served by Euler's host |
 | Innernet | `/app/innernet` | Next pages, assets, and APIs |
 | Quitter | `/app/quitter/` | Built Vite assets and client routes |
 | Instants | `/app/instants` | Next pages, assets, and APIs |

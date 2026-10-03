@@ -1,6 +1,7 @@
 import { createEulerServer } from './server.mjs';
 import { loadWorkspace } from './workspace.mjs';
 import { buildCompiledWorkspace } from './compiled.mjs';
+import { buildHome } from '../app/home/build.mjs';
 
 export function parseArgs(args) {
   const options = { port: 2713 };
@@ -25,11 +26,16 @@ export async function main(args = process.argv.slice(2)) {
   try {
     const options = parseArgs(args);
     if (options.help) {
-      console.log('Euler - your local app workspace\n\nUsage: node bin/euler.mjs [options]\n\n  --workspace PATH  Use euler.workspace.json in this folder\n  --config FILE     Use a specific Euler workspace manifest\n  --port NUMBER     Euler port (default 2713)\n  --build           Build enabled apps and exit\n  --app ID          Build only this app (requires --build; includes disabled apps)\n  --help            Show this help\n\nBy default, use euler.workspace.json in this repository, regardless of the\ncurrent folder. Run npm run build once, then npm start. Enabled apps are\nserved directly at /app/<name>/; manage them on Home at /.');
+      console.log('Euler - your local app workspace\n\nUsage: node bin/euler.mjs [options]\n\n  --workspace PATH  Use euler.workspace.json in this folder\n  --config FILE     Use a specific Euler workspace manifest\n  --port NUMBER     Euler port (default 2713)\n  --build           Validate Home, build enabled apps, and exit\n  --app ID          Build home or one bundled app (requires --build; includes disabled apps)\n  --help            Show this help\n\nBy default, use euler.workspace.json in this repository, regardless of the\ncurrent folder. Run npm run build once, then npm start. Enabled apps are\nserved directly at /app/<name>/; manage them on Home at /.');
       return;
     }
     const workspace = await loadWorkspace(options);
-    if (options.build) { await buildCompiledWorkspace(workspace, { app: options.app }); return; }
+    if (options.build) {
+      if (options.app && options.app !== 'home' && !Object.hasOwn(workspace.projects, options.app)) throw new Error(`Unknown app: ${options.app}.`);
+      if (!options.app || options.app === 'home') await buildHome();
+      if (options.app !== 'home') await buildCompiledWorkspace(workspace, { app: options.app });
+      return;
+    }
     process.env.NODE_ENV = 'production';
     const dashboard = await createEulerServer({ port: options.port, workspace });
     console.log(`\nEuler is ready at ${dashboard.url}\nWorkspace: ${workspace.name}\nManifest: ${workspace.configFile}\nUse Ctrl+C to close Euler and its apps.\n`);

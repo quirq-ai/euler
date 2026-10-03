@@ -103,6 +103,7 @@ test('invalid ids, ports, project directories, URLs, and command values are reje
   const invalid = [
     (value) => { value.projects['../outside'] = value.projects.web; delete value.projects.web; },
     (value) => { value.projects['bad id'] = value.projects.web; delete value.projects.web; },
+    (value) => { value.projects.home = value.projects.web; delete value.projects.web; },
     ...[1023, 65536, 5301.5, '5301'].map((port) => (value) => { value.projects.web.port = port; }),
     ...['../outside', '/absolute', 'C:\\outside'].map((directory) => (value) => { value.projects.web.directory = directory; }),
     ...['https://foreign.example/', '//foreign.example/', 'javascript:alert(1)', '/\\foreign.example/'].map((urlPath) => (value) => { value.projects.web.urlPath = urlPath; }),
