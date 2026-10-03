@@ -1,0 +1,452 @@
+.attention-queue {
+  padding-top: 18px;
+  border-bottom: 1px solid var(--ig-soft-border);
+  margin-bottom: 12px;
+}
+.attention-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 3px;
+  margin-bottom: 13px;
+}
+.attention-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+}
+.attention-heading h2 > span {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 20px;
+  color: var(--ig-muted);
+  background: var(--ig-field);
+}
+.attention-heading > button {
+  font-size: 11px;
+  color: var(--ig-muted);
+  min-height: 28px;
+}
+.attention-categories {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 1px 5px;
+}
+.attention-categories button {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 30px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--ig-muted);
+  border-radius: 20px;
+  transition: background var(--motion-press);
+}
+.attention-categories button[aria-pressed="true"] {
+  background: var(--ig-foreground);
+  color: var(--ig-background);
+}
+.attention-categories button > span {
+  font-size: 9px;
+  opacity: 0.65;
+}
+.attention-people.stories {
+  padding: 15px 0 18px;
+  margin: 0;
+  gap: 17px;
+  min-height: 126px;
+}
+.attention-people .story {
+  gap: 6px;
+  flex: 0 0 69px;
+}
+.attention-people .story > small {
+  margin-top: -4px;
+  font-size: 9px;
+  color: var(--ig-muted);
+}
+.attention-avatar {
+  position: relative;
+  display: block;
+}
+.attention-type {
+  position: absolute;
+  bottom: 0;
+  right: -2px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid var(--ig-background);
+  background: var(--ig-foreground);
+  color: var(--ig-background);
+}
+.attention-type.urgent {
+  background: var(--ig-action);
+  color: var(--ig-on-action);
+}
+.attention-person.is-replied {
+  opacity: 0.65;
+}
+.attention-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ig-muted);
+  font-size: 12px;
+  padding-left: 10px;
+}
+.attention-empty small {
+  display: block;
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+.team-feed-tabs [role="tab"] {
+  font-size: 13px !important;
+  white-space: nowrap;
+}
+.team-post-label {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  color: var(--ig-muted);
+}
+.post-card .post-media.work-preview-media {
+  height: auto;
+  aspect-ratio: 1;
+}
+.side-footer .session-export {
+  display: flex;
+}
+.team-post-label i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ig-live);
+}
+.team-work-kind {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: var(--ig-field);
+  color: var(--ig-muted);
+  margin-right: 7px;
+  white-space: nowrap;
+}
+.team-summary {
+  margin: 22px 0 20px;
+  display: grid;
+  gap: 9px;
+}
+.team-summary > button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-align: left;
+  padding: 10px;
+  border: 1px solid var(--ig-soft-border);
+  border-radius: 10px;
+}
+.team-monogram {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--ig-field);
+  font-size: 10px;
+  font-weight: 800;
+}
+.team-summary strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.team-summary small {
+  display: block;
+  font-size: 10px;
+  color: var(--ig-muted);
+  margin-top: 3px;
+}
+.team-summary > button > svg {
+  margin-left: auto;
+  color: var(--ig-muted);
+}
+.session-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ig-muted);
+  font-size: 10px;
+  margin-top: 14px;
+}
+.session-status i {
+  width: 5px;
+  height: 5px;
+  background: var(--ig-live);
+  border-radius: 50%;
+}
+.session-feedback {
+  padding: 10px 14px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ig-field);
+  border: 1px solid var(--ig-border);
+  border-radius: 8px;
+  margin: 10px 0;
+}
+.session-feedback button {
+  color: var(--ig-action);
+  white-space: nowrap;
+}
+.session-feedback span {
+  flex: 1;
+}
+.session-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ig-muted);
+  min-height: 44px;
+}
+.attention-dialog {
+  padding: 0 !important;
+  gap: 0 !important;
+  width: calc(100% - 32px) !important;
+  max-width: 440px !important;
+  max-height: min(760px, 90dvh);
+  border-radius: 20px !important;
+  border: 1px solid var(--ig-border) !important;
+  overflow: hidden;
+  display: flex !important;
+  flex-direction: column;
+  background: var(--ig-background) !important;
+  color: var(--ig-foreground);
+}
+.attention-swipe-zone {
+  touch-action: pinch-zoom;
+  padding: 24px 24px 18px;
+  flex-shrink: 0;
+}
+.attention-dialog-topline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  padding-right: 20px;
+  margin-bottom: 20px;
+  color: var(--ig-muted);
+}
+.attention-dialog-topline > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.attention-dialog-topline > span:last-child {
+  margin-left: auto;
+  font-size: 9px;
+}
+.attention-dialog-topline .waiting {
+  color: var(--ig-action);
+}
+.attention-dialog-topline .resolved {
+  color: var(--ig-live);
+}
+.attention-person-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.attention-person-header h2 {
+  font-size: 17px;
+  letter-spacing: -0.4px;
+  font-weight: 600;
+}
+.attention-person-header p {
+  font-size: 10px;
+  color: var(--ig-muted);
+  margin-top: 4px;
+}
+.attention-context {
+  padding: 0 24px 20px;
+  overflow-y: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+.attention-time {
+  font-size: 9px;
+  color: var(--ig-faint);
+  margin: 3px 0 12px;
+}
+.attention-context > h2 {
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.attention-post-link {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  border: 1px solid var(--ig-soft-border);
+  border-radius: 10px;
+  padding: 8px;
+  margin-bottom: 20px;
+}
+.attention-post-link > img,
+.attention-post-link > .photo-fallback {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.attention-post-link > span {
+  flex: 1;
+  min-width: 0;
+}
+.attention-post-link small {
+  font-size: 9px;
+  color: var(--ig-muted);
+}
+.attention-post-link strong {
+  display: block;
+  font-size: 11px;
+  line-height: 1.4;
+  margin-top: 4px;
+  font-weight: 600;
+}
+.attention-post-link > svg {
+  flex-shrink: 0;
+  color: var(--ig-muted);
+}
+.attention-conversation {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.attention-bubble {
+  align-self: flex-start;
+  background: var(--ig-field);
+  border-radius: 13px 13px 13px 3px;
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.65;
+  max-width: 92%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.attention-bubble.mine {
+  align-self: flex-end;
+  background: var(--ig-foreground);
+  color: var(--ig-background);
+  border-radius: 13px 13px 3px 13px;
+}
+.attention-reply {
+  padding: 16px 24px;
+  border-top: 1px solid var(--ig-soft-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.attention-reply textarea {
+  resize: none;
+  background: var(--ig-subtle);
+  border: 1px solid var(--ig-border);
+  border-radius: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  outline: none;
+}
+.attention-reply textarea:focus {
+  border-color: var(--ig-action);
+}
+.attention-reply .primary-button {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 11px;
+}
+.attention-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--ig-soft-border);
+  padding: 10px 18px;
+  flex-shrink: 0;
+}
+.attention-resolve {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--ig-muted);
+  font-size: 10px;
+  min-height: 32px;
+}
+.attention-dialog-footer > div {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.attention-dialog-footer > div > span {
+  font-size: 10px;
+  color: var(--ig-muted);
+}
+.attention-dialog button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+@media (max-width: 767px) {
+  .attention-queue {
+    padding: 17px 17px 0;
+    margin-bottom: 7px;
+  }
+  .attention-people.stories {
+    margin: 0 -17px;
+    width: calc(100% + 34px);
+    padding-left: 17px;
+    padding-right: 17px;
+    gap: 15px;
+  }
+  .team-feed-tabs [role="tab"] {
+    font-size: 12px !important;
+  }
+  .team-feed-tabs {
+    gap: 17px !important;
+  }
+  .feed-tabs-row:has(.team-feed-tabs) .live-feed-status {
+    display: none;
+  }
+  .team-work-kind {
+    display: none;
+  }
+  .session-feedback {
+    margin: 10px 16px;
+  }
+  .attention-dialog {
+    max-height: calc(100dvh - 30px);
+  }
+}

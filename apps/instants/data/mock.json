@@ -1,0 +1,582 @@
+{
+  "currentUser": {
+    "id": "you",
+    "username": "alex.morgan",
+    "name": "Alex Morgan",
+    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&h=160&fit=crop&crop=faces",
+    "bio": "Product lead at Quirq. Building with XO.\nSmall teams. Thoughtful work. Faster feedback.",
+    "followers": "24",
+    "following": 18,
+    "companyId": "quirq_ai",
+    "companyIds": [
+      "xo_builders",
+      "quirq_ai"
+    ],
+    "role": "Product lead"
+  },
+  "users": [
+    {
+      "id": "ella",
+      "username": "ella.williams",
+      "name": "Ella Williams",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&h=160&fit=crop&crop=faces",
+      "verified": false,
+      "following": true,
+      "companyId": "quirq_ai",
+      "role": "Product designer"
+    },
+    {
+      "id": "james",
+      "username": "james.chen",
+      "name": "James Chen",
+      "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=160&h=160&fit=crop&crop=faces",
+      "verified": true,
+      "following": true,
+      "companyId": "xo_builders",
+      "role": "Engineering lead"
+    },
+    {
+      "id": "sofia",
+      "username": "sofia.rossi",
+      "name": "Sofia Rossi",
+      "avatar": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=160&h=160&fit=crop&crop=faces",
+      "verified": true,
+      "following": true,
+      "companyId": "xo_builders",
+      "role": "Product designer"
+    },
+    {
+      "id": "studio",
+      "username": "priya.shah",
+      "name": "Priya Shah",
+      "avatar": "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=160&h=160&fit=crop&crop=faces",
+      "verified": false,
+      "following": true,
+      "companyId": "quirq_ai",
+      "role": "AI engineer"
+    },
+    {
+      "id": "noah",
+      "username": "noah.anderson",
+      "name": "Noah Anderson",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&h=160&fit=crop&crop=faces",
+      "verified": false,
+      "following": true,
+      "companyId": "xo_builders",
+      "role": "Frontend engineer"
+    },
+    {
+      "id": "mia",
+      "username": "mia.taylor",
+      "name": "Mia Taylor",
+      "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=160&h=160&fit=crop&crop=faces",
+      "verified": false,
+      "following": false,
+      "companyId": "quirq_ai",
+      "role": "Design engineer"
+    },
+    {
+      "id": "oliver",
+      "username": "oliver.james",
+      "name": "Oliver James",
+      "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=160&h=160&fit=crop&crop=faces",
+      "verified": false,
+      "following": false,
+      "companyId": "xo_builders",
+      "role": "QA engineer"
+    },
+    {
+      "id": "lily",
+      "username": "lily.parker",
+      "name": "Lily Parker",
+      "avatar": "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=160&h=160&fit=crop&crop=faces",
+      "verified": false,
+      "following": false,
+      "companyId": "quirq_ai",
+      "role": "UX researcher"
+    },
+    {
+      "id": "daniel",
+      "username": "daniel.kim",
+      "name": "Daniel Kim",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&h=160&fit=crop&crop=faces",
+      "verified": true,
+      "following": false,
+      "companyId": "quirq_ai",
+      "role": "Platform engineer"
+    },
+    {
+      "id": "themodern",
+      "username": "rowan.blake",
+      "name": "Rowan Blake",
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=160&h=160&fit=crop&crop=faces",
+      "verified": true,
+      "following": false,
+      "companyId": "xo_builders",
+      "role": "Product manager"
+    }
+  ],
+  "posts": [
+    {
+      "id": "p1",
+      "userId": "sofia",
+      "companyId": "xo_builders",
+      "requesterId": "sofia",
+      "workType": "Review",
+      "location": "xo_builders · Onboarding",
+      "time": "2m",
+      "images": [
+        "/work/xo-onboarding.svg",
+        "/work/xo-mobile.svg",
+        "/work/xo-invite.svg"
+      ],
+      "alt": "XO Builders onboarding design: a calm workspace welcome screen with a three-step setup checklist",
+      "caption": "The new first-run flow is ready for a final look. @alex.morgan, does the team invite step feel clear? Swipe through the mobile screens and leave an approval or one thing to change before handoff.",
+      "tags": "#design-review #onboarding",
+      "likes": 6,
+      "commentCount": 3,
+      "comments": [
+        {
+          "userId": "ella",
+          "text": "The progress indicator makes this so much clearer. I would keep the invite step optional."
+        },
+        {
+          "userId": "noah",
+          "text": "Mobile spacing is checked. Ready to build once Alex signs off."
+        },
+        {
+          "userId": "sofia",
+          "text": "@alex.morgan Can you confirm the final button copy?"
+        }
+      ],
+      "instant": {
+        "kind": "invite",
+        "title": "Alex, can we hand this off?",
+        "expiresInMinutes": 45,
+        "options": [
+          {
+            "id": "approve",
+            "label": "Approve",
+            "count": 4
+          },
+          {
+            "id": "changes",
+            "label": "Needs changes",
+            "count": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "p2",
+      "userId": "studio",
+      "companyId": "quirq_ai",
+      "requesterId": "studio",
+      "workType": "Testing",
+      "location": "quirq_ai · Agent reliability",
+      "time": "4m",
+      "images": [
+        "/work/quirq-tests.svg"
+      ],
+      "alt": "Quirq agent test report with 46 of 48 checks passing and two timeout failures awaiting a fix decision",
+      "caption": "46 of 48 agent checks are green. The remaining two fail when the tool response takes more than 8 seconds. @alex.morgan, should we retry once or show the fallback immediately? Logs and the failing cases are in this review.",
+      "tags": "#testing #agent-reliability",
+      "likes": 8,
+      "commentCount": 2,
+      "comments": [
+        {
+          "userId": "daniel",
+          "text": "Both failures use the same slow-tool fixture. One bounded retry should recover them."
+        },
+        {
+          "userId": "mia",
+          "text": "I can design a clear retry state. We should still offer a way to cancel."
+        }
+      ],
+      "instant": {
+        "kind": "poll",
+        "title": "Which fix should we test first?",
+        "expiresInMinutes": 30,
+        "options": [
+          {
+            "id": "retry",
+            "label": "Retry once",
+            "count": 6
+          },
+          {
+            "id": "fallback",
+            "label": "Show fallback",
+            "count": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "p3",
+      "userId": "james",
+      "companyId": "xo_builders",
+      "requesterId": "james",
+      "workType": "Decision",
+      "location": "xo_builders · Release v0.8",
+      "time": "6m",
+      "images": [
+        "/work/xo-release.svg"
+      ],
+      "alt": "XO Builders release review showing completed build, accessibility and mobile checks with product approval pending",
+      "caption": "Release candidate 0.8 is ready. Keyboard navigation, mobile layouts and the invite flow have passed QA. The only open item is the empty-state copy. @alex.morgan, ship this version or hold for that change?",
+      "tags": "#release-review #ready-for-review",
+      "likes": 5,
+      "commentCount": 2,
+      "comments": [
+        {
+          "userId": "oliver",
+          "text": "Smoke tests are green on desktop and mobile. No release blockers from QA."
+        },
+        {
+          "userId": "noah",
+          "text": "The copy update is tiny. I can land it before we tag the release."
+        }
+      ],
+      "instant": {
+        "kind": "invite",
+        "title": "Final call for the release",
+        "expiresInMinutes": 60,
+        "options": [
+          {
+            "id": "ship",
+            "label": "Ready to ship",
+            "count": 4
+          },
+          {
+            "id": "hold",
+            "label": "Hold for changes",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "p4",
+      "userId": "ella",
+      "companyId": "quirq_ai",
+      "requesterId": "ella",
+      "workType": "Feedback",
+      "location": "quirq_ai · Shared prototype",
+      "time": "1m",
+      "images": [
+        "/work/quirq-prototype.svg"
+      ],
+      "alt": "Quirq shared prototype showing an AI research handoff from a brief to sources to a human review checkpoint",
+      "caption": "Sharing the first pass of our research handoff. The agent gathers the sources, then a person approves the summary. @alex.morgan, is it obvious where your review starts? A quick comment on the checkpoint would help.",
+      "tags": "#prototype #human-in-the-loop",
+      "likes": 4,
+      "commentCount": 1,
+      "comments": [
+        {
+          "userId": "lily",
+          "text": "In the last session, people wanted the review action right beside the sources. This feels closer."
+        }
+      ],
+      "instant": {
+        "kind": "invite",
+        "title": "Does the review step feel clear?",
+        "expiresInMinutes": 40,
+        "options": [
+          {
+            "id": "clear",
+            "label": "Looks clear",
+            "count": 3
+          },
+          {
+            "id": "discuss",
+            "label": "Let’s discuss",
+            "count": 1
+          }
+        ]
+      }
+    }
+  ],
+  "explore": [
+    {
+      "image": "/work/xo-onboarding.svg",
+      "alt": "XO Builders first-run workspace design",
+      "category": "Design",
+      "likes": "6"
+    },
+    {
+      "image": "/work/quirq-tests.svg",
+      "alt": "Quirq agent reliability test report",
+      "category": "Testing",
+      "likes": "8"
+    },
+    {
+      "image": "/work/xo-mobile.svg",
+      "alt": "XO onboarding mobile flow review",
+      "category": "Reviews",
+      "likes": "5"
+    },
+    {
+      "image": "/work/quirq-prototype.svg",
+      "alt": "Quirq research handoff prototype",
+      "category": "Research",
+      "likes": "4"
+    },
+    {
+      "image": "/work/xo-release.svg",
+      "alt": "XO Builders release readiness checklist",
+      "category": "Engineering",
+      "likes": "5"
+    },
+    {
+      "image": "/work/xo-invite.svg",
+      "alt": "XO Builders team invitation interaction",
+      "category": "Design",
+      "likes": "3"
+    },
+    {
+      "image": "/work/quirq-tests.svg",
+      "alt": "Two agent timeout tests needing a decision",
+      "category": "Testing",
+      "likes": "8"
+    },
+    {
+      "image": "/work/quirq-prototype.svg",
+      "alt": "Human review checkpoint for an agent workflow",
+      "category": "Reviews",
+      "likes": "4"
+    },
+    {
+      "image": "/work/xo-mobile.svg",
+      "alt": "Mobile usability review for workspace setup",
+      "category": "Research",
+      "likes": "5"
+    }
+  ],
+  "messages": [
+    {
+      "userId": "ella",
+      "preview": "Can you check the review checkpoint before our team sync?",
+      "time": "2m",
+      "unread": true,
+      "messages": [
+        {
+          "mine": false,
+          "text": "I just shared the research handoff prototype."
+        },
+        {
+          "mine": true,
+          "text": "I’ll take a look at the review step."
+        },
+        {
+          "mine": false,
+          "text": "Can you check whether it is clear where the human review starts? Our sync is in 20 minutes."
+        }
+      ]
+    },
+    {
+      "userId": "james",
+      "preview": "Ship v0.8 now, or wait for the empty-state copy?",
+      "time": "8m",
+      "unread": true,
+      "messages": [
+        {
+          "mine": false,
+          "text": "All release checks are green."
+        },
+        {
+          "mine": true,
+          "text": "Great. Is anything still waiting on product?"
+        },
+        {
+          "mine": false,
+          "text": "Only the empty-state copy. Can you leave the final call on the release post?"
+        }
+      ]
+    },
+    {
+      "userId": "mia",
+      "preview": "I have a tiny prototype for the loading and cancel states.",
+      "time": "12m",
+      "unread": true,
+      "messages": [
+        {
+          "mine": false,
+          "text": "I made a quick prototype for the agent retry state."
+        },
+        {
+          "mine": false,
+          "text": "Could you test the cancel action and tell me whether the loading message is clear?"
+        }
+      ]
+    },
+    {
+      "userId": "noah",
+      "preview": "Does “Invite your team” still read well on the small screen?",
+      "time": "18m",
+      "unread": true,
+      "messages": [
+        {
+          "mine": false,
+          "text": "The mobile implementation matches the updated onboarding screens."
+        },
+        {
+          "mine": false,
+          "text": "Does “Invite your team” read well on the small screen, or should the button just say “Invite”?"
+        }
+      ]
+    }
+  ],
+  "companies": [
+    {
+      "id": "xo_builders",
+      "name": "XO Builders",
+      "handle": "xo_builders",
+      "description": "A small team building thoughtful digital products.",
+      "color": "#6B7D42",
+      "initials": "XO"
+    },
+    {
+      "id": "quirq_ai",
+      "name": "Quirq AI",
+      "handle": "quirq_ai",
+      "description": "Useful AI, built together and tested in the open.",
+      "color": "#7660D3",
+      "initials": "Q"
+    }
+  ],
+  "attention": [
+    {
+      "id": "a1",
+      "userId": "ella",
+      "companyId": "quirq_ai",
+      "kind": "dm",
+      "postId": "p4",
+      "title": "A quick look at the handoff?",
+      "preview": "Can you check the review checkpoint before our team sync?",
+      "time": "2m",
+      "priority": "urgent",
+      "messages": [
+        {
+          "mine": false,
+          "text": "I just shared the research handoff prototype."
+        },
+        {
+          "mine": true,
+          "text": "I’ll take a look at the review step."
+        },
+        {
+          "mine": false,
+          "text": "Can you check whether it is clear where the human review starts? Our sync is in 20 minutes."
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "userId": "sofia",
+      "companyId": "xo_builders",
+      "kind": "review",
+      "postId": "p1",
+      "title": "Your design approval is up next",
+      "preview": "The onboarding flow is ready for your final sign-off.",
+      "time": "4m",
+      "priority": "urgent",
+      "messages": [
+        {
+          "mine": false,
+          "text": "The onboarding updates are ready: desktop, mobile and the invite step."
+        },
+        {
+          "mine": false,
+          "text": "You are the last reviewer. Can you approve the flow or leave one thing to change?"
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "userId": "studio",
+      "companyId": "quirq_ai",
+      "kind": "mention",
+      "postId": "p2",
+      "title": "Choose the timeout fix",
+      "preview": "@alex.morgan should we retry once or show the fallback?",
+      "time": "6m",
+      "priority": "normal",
+      "messages": [
+        {
+          "mine": false,
+          "text": "I tagged you on the agent test report. Two cases fail on a slow tool response."
+        },
+        {
+          "mine": false,
+          "text": "A single retry is my recommendation. What do you think?"
+        }
+      ]
+    },
+    {
+      "id": "a4",
+      "userId": "james",
+      "companyId": "xo_builders",
+      "kind": "comment",
+      "postId": "p3",
+      "title": "One release question for you",
+      "preview": "Ship v0.8 now, or wait for the empty-state copy?",
+      "time": "8m",
+      "priority": "normal",
+      "messages": [
+        {
+          "mine": false,
+          "text": "All release checks are green."
+        },
+        {
+          "mine": true,
+          "text": "Great. Is anything still waiting on product?"
+        },
+        {
+          "mine": false,
+          "text": "Only the empty-state copy. Can you leave the final call on the release post?"
+        }
+      ]
+    },
+    {
+      "id": "a5",
+      "userId": "mia",
+      "companyId": "quirq_ai",
+      "kind": "dm",
+      "title": "Try the new retry state",
+      "preview": "I have a tiny prototype for the loading and cancel states.",
+      "time": "12m",
+      "priority": "normal",
+      "messages": [
+        {
+          "mine": false,
+          "text": "I made a quick prototype for the agent retry state."
+        },
+        {
+          "mine": false,
+          "text": "Could you test the cancel action and tell me whether the loading message is clear?"
+        }
+      ]
+    },
+    {
+      "id": "a6",
+      "userId": "noah",
+      "companyId": "xo_builders",
+      "kind": "dm",
+      "postId": "p1",
+      "title": "Mobile copy needs a second pair of eyes",
+      "preview": "Does “Invite your team” still read well on the small screen?",
+      "time": "18m",
+      "priority": "normal",
+      "messages": [
+        {
+          "mine": false,
+          "text": "The mobile implementation matches the updated onboarding screens."
+        },
+        {
+          "mine": false,
+          "text": "Does “Invite your team” read well on the small screen, or should the button just say “Invite”?"
+        }
+      ]
+    }
+  ]
+}
