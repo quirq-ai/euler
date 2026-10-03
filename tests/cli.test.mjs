@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -144,7 +144,8 @@ test('CLI builds a named app without starting HTTP and rejects unknown app ids',
   });
   assert.equal(result.status, 0, result.stderr || result.error?.message);
   assert.match(result.stdout, /Building fixture/);
-  assert.equal(await readFile(join(app.root, 'build-cwd.txt'), 'utf8'), app.root);
+  // macOS exposes temporary directories through /var -> /private/var.
+  assert.equal(await realpath(await readFile(join(app.root, 'build-cwd.txt'), 'utf8')), await realpath(app.root));
   const unknown = spawnSync(process.execPath, [executable, '--config', app.config, '--build', '--app', 'unknown'], {
     cwd: tmpdir(), encoding: 'utf8', timeout: 5000, windowsHide: true,
   });

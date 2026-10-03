@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { request as httpRequest } from 'node:http';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import test from 'node:test';
 import { parseArgs } from '../src/cli.mjs';
 import { buildCompiledWorkspace, compiledStore, createCompiledManager, inspectBuild } from '../src/compiled.mjs';
@@ -307,7 +307,8 @@ await writeFile('build-capture.json', JSON.stringify({ args: process.argv.slice(
   await buildCompiledWorkspace(fixtureApp.workspace, { log: (message) => messages.push(message) });
   const alphaRoot = join(fixtureApp.root, fixtureApp.value.projects.alpha.directory);
   const captured = JSON.parse(await readFile(join(alphaRoot, 'build-capture.json'), 'utf8'));
-  assert.equal(resolve(captured.cwd), resolve(alphaRoot));
+  // Compare directory identity; process.cwd() may resolve a temporary-directory symlink.
+  assert.equal(await realpath(captured.cwd), await realpath(alphaRoot));
   assert.deepEqual(captured.args, ['an argument with spaces', alphaRoot, fixtureApp.root, '5301', 'literal;$value']);
   assert.deepEqual(captured.env, { NODE_ENV: 'production', QUIRQ_BASE_PATH: '/app/alpha', QUIRQ_DIST_DIR: 'dist-euler' });
   const marker = JSON.parse(await readFile(join(fixtureApp.output('alpha'), 'quirq-build.json'), 'utf8'));
