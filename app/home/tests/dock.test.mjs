@@ -12,9 +12,9 @@ const markup = css + preload + script;
 const decorated = html.replace('</head>', `${markup}</head>`);
 const policy = "default-src 'self'; script-src 'self'; frame-ancestors 'none'";
 
-async function fixture(t, handler) {
+async function fixture(t, handler, config) {
   const server = createServer((req, res) => {
-    attachEulerDock(req, res);
+    attachEulerDock(req, res, config);
     handler(req, res);
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -193,6 +193,104 @@ test('non-HTML, compressed HTML, attachments, partial responses and UTF-16 retai
     });
     const response = await get();
     assert.deepEqual(response.body, body, type);
+    assert.equal(Number(response.headers['content-length']), body.length);
+    assert.equal(response.headers.etag, '"original"');
+  }
+});
+
+function dockMetadata(text) {
+  const value = text.match(/<meta name="euler-dock-config" content="([^"]*)" data-euler-dock>/)?.[1];
+  assert.notEqual(value, undefined, 'expected one inert config attribute');
+  return JSON.parse(value.replace(/&(quot|#39|lt|gt|amp);/g, (_, entity) => ({ quot: '"', '#39': "'", lt: '<', gt: '>', amp: '&' })[entity]));
+}
+
+test('custom dock metadata is escaped inert JSON and preserves Unicode across one-byte document chunks', async (t) => {
+  const config = {
+    version: 1, appId: 'innernet',
+    moduleUrl: '/app/innernet/日本語/🚀\u2028\u2029\ud800.mjs',
+    stylesheetUrl: '/app/innernet/\'"&quot;</meta><script>broken()</script>.css',
+  };
+  const get = await fixture(t, (req, res) => {
+    attachEulerDock(req, res, { ...config, appId: 'must-not-replace-first-attachment' });
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(html), ETag: '"original"', 'Content-Security-Policy': policy });
+    for (const byte of Buffer.from(html)) res.write(Buffer.from([byte]));
+    res.end();
+  }, config);
+  const response = await get();
+  assert.deepEqual(dockMetadata(response.text), config);
+  assert.equal(response.text.match(/<meta\b/g).length, 1);
+  assert.equal(response.text.match(/<script\b/g).length, 1);
+  assert.equal(response.text.split('/euler-dock.js').length, 2);
+  assert.equal(response.text.replace(/<meta name="euler-dock-config" content="[^"]*" data-euler-dock>/, ''), decorated);
+  assert.equal(response.headers['content-length'], undefined);
+  assert.equal(response.headers.etag, undefined);
+  assert.equal(response.headers['content-security-policy'], policy);
+});
+
+test('an existing dock config is not duplicated regardless of attribute ordering, quoting or name entities', async (t) => {
+  for (const existing of [
+    '<meta name="euler-dock-config" content="existing" data-euler-dock>',
+    "<META CONTENT='existing' NAME='EULER-DOCK-CONFIG'>",
+    '<meta content=existing name=euler-dock-config>',
+    '<meta content="existing" name="euler-dock-confi&#x67;">',
+  ]) {
+    const content = html.replace('</head>', `${existing}${markup}</head>`);
+    const get = await fixture(t, (req, res) => {
+      res.setHeader('Content-Type', 'text/html');
+      for (const byte of Buffer.from(content)) res.write(Buffer.from([byte]));
+      res.end();
+    }, { version: 1, appId: 'innernet', moduleUrl: '/app/innernet/new.js' });
+    assert.equal((await get()).text, content, existing);
+  }
+});
+
+test('config-like text inside comments, raw-text elements or unrelated attributes does not suppress metadata', async (t) => {
+  const config = { version: 1, appId: 'innernet', stylesheetUrl: '/app/innernet/theme.css' };
+  for (const existing of [
+    '<!-- <meta name="euler-dock-config"> -->',
+    '<script>const sample = \'<meta name="euler-dock-config">\';</script>',
+    '<style>body:after{content:\'<meta name="euler-dock-config">\'}</style>',
+    '<meta content=\'name="euler-dock-config"\' name="description">',
+    '<meta data-name="euler-dock-config" name="description">',
+    '<meta name="description" name="euler-dock-config">',
+  ]) {
+    const content = html.replace('</head>', `${existing}</head>`);
+    const get = await fixture(t, (req, res) => { res.setHeader('Content-Type', 'text/html'); res.end(content); }, config);
+    const response = await get();
+    assert.deepEqual(dockMetadata(response.text), config, existing);
+    assert.equal(response.text.replace(/<meta name="euler-dock-config" content="[^"]*" data-euler-dock>/, '').replace(markup, ''), content);
+  }
+});
+
+test('custom dock settings never modify non-document requests or compressed and non-HTML payloads', async (t) => {
+  const config = { version: 1, appId: 'innernet', moduleUrl: '/app/innernet/dock.js' };
+  const get = await fixture(t, (req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': Buffer.byteLength(html), ETag: '"original"' });
+    res.end(html);
+  }, config);
+  for (const [path, options] of [
+    ['/app/innernet/', { method: 'HEAD' }],
+    ['/app/innernet/', { headers: { rsc: '1' } }],
+    ['/app/innernet/', { headers: { accept: 'text/x-component' } }],
+    ['/app/innernet/', { headers: { 'next-router-prefetch': '1' } }],
+    ['/app/innernet/api/export', {}], ['/app/innernet/_next/static/dock.js', {}],
+  ]) {
+    const response = await get(path, options);
+    assert.equal(response.text, options.method === 'HEAD' ? '' : html);
+    assert.equal(Number(response.headers['content-length']), Buffer.byteLength(html));
+    assert.equal(response.headers.etag, '"original"');
+  }
+  for (const [type, body, headers] of [
+    ['application/octet-stream', Buffer.from([0, 255, 128]), {}],
+    ['text/html', gzipSync(html), { 'Content-Encoding': 'gzip' }],
+    ['application/json', Buffer.from('{"app":"innernet"}'), {}],
+  ]) {
+    const read = await fixture(t, (req, res) => {
+      res.writeHead(200, { 'Content-Type': type, 'Content-Length': body.length, ETag: '"original"', ...headers });
+      res.end(body);
+    }, config);
+    const response = await read();
+    assert.deepEqual(response.body, body);
     assert.equal(Number(response.headers['content-length']), body.length);
     assert.equal(response.headers.etag, '"original"');
   }

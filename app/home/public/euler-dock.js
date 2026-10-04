@@ -1,4 +1,5 @@
 import { AVATAR_STORAGE_KEY, avatarUri, loadAvatarConfig } from './euler-avatar.js';
+import { createDockSubscription, dockClearance, dockSnapshot, parseDockConfig } from './euler-dock-extension.js';
 
 const STATE_KEY = 'euler.dock.state.v1';
 const ROUTES_KEY = 'euler.dock.routes.v1';
@@ -42,6 +43,21 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
   };
   const currentId = () => /^\/app\/([^/]+)(?:\/|$)/.exec(location.pathname)?.[1] || null;
   let latestApps = [];
+  let latestOnline = true;
+  let config;
+  let configError;
+  try { config = parseDockConfig(document.querySelector('meta[name="euler-dock-config"]')?.content, location.pathname, location.origin); }
+  catch (error) { configError = error; }
+  function loadStyles(root, href) {
+    const link = node('link', { rel: 'stylesheet', href });
+    const ready = new Promise((resolve, reject) => {
+      link.addEventListener('load', resolve, { once: true });
+      link.addEventListener('error', () => reject(new Error(`Dock stylesheet could not load: ${href}`)), { once: true });
+    });
+    ready.catch(() => {});
+    root.append(link);
+    return ready;
+  }
   function storedRoutes() {
     const routes = read(sessionStore, ROUTES_KEY, {});
     return routes && typeof routes === 'object' && !Array.isArray(routes) ? routes : {};
@@ -73,17 +89,28 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
     setTimeout(() => { delete document.documentElement.dataset.eulerNavigating; }, 5000);
   }
 
+  function navigate(id) {
+    if (id !== 'home' && !latestApps.some((app) => app.id === id)) return false;
+    if (id === currentId() || (id === 'home' && location.pathname === '/')) return false;
+    const link = node('a', { href: id === 'home' ? '/' : routeFor(id) });
+    prepareNavigation({ button: 0 }, id === 'home' ? null : id, link);
+    location.assign(link.href);
+    return true;
+  }
+
   class EulerDock extends HTMLElement {
-    constructor() {
+    constructor(custom = false) {
       super();
       const shadow = this.attachShadow({ mode: 'open' });
-      const styles = node('link', { rel: 'stylesheet', href: '/euler-dock-ui.css' });
+      this.custom = custom;
       this.style.visibility = 'hidden';
-      this.stylesReady = new Promise((resolve) => {
-        styles.addEventListener('load', () => { this.style.visibility = 'visible'; resolve(); }, { once: true });
-        styles.addEventListener('error', resolve, { once: true });
-      });
-      shadow.append(styles);
+      this.stylesReady = loadStyles(shadow, custom ? '/euler-dock-host.css' : '/euler-dock-ui.css');
+      if (custom) {
+        let stored; try { stored = localStore.getItem(OPACITY_KEY); } catch {}
+        this.setOpacity(stored);
+        this.updateAvatar();
+        return;
+      }
       this.surface = node('div', { class: 'dock-surface' });
       this.nav = node('nav', { class: 'dock', 'aria-label': 'Euler app dock' });
       this.home = this.link('home', 'Home', '/');
@@ -127,7 +154,13 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
         items[next].focus();
       });
       this.home.addEventListener('click', (event) => prepareNavigation(event, null, this.home));
-      document.addEventListener('pointerdown', (event) => { if (!event.composedPath().includes(this)) this.togglePanel(false); });
+      this.pointerOutside = (event) => { if (!event.composedPath().includes(this)) this.togglePanel(false); };
+    }
+    connectedCallback() {
+      if (this.pointerOutside) document.addEventListener('pointerdown', this.pointerOutside);
+    }
+    disconnectedCallback() {
+      if (this.pointerOutside) document.removeEventListener('pointerdown', this.pointerOutside);
     }
     link(id, label, href) {
       const link = node('a', { href, class: `dock-item${id === 'home' ? ' utility' : ''}`, 'aria-label': label, 'data-label': label, 'data-app': id });
@@ -138,14 +171,22 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
     }
     setOpacity(value) {
       const opacity = dockOpacity(value);
+      const changed = opacity !== this.opacity;
+      this.opacity = opacity;
       this.style.setProperty('--dock-opacity', String(opacity / 100));
-      this.range.value = String(opacity); this.output.textContent = `${opacity}%`;
-      this.range.setAttribute('aria-valuetext', `${opacity} percent`);
+      if (this.range) {
+        this.range.value = String(opacity); this.output.textContent = `${opacity}%`;
+        this.range.setAttribute('aria-valuetext', `${opacity} percent`);
+      }
+      if (changed) this.onChange?.();
     }
     updateAvatar() {
-      const icon = this.home.querySelector('img');
       const source = avatarUri(loadAvatarConfig());
-      if (icon.getAttribute('src') !== source) icon.src = source;
+      const changed = source !== this.avatarUrl;
+      this.avatarUrl = source;
+      const icon = this.home?.querySelector('img');
+      if (icon && icon.getAttribute('src') !== source) icon.src = source;
+      if (changed) this.onChange?.();
     }
     togglePanel(open = this.panel.hidden) {
       this.panel.hidden = !open; this.settings.setAttribute('aria-expanded', String(open));
@@ -153,6 +194,9 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
     }
     render(apps, online = true) {
       this.toggleAttribute('data-many-apps', apps.length > 3);
+      this.toggleAttribute('data-offline', !online);
+      this.setAttribute('aria-label', online ? 'Euler dock' : 'Euler dock, disconnected');
+      if (this.custom) return;
       const ids = new Set(apps.map((app) => app.id));
       for (const [id, link] of this.buttons) if (!ids.has(id)) { link.remove(); this.buttons.delete(id); }
       apps.forEach((app, index) => {
@@ -176,11 +220,32 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
     }
   }
   customElements.define('euler-dock', EulerDock);
-  const dock = new EulerDock();
-  dock.id = 'euler-dock';
-  dock.style.viewTransitionName = 'euler-dock';
+  let extension;
+  let snapshot;
+  let warned = false;
+  let viewStarted = false;
+  const clearanceBefore = document.documentElement.style.getPropertyValue('--euler-dock-clearance');
+  const clearancePriority = document.documentElement.style.getPropertyPriority('--euler-dock-clearance');
+  function publishState() {
+    snapshot = dockSnapshot({ apps: latestApps.map((app) => ({ ...app, url: routeFor(app.id) })), currentAppId: currentId(), online: latestOnline, opacity: dock.opacity, avatarUrl: dock.avatarUrl });
+    extension?.subscriptions.publish();
+  }
+  function createDock(custom) {
+    const view = new EulerDock(custom);
+    view.id = 'euler-dock';
+    view.style.viewTransitionName = 'euler-dock';
+    view.onChange = publishState;
+    return view;
+  }
+  let dock = createDock(Boolean(config?.moduleUrl));
+  function renderDock(apps, online = true) {
+    latestOnline = online;
+    dock.render(apps, online);
+    publishState();
+  }
+  publishState();
   const cached = read(sessionStore, STATE_KEY, null);
-  if (cached?.at > Date.now() - 30000) { latestApps = runningApps(cached.data); dock.render(latestApps); }
+  if (cached?.at > Date.now() - 30000) { latestApps = runningApps(cached.data); renderDock(latestApps); }
 
   function mount() {
     if (!document.body) return;
@@ -192,13 +257,93 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
     document.documentElement.classList.add('euler-shell');
     if (currentId()) document.documentElement.dataset.eulerApp = currentId();
   }
+  function warn(error) {
+    if (warned) return;
+    warned = true;
+    console.warn('Euler could not load the app dock. Using the default dock.', error);
+  }
+  async function showDefault(view = dock) {
+    // A broken shared CSS request must not leave all navigation hidden forever.
+    await Promise.race([view.stylesReady.catch(() => {}), new Promise((resolve) => setTimeout(resolve, 2000))]);
+    if (dock === view) view.style.visibility = 'visible';
+  }
+  function cleanupExtension(attempt) {
+    attempt.controller.abort();
+    clearTimeout(attempt.timer);
+    if (attempt.cleanup) {
+      const cleanup = attempt.cleanup;
+      attempt.cleanup = null;
+      try { Promise.resolve(cleanup()).catch(() => {}); } catch {}
+    }
+  }
+  function fallback(error, attempt = extension) {
+    if (attempt && extension !== attempt) return;
+    if (attempt) cleanupExtension(attempt);
+    extension = null;
+    warn(error);
+    const previous = dock;
+    dock = createDock(false);
+    previous.onChange = null;
+    previous.remove();
+    if (clearanceBefore) document.documentElement.style.setProperty('--euler-dock-clearance', clearanceBefore, clearancePriority);
+    else document.documentElement.style.removeProperty('--euler-dock-clearance');
+    renderDock(latestApps, latestOnline);
+    mount();
+    void showDefault();
+  }
+  async function startView() {
+    if (viewStarted) return;
+    viewStarted = true;
+    if (configError) { warn(configError); await showDefault(); return; }
+    if (!config) { await showDefault(); return; }
+    const attempt = { controller: new AbortController(), host: dock, cleanup: null, timer: null };
+    const live = () => extension === attempt && !attempt.controller.signal.aborted;
+    attempt.subscriptions = createDockSubscription(() => snapshot, attempt.controller.signal, (error) => fallback(error, attempt));
+    extension = attempt;
+    attempt.timer = setTimeout(() => fallback(new Error('App dock initialization exceeded 5 seconds.'), attempt), 5000);
+    const context = Object.freeze({
+      root: attempt.host.shadowRoot, host: attempt.host, appId: config.appId, homeUrl: '/', signal: attempt.controller.signal,
+      getState: () => snapshot,
+      subscribe: attempt.subscriptions.subscribe,
+      navigate: (id) => live() ? navigate(id) : false,
+      setOpacity(value) {
+        if (!live()) return;
+        const opacity = dockOpacity(value);
+        try { localStore.setItem(OPACITY_KEY, String(opacity)); } catch {}
+        dock.setOpacity(opacity);
+      },
+      setClearance(value) {
+        if (live()) document.documentElement.style.setProperty('--euler-dock-clearance', `${dockClearance(value)}px`);
+      },
+    });
+    try {
+      const [, , module] = await Promise.all([
+        attempt.host.stylesReady,
+        config.stylesheetUrl ? loadStyles(context.root, config.stylesheetUrl) : undefined,
+        config.moduleUrl ? import(config.moduleUrl) : undefined,
+      ]);
+      if (!live()) return;
+      if (module) {
+        if (typeof module.mount !== 'function') throw new Error('An app dock module must export mount(context).');
+        const cleanup = await module.mount(context);
+        if (cleanup !== undefined && typeof cleanup !== 'function') throw new Error('Dock mount() must return a cleanup function or nothing.');
+        if (!live()) {
+          if (cleanup) { try { Promise.resolve(cleanup()).catch(() => {}); } catch {} }
+          return;
+        }
+        attempt.cleanup = cleanup;
+      }
+      clearTimeout(attempt.timer);
+      attempt.host.style.visibility = 'visible';
+    } catch (error) { if (live()) fallback(error, attempt); }
+  }
   let polling = false;
   let stateRevision = 0;
   let mutationPending = false;
   let requestController;
   function applyState(data, broadcast = true) {
     if (data?.dashboard?.mode !== 'compiled' || !Array.isArray(data.projects)) return;
-    latestApps = runningApps(data); dock.render(latestApps);
+    latestApps = runningApps(data); renderDock(latestApps);
     write(sessionStore, STATE_KEY, { at: Date.now(), data: { projects: latestApps.map((app) => ({ ...app, status: 'running', hosting: 'compiled' })), dashboard: data.dashboard } });
     if (broadcast) window.dispatchEvent(new CustomEvent('euler:state', { detail: data }));
   }
@@ -214,7 +359,7 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
       if (!response.ok) throw new Error('State unavailable');
       const data = await response.json();
       if (revision === stateRevision && !mutationPending) applyState(data);
-    } catch { if (revision === stateRevision && !mutationPending) dock.render(latestApps, false); }
+    } catch { if (revision === stateRevision && !mutationPending) renderDock(latestApps, false); }
     finally {
       clearTimeout(timeout);
       if (revision === stateRevision) { polling = false; requestController = null; }
@@ -246,7 +391,7 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
     setTimeout(() => { window.removeEventListener('wheel', cancel); window.removeEventListener('touchstart', cancel); }, 750);
   }
   function ready() {
-    mount(); void refresh();
+    mount(); void refresh(); void startView();
     if (document.readyState === 'complete') resumeScroll();
     else window.addEventListener('load', resumeScroll, { once: true });
     const observer = new MutationObserver(() => { if (!dock.isConnected) mount(); });
@@ -254,7 +399,11 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
   }
   if (document.readyState !== 'loading') ready(); else document.addEventListener('DOMContentLoaded', ready, { once: true });
   window.addEventListener('pageshow', (event) => { delete document.documentElement.dataset.eulerNavigating; dock.updateAvatar(); if (event.persisted) { mount(); void refresh(); } });
-  window.addEventListener('pagehide', remember);
+  window.addEventListener('pagehide', (event) => {
+    remember();
+    // A cached document keeps its live view and subscriptions for pageshow.
+    if (!event.persisted && extension) cleanupExtension(extension);
+  });
   window.addEventListener('pageswap', (event) => {
     remember();
     // A cancelled navigation or unsupported destination can skip the animation.
@@ -266,8 +415,8 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
       () => window.dispatchEvent(new CustomEvent('euler:transition', { detail: { animated: false } })),
     );
   });
-  window.addEventListener('hashchange', () => { remember(); dock.render(latestApps); });
-  window.addEventListener('popstate', () => { remember(); dock.render(latestApps); });
+  window.addEventListener('hashchange', () => { remember(); renderDock(latestApps, latestOnline); });
+  window.addEventListener('popstate', () => { remember(); renderDock(latestApps, latestOnline); });
   window.addEventListener('storage', (event) => {
     if (event.key === OPACITY_KEY || event.key === null) dock.setOpacity(event.newValue);
     if (event.key === AVATAR_STORAGE_KEY || event.key === null) dock.updateAvatar();
@@ -279,14 +428,15 @@ if (typeof window !== 'undefined' && !customElements.get('euler-dock')) {
     if (link && latestApps.some((app) => app.id === link.dataset.eulerApp)) prepareNavigation(event, link.dataset.eulerApp, link);
   });
   window.addEventListener('keydown', (event) => {
-    if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.repeat || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName) || event.target.isContentEditable) return;
+    const target = event.composedPath()[0];
+    if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.repeat || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || target.isContentEditable) return;
     if (!/^[0-9]$/.test(event.key)) return;
     const index = Number(event.key);
-    const link = index === 0 ? dock.home : dock.buttons.get(latestApps[index - 1]?.id);
-    if (link) { event.preventDefault(); link.click(); }
+    const id = index === 0 ? 'home' : latestApps[index - 1]?.id;
+    if (id) { event.preventDefault(); navigate(id); }
   });
   setInterval(() => { if (!document.hidden) { remember(); void refresh(); } }, 2500);
   // Synchronous setup above runs before the incoming snapshot. Finish loading
   // the isolated styles without leaving module initialization pending forever.
-  await Promise.race([dock.stylesReady, new Promise((resolve) => setTimeout(resolve, 2000))]);
+  await Promise.race([dock.stylesReady.catch(() => {}), new Promise((resolve) => setTimeout(resolve, 2000))]);
 }

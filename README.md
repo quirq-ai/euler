@@ -81,6 +81,8 @@ Choose **Personalize** or expand **Make Euler yours.** below the apps to open th
 
 Use **Alt+0** for Home, **Alt+1…9** for running apps, and arrow keys to move between focused dock items. Reduced-motion preferences are respected.
 
+Apps can also supply their own dock style or interface while sharing Euler's running-app state and navigation. See [per-app docks](docs/app-docks.md) for configuration, the module API, and a working example. Home keeps its standard dock.
+
 ## Deployment
 
 **Choose whether you need the complete Euler workspace or an independently hosted app.** The current Euler host is designed for loopback access and local persistent storage. The deployment options below reflect that implementation.
@@ -244,7 +246,9 @@ You can also `cd app/quitter` and run `npm run dev`, or use the other apps' own 
 
 Home is a first-class local app in [`app/home`](app/home/README.md). From that folder, `npm run dev` or `npm start` launches the same Euler host, API, and enabled apps at **http://localhost:2713/**. Stop an existing Euler process before starting another on that port. `npm run build` validates Home's HTML, CSS, and JavaScript, and `npm test` runs its focused tests. Home uses browser-ready source with no app dependencies or generated bundle; Nx also exposes its `start` and `setup` targets.
 
-Home stays available as Euler's control surface, so it has no enable switch or upstream repository to synchronize. All Euler UI belongs to `app/home`, including the dock, avatar renderer, icons, vendored Blobatar, and the integration that adds the dock to app pages. The repository root handles hosting, security, builds, configuration, and app lifecycle. Hosting Home requires the full Euler host described in [Deployment](#deployment).
+Home stays available as Euler's control surface, so it has no enable switch or upstream repository to synchronize. Euler's built-in UI belongs to `app/home`, including the dock, avatar renderer, icons, vendored Blobatar, and the integration that adds the dock to app pages. The repository root handles hosting, security, builds, configuration, and app lifecycle. Hosting Home requires the full Euler host described in [Deployment](#deployment).
+
+To adapt the dock for a particular app, add an optional `dock` configuration to that app's manifest entry and keep its assets in the app's `public/euler/` folder. A stylesheet themes the standard dock; a module exports `mount(context)` to render a custom interface. The [app dock guide](docs/app-docks.md) includes a copyable example and the shared navigation/state contract.
 
 `npm start` resolves `euler.workspace.json` from this repository, regardless of your terminal's current directory. Use `--workspace /path/to/euler` or `--config /path/to/euler.workspace.json` to choose a custom installation. Nx runtime/build targets disable caching because local settings and data affect their behavior.
 

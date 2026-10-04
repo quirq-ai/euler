@@ -4,6 +4,33 @@ const installed = Symbol('euler-dock-response');
 const prefixLimit = 64 * 1024;
 const invalidatedHeaders = new Set(['content-length', 'etag', 'content-md5', 'digest', 'content-digest', 'repr-digest']);
 
+function attributes(tag) {
+  const result = new Map();
+  const start = /^<[a-z][a-z0-9:-]*/i.exec(tag)?.[0].length || 0;
+  const expression = /([^\s"'<>\/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
+  expression.lastIndex = start;
+  let match;
+  while ((match = expression.exec(tag))) {
+    const name = match[1].toLowerCase();
+    if (result.has(name)) continue; // HTML uses the first duplicate attribute.
+    const raw = match[2] ?? match[3] ?? match[4] ?? '';
+    result.set(name, raw.replace(/&#(x[\da-f]+|\d+);|&(amp|quot|apos|lt|gt);/gi, (_, number, named) => {
+      if (named) return { amp: '&', quot: '"', apos: "'", lt: '<', gt: '>' }[named.toLowerCase()];
+      const code = number[0].toLowerCase() === 'x' ? parseInt(number.slice(1), 16) : Number(number);
+      return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : '\ufffd';
+    }));
+  }
+  return result;
+}
+
+function configMarkup(config) {
+  if (!config) return '';
+  // JSON stays inert in a quoted HTML attribute, including quotes, markup,
+  // Unicode separators, and lone UTF-16 surrogates (escaped by JSON.stringify).
+  const json = JSON.stringify(config).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+  return `<meta name="euler-dock-config" content="${json}" data-euler-dock>`;
+}
+
 export function isDockDocumentRequest(request) {
   const headers = request.headers;
   const path = new URL(request.url, 'http://localhost').pathname;
@@ -41,6 +68,7 @@ function documentPrefix(text) {
     if (name === 'link' && /\bhref\s*=\s*["']\/euler-dock\.css["']/i.test(tag)) structure.hasCss = true;
     if (name === 'link' && /\bhref\s*=\s*["']\/euler-dock-ui\.css["']/i.test(tag) && /\brel\s*=\s*["']preload["']/i.test(tag) && /\bas\s*=\s*["']style["']/i.test(tag)) structure.hasUiPreload = true;
     if (name === 'script' && /\bsrc\s*=\s*["']\/euler-dock\.js["']/i.test(tag)) structure.hasScript = true;
+    if (name === 'meta' && attributes(tag).get('name')?.toLowerCase() === 'euler-dock-config') structure.hasConfig = true;
     if (name && /^(?:script|style|title|textarea|xmp|iframe|noembed|noframes)$/.test(name) && !tag.startsWith('</')) {
       const closing = new RegExp(`</${name}\\s*>`, 'ig');
       closing.lastIndex = position;
@@ -52,9 +80,9 @@ function documentPrefix(text) {
   return structure;
 }
 
-function decorate(prefix, structure) {
+function decorate(prefix, structure, config) {
   const offset = structure.headEnd ?? structure.bodyStart ?? structure.headStart ?? structure.htmlStart ?? structure.doctype ?? 0;
-  let markup = '';
+  let markup = structure.hasConfig ? '' : config;
   if (!structure.hasCss) markup += '<link rel="stylesheet" href="/euler-dock.css" data-euler-dock>';
   // Warm the shadow stylesheet without applying its rules to the app document.
   if (!structure.hasUiPreload) markup += '<link rel="preload" href="/euler-dock-ui.css" as="style" data-euler-dock>';
@@ -65,7 +93,7 @@ function decorate(prefix, structure) {
 
 // Hold at most a small document prefix until </head> (or <body>) arrives. Buffer
 // slices preserve UTF-8 characters even when the upstream splits code points.
-function prefixWriter() {
+function prefixWriter(config) {
   let pending = Buffer.alloc(0);
   let complete = false;
   return (chunk, final = false) => {
@@ -75,17 +103,17 @@ function prefixWriter() {
     const structure = documentPrefix(pending.toString('latin1'));
     if (!final && pending.length < prefixLimit && structure.headEnd === undefined && structure.bodyStart === undefined) return [];
     complete = true;
-    const result = decorate(pending, structure);
+    const result = decorate(pending, structure, config);
     pending = Buffer.alloc(0);
     return take < chunk.length ? [result, chunk.subarray(take)] : [result];
   };
 }
 
-export function attachEulerDock(request, response) {
+export function attachEulerDock(request, response, config) {
   if (response[installed] || !isDockDocumentRequest(request)) return;
   response[installed] = true;
   const original = { write: response.write, end: response.end, writeHead: response.writeHead };
-  const transform = prefixWriter();
+  const transform = prefixWriter(configMarkup(config));
   let enabled;
 
   function select(status = response.statusCode, incoming) {

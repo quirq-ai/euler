@@ -183,7 +183,7 @@ export function createCompiledManager({ workspace, dashboardPort, createHandler 
       } else {
         // Presentation is supplied by the host application; the runtime only
         // controls routing and lifecycle for the mounted app.
-        prepareResponse?.(request, response);
+        prepareResponse?.(request, response, { id, project: workspace.projects[id] });
         await item.handler.handle(request, response);
       }
       return true;

@@ -1,7 +1,7 @@
 # Euler Home
 
 Home is Euler's built-in application for app status, lifecycle controls, workspace
-statistics, and avatar customization. It owns all Euler UI, including the shared
+statistics, and avatar customization. It owns Euler's built-in UI, including the shared
 dock shown on mounted app pages. Its source lives beside the other apps in
 `app/home`, and its page remains at `/` on Euler's address.
 
@@ -56,6 +56,20 @@ The repository root provides HTTP hosting and security, workspace configuration,
 build orchestration, and app lifecycle APIs. Home provides the UI and its document
 integration through that host, so the dock remains shared across app pages while
 its implementation stays here.
+
+## App-provided docks
+
+Mounted apps may optionally declare a `dock` stylesheet, module, or both in their
+workspace manifest entry. A stylesheet themes the standard dock inside its
+shadow root; a module exports `mount(context)` and supplies that app's interface.
+Home still owns state, remembered-route navigation, avatar and opacity updates,
+and fallback to its standard dock when loading or mounting fails. Home itself
+always uses the standard dock.
+
+See [per-app docks](../../docs/app-docks.md) for the context API, configuration,
+and a complete dependency-free example. An app's dock assets live in that app's
+`public/euler/` folder and are served through its mounted route. Build the app and
+restart Euler after changing its assets or manifest.
 
 Home is maintained directly in the Euler repository. It has no separate upstream
 repository and is not included in the `apps:sync` subtree workflow.

@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
-import { defaultManifest, loadWorkspace } from '../src/workspace.mjs';
+import { defaultManifest, loadWorkspace, validateManifest } from '../src/workspace.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
 
@@ -131,4 +131,56 @@ test('manifest loading does not execute JavaScript configuration or app commands
   assert.equal(basename(loaded.configFile), 'euler.workspace.json');
   await assert.rejects(readFile(marker), { code: 'ENOENT' });
   assert.equal(resolve(loaded.root), root);
+});
+
+test('optional dock assets preserve local paths and do not require built files during manifest loading', async (t) => {
+  const { config } = await fixture(t);
+  assert.equal(Object.hasOwn(validateManifest(manifest()).projects.web, 'dock'), false);
+  for (const dock of [
+    { module: 'euler/dock.js' },
+    { module: 'euler/dock.mjs' },
+    { stylesheet: 'euler/dock.css' },
+    { module: 'custom dock/日本語/🚀.mjs', stylesheet: 'custom dock/a\'b"&theme.css' },
+  ]) {
+    const value = manifest();
+    value.projects.web.dock = dock;
+    const validated = validateManifest(value);
+    assert.deepEqual(validated.projects.web.dock, dock);
+    assert.notEqual(validated.projects.web.dock, dock);
+    await writeFile(config, JSON.stringify(value));
+    assert.deepEqual((await loadWorkspace({ config })).projects.web.dock, dock);
+  }
+});
+
+test('dock configuration accepts only a nonempty object of correctly typed module and stylesheet fields', () => {
+  for (const dock of [
+    null, false, 'euler/dock.js', [], {}, { unknown: 'euler/dock.js' },
+    { module: 'euler/dock.js', enabled: true }, { module: null }, { stylesheet: 12 },
+    { module: '' }, { module: 'euler/dock.css' }, { module: 'euler/dock.jsx' },
+    { stylesheet: 'euler/dock.js' }, { stylesheet: '' },
+  ]) {
+    const value = manifest();
+    value.projects.web.dock = dock;
+    assert.throws(() => validateManifest(value), /web\.dock/, JSON.stringify(dock));
+  }
+});
+
+test('dock paths reject external URLs, traversal, encoded escapes and controls on every platform', () => {
+  const paths = [
+    '/dock.js', '//example.com/dock.js', 'C:/dock.js', 'C:\\dock.js', '\\dock.js',
+    'https://example.com/dock.js', 'data:text/javascript,dock.js', 'javascript:dock.js', 'file:dock.js',
+    '../dock.js', './dock.js', 'a/../dock.js', 'a/./dock.js', 'a//dock.js', 'a\\dock.js',
+    '%2e%2e/dock.js', 'a/%2E/dock.js', '%252e%252e/dock.js', 'a%2fdock.js',
+    'a%5cdock.js', 'a%3fdock.js', 'a%23dock.js', 'a%00dock.js', 'a%20dock.js',
+    'dock.js?next=dock.js', 'dock.js#dock.js', ' dock.js', 'dock.js ',
+    'a\0dock.js', 'a\tdock.js', 'a\ndock.js', 'a\rdock.js', 'a\x1fdock.js',
+    'a\x7fdock.js', 'a\x85dock.js', 'a\x9fdock.js', 'a\ud800dock.js', 'a\udfffdock.js',
+  ];
+  for (const path of paths) {
+    for (const [field, asset] of [['module', path], ['stylesheet', path.replaceAll('.js', '.css')]]) {
+      const value = manifest();
+      value.projects.web.dock = { [field]: asset };
+      assert.throws(() => validateManifest(value), new RegExp(`web\\.dock\\.${field}`), JSON.stringify(asset));
+    }
+  }
 });

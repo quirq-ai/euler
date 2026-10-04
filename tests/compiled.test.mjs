@@ -195,6 +195,7 @@ test('Euler public assets use an explicit allowlist with existing origin and tra
   const app = await (await fixture(t)).start();
   for (const [path, type] of [
     ['/euler.css', /text\/css/], ['/euler-dock.css', /text\/css/], ['/euler-dock-ui.css', /text\/css/],
+    ['/euler-dock-host.css', /text\/css/], ['/euler-dock-extension.js', /text\/javascript/],
     ['/euler-home.js', /text\/javascript/], ['/euler-dock.js', /text\/javascript/],
     ['/euler-avatar.js', /text\/javascript/], ['/euler-avatar-editor.js', /text\/javascript/],
     ['/vendor/blobatar/index.js', /text\/javascript/], ['/vendor/blobatar/expression.js', /text\/javascript/],
@@ -260,6 +261,58 @@ test('Home document integration runs before app compression and preserves non-do
     assert.equal(Number(response.headers['content-length']), gzipSync(index).length, path);
     assert.deepEqual(response.bytes, options.method === 'HEAD' ? Buffer.alloc(0) : gzipSync(index), path);
   }
+});
+
+test('each app selects its own dock while Home and unconfigured apps retain the default', async (t) => {
+  const value = manifest();
+  value.projects.gamma = { ...value.projects.beta, directory: 'app/gamma', port: 5303 };
+  value.projects.alpha.dock = { module: 'euler/team dock.mjs', stylesheet: 'euler/dock.css' };
+  value.projects.beta.dock = { stylesheet: 'euler/theme.css' };
+  const fixtureApp = await fixture(t, { value });
+  const files = [
+    ['alpha', 'team dock.mjs', 'export function mount(context) { return () => {}; }', /text\/javascript/],
+    ['alpha', 'dock.css', ':host { color: teal; }', /text\/css/],
+    ['beta', 'theme.css', '.dock { border-radius: 8px; }', /text\/css/],
+  ];
+  for (const [id, file, content] of files) {
+    await mkdir(join(fixtureApp.output(id), 'euler'), { recursive: true });
+    await writeFile(join(fixtureApp.output(id), 'euler', file), content);
+  }
+  const app = await fixtureApp.start();
+  const expected = {
+    alpha: { version: 1, appId: 'alpha', moduleUrl: '/app/alpha/euler/team%20dock.mjs', stylesheetUrl: '/app/alpha/euler/dock.css' },
+    beta: { version: 1, appId: 'beta', stylesheetUrl: '/app/beta/euler/theme.css' },
+  };
+  for (const id of ['alpha', 'beta']) {
+    for (const route of [`/app/${id}/`, `/app/${id}/nested/page?tab=one`]) {
+      const page = await request(app, route, { headers: { accept: 'text/html' } });
+      assert.equal(page.status, 200);
+      const config = /<meta name="euler-dock-config" content="([^"]*)"[^>]*>/.exec(page.text);
+      assert.ok(config, `${route} selects an app dock`);
+      const decode = (text) => text.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+      assert.deepEqual(JSON.parse(decode(config[1])), expected[id]);
+      assert.equal(page.text.split('name="euler-dock-config"').length, 2);
+      assert.equal(withoutDock(page.text.replace(config[0], '')), index);
+    }
+  }
+  for (const route of ['/', '/app/gamma/', '/api/state']) {
+    const response = await request(app, route);
+    assert.equal(response.status, 200);
+    assert.doesNotMatch(response.text, /name="euler-dock-config"/);
+  }
+  for (const [id, file, content, type] of files) {
+    const route = `/app/${id}/euler/${encodeURIComponent(file)}`;
+    const asset = await request(app, route);
+    assert.equal(asset.status, 200, route);
+    assert.match(asset.headers['content-type'], type);
+    assert.equal(asset.text, content);
+    const head = await request(app, route, { method: 'HEAD' });
+    assert.equal(head.status, 200);
+    assert.equal(head.text, '');
+  }
+  const missing = await request(app, '/app/alpha/euler/missing.js', { headers: { accept: 'text/html' } });
+  assert.equal(missing.status, 404, 'Missing custom modules must not receive an HTML SPA fallback');
+  assert.doesNotMatch(missing.text, /euler-dock-config/);
 });
 
 test('static handler does not expose build markers, dotfiles, traversal targets, or malformed paths', async (t) => {

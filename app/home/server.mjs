@@ -30,11 +30,18 @@ export const homeApplication = Object.freeze({
     return false;
   },
 
-  prepareAppResponse(request, response) {
+  prepareAppResponse(request, response, { id, project } = {}) {
     // Next can compress responses before the document reaches the host. Only
     // document requests negotiate identity; APIs, assets and RSC keep theirs.
     if (!isDockDocumentRequest(request)) return;
     request.headers['accept-encoding'] = 'identity';
-    attachEulerDock(request, response);
+    let config;
+    if (project?.dock && id) {
+      const appAsset = (path) => `/app/${encodeURIComponent(id)}/${path.split('/').map(encodeURIComponent).join('/')}`;
+      config = { version: 1, appId: id,
+        ...(project.dock.module ? { moduleUrl: appAsset(project.dock.module) } : {}),
+        ...(project.dock.stylesheet ? { stylesheetUrl: appAsset(project.dock.stylesheet) } : {}) };
+    }
+    attachEulerDock(request, response, config);
   },
 });

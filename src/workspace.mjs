@@ -11,6 +11,13 @@ const object = (value) => value && typeof value === 'object' && !Array.isArray(v
 const invalid = (message) => new Error(`Invalid workspace manifest: ${message}`);
 const localPath = (value) => typeof value === 'string' && value.trim() && !isAbsolute(value) && !/^[a-z]:/i.test(value) && !value.startsWith('\\') && !value.replaceAll('\\', '/').split('/').some((part) => part === '..');
 
+function dockAssetPath(value, extension) {
+  return typeof value === 'string' && value.length > 0 && value.trim() === value && value.isWellFormed()
+    && !/[\\:%?#\u0000-\u001f\u007f-\u009f]/.test(value)
+    && value.split('/').every((part) => part && part !== '.' && part !== '..')
+    && extension.test(value);
+}
+
 export function validateManifest(value) {
   if (!object(value) || value.version !== 1) throw invalid('version must be 1.');
   if (!object(value.projects)) throw invalid('projects must be an object.');
@@ -32,6 +39,21 @@ export function validateManifest(value) {
     if (typeof urlPath !== 'string' || !urlPath.startsWith('/') || urlPath.startsWith('//') || /[\\\r\n]/.test(urlPath)) throw invalid(`${id}.urlPath must be a local path beginning with /.`);
     for (const field of ['name', 'description', 'kind']) if (project[field] !== undefined && typeof project[field] !== 'string') throw invalid(`${id}.${field} must be a string.`);
     if (project.nxProject !== undefined && (typeof project.nxProject !== 'string' || !/^[@a-zA-Z0-9][a-zA-Z0-9@._/-]*$/.test(project.nxProject))) throw invalid(`${id}.nxProject is not a valid Nx project name.`);
+    let dock;
+    if (project.dock !== undefined) {
+      if (!object(project.dock) || !Object.keys(project.dock).length
+        || Object.keys(project.dock).some((field) => !['module', 'stylesheet'].includes(field))) {
+        throw invalid(`${id}.dock must contain module, stylesheet, or both, with no other fields.`);
+      }
+      dock = {};
+      for (const [field, extension] of [['module', /\.(?:js|mjs)$/i], ['stylesheet', /\.css$/i]]) {
+        if (!Object.hasOwn(project.dock, field)) continue;
+        if (!dockAssetPath(project.dock[field], extension)) {
+          throw invalid(`${id}.dock.${field} must be a local app-relative ${field === 'module' ? '.js or .mjs' : '.css'} asset path without URL escapes, dot segments, or query/hash.`);
+        }
+        dock[field] = project.dock[field];
+      }
+    }
     if (project.commands !== undefined) {
       if (!object(project.commands)) throw invalid(`${id}.commands must be an object of argument arrays.`);
       for (const [mode, args] of Object.entries(project.commands)) {
@@ -48,7 +70,7 @@ export function validateManifest(value) {
       if (!Array.isArray(compiled.build) || !compiled.build.length || !compiled.build[0] || compiled.build.some((arg) => typeof arg !== 'string' || arg.includes('\0'))) throw invalid(`${id}.compiled.build must be an argument array.`);
       for (const arg of compiled.build) for (const match of arg.matchAll(/\{([a-zA-Z][a-zA-Z0-9]*)\}/g)) if (!placeholders.has(match[1])) throw invalid(`unknown placeholder ${match[0]} for ${id}.`);
     }
-    projects[id] = { ...project, directory: directory.replaceAll('\\', '/'), urlPath, scripts: [...new Set(project.scripts)] };
+    projects[id] = { ...project, directory: directory.replaceAll('\\', '/'), urlPath, scripts: [...new Set(project.scripts)], ...(dock ? { dock } : {}) };
   }
   return { version: 1, name: value.name || 'Euler', projects };
 }
