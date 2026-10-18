@@ -27,7 +27,7 @@ async function statOptional(path) {
 
 function safePath(path) {
   const normal = posix.normalize(path);
-  if (typeof path !== 'string' || !path || path !== normal || posix.isAbsolute(path) || normal === '..' || normal.startsWith('../')
+  if (typeof path !== 'string' || !path || path === '.' || path !== normal || posix.isAbsolute(path) || normal === '..' || normal.startsWith('../')
     || path.includes('\\') || path.split('/').includes('.git') || path === MARKER) {
     throw new Error(`Refusing unsafe source path: ${JSON.stringify(path)}`);
   }
@@ -108,6 +108,8 @@ async function walk(directory, prefix = '') {
 // the pinned tree, and a failed adapter leaves app/<id> as it was.
 async function stage(root, id, source, patch) {
   const staging = join(root, '.workspace-tmp/sources', id);
+  // A linked .workspace-tmp would make the clean-up below delete files somewhere else.
+  await noLinkedParents(root, `.workspace-tmp/sources/${id}`);
   await rm(staging, { recursive: true, force: true });
   await mkdir(staging, { recursive: true });
   for (const line of git(['ls-files', '--stage', '-z'], source).split('\0').filter(Boolean)) {
@@ -179,19 +181,39 @@ export async function prepareSource(root, id, { log = console.log, backup = fals
 
   log(`Preparing ${id} from ${digest.slice(4, 11)}…`);
   const next = [...files].map(([path, value]) => ({ path, ...value }));
-  await writeJsonAtomically(join(directory, MARKER), { version: 2, complete: false, digest, patchSha256, files: previous?.files ?? [], next });
+  // Until this run completes, every hash setup wrote before, in either list, is still ours.
+  const written = previous ? [...previous.files, ...(previous.next ?? [])] : [];
+  await writeJsonAtomically(join(directory, MARKER), { version: 2, complete: false, digest, patchSha256, files: written, next });
   let saved = null;
   if (conflicts.length) {
-    saved = `${directory}.setup-backup-${new Date().toISOString().replace(/[:.]/g, '-')}`;
+    // A folder of its own, made here and never one that was already there (or a link to one).
+    const base = `${directory}.setup-backup-${new Date().toISOString().replace(/[:.]/g, '-')}`;
+    for (let n = 0; !saved; n += 1) {
+      const candidate = n ? `${base}-${n}` : base;
+      try { await mkdir(candidate); saved = candidate; }
+      catch (error) { if (error.code !== 'EEXIST' || n >= 100) throw error; }
+    }
     for (const path of conflicts) {
+      await noLinkedParents(saved, path);
       await mkdir(dirname(join(saved, path)), { recursive: true });
+      if (await statOptional(join(saved, path))) throw new Error(`${join(saved, path)} already exists; nothing more was moved.`);
       await rename(join(directory, path), join(saved, path));
     }
     log(`Moved ${conflicts.length} changed file${conflicts.length === 1 ? '' : 's'} to ${relative(root, saved)}.`);
   }
+  // A file is checked again right before it is removed or replaced, so an edit made while setup
+  // runs is never lost: only absent files, the new bytes or bytes setup wrote are touched.
+  const stillOurs = async (path, to, want) => {
+    const have = await fingerprint(to);
+    if (have && have.sha256 !== want?.sha256 && !(ours.get(path) ?? []).includes(have.sha256)) {
+      throw new Error(`app/${id}/${path} changed while setup was running. Nothing more was changed; run setup again.`);
+    }
+    return have;
+  };
   // Remove what setup wrote before and the new tree no longer has; each such file still has our bytes.
   for (const path of ours.keys()) {
-    if (files.has(path) || !(await statOptional(join(directory, path)))) continue;
+    if (files.has(path)) continue;
+    if (!(await stillOurs(path, join(directory, path)))) continue;
     await unlink(join(directory, path));
     for (let parent = dirname(join(directory, path)); parent !== directory && parent.startsWith(directory); parent = dirname(parent)) {
       try { if ((await readdir(parent)).length) break; await rmdir(parent); } catch { break; }
@@ -199,7 +221,8 @@ export async function prepareSource(root, id, { log = console.log, backup = fals
   }
   for (const [path, want] of files) {
     const to = join(directory, path);
-    const have = await fingerprint(to);
+    await noLinkedParents(directory, path);
+    const have = await stillOurs(path, to, want);
     if (have?.sha256 === want.sha256 && have.mode === want.mode) continue;
     if (have) await unlink(to);
     await mkdir(dirname(to), { recursive: true });

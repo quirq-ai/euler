@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { appendFile, mkdir, mkdtemp, readdir, readFile, rm, stat, symlink, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { writeFileSync } from 'node:fs';
 import test from 'node:test';
 import { prepareSource } from '../scripts/sources.mjs';
 
@@ -195,4 +197,70 @@ test('prepare uses only the pin infra/repo.toml names now, unmodified', async (t
   await utimes(join(root, 'infra/repo.toml'), new Date(2000, 0, 1), new Date(2000, 0, 1));
   await writeFile(join(source, 'vite.config.ts'), 'export default { tampered: true };\n');
   await assert.rejects(prepareSource(root, 'quitter', quiet), /has changed files/);
+});
+
+test('a file edited while setup runs is not replaced or removed', async (t) => {
+  const { root, commit, app } = await fixture(t);
+  await commit({ 'vite.config.ts': 'export default {};\n', 'src/main.ts': 'one\n', 'old.md': 'old\n' });
+  await prepareSource(root, 'quitter', quiet);
+  await commit({ 'vite.config.ts': 'export default {};\n', 'src/main.ts': 'two\n' });
+  // The edit lands after setup checked app/quitter and before it writes: when it logs "Preparing".
+  const sync = (path) => ({ log(line) { if (line.startsWith('Preparing')) writeFileSync(join(app, path), 'EDITED DURING SETUP'); } });
+  await assert.rejects(prepareSource(root, 'quitter', sync('src/main.ts')), /app\/quitter\/src\/main\.ts changed while setup was running/);
+  assert.equal(await readFile(join(app, 'src/main.ts'), 'utf8'), 'EDITED DURING SETUP');
+  await rm(join(app, 'src/main.ts'));
+  await assert.rejects(prepareSource(root, 'quitter', sync('old.md')), /app\/quitter\/old\.md changed while setup was running/);
+  assert.equal(await readFile(join(app, 'old.md'), 'utf8'), 'EDITED DURING SETUP');
+});
+
+test('backups never reuse a folder that is already there', async (t) => {
+  const { root, commit, app } = await fixture(t);
+  await commit({ 'vite.config.ts': 'export default {};\n', 'src/main.ts': 'upstream\n' });
+  await put(app, 'src/main.ts', 'first');
+  const RealDate = Date;
+  const fixed = new RealDate('2026-10-18T20:00:00.000Z');
+  globalThis.Date = class extends RealDate { constructor(...args) { super(...(args.length ? args : [fixed])); } static now() { return fixed.getTime(); } };
+  t.after(() => { globalThis.Date = RealDate; });
+  const taken = `${app}.setup-backup-2026-10-18T20-00-00-000Z`;
+  await put(taken, 'src/main.ts', 'someone else');
+  const { backup } = await prepareSource(root, 'quitter', { ...quiet, backup: true });
+  assert.equal(join(root, backup), `${taken}-1`);
+  assert.equal(await readFile(join(taken, 'src/main.ts'), 'utf8'), 'someone else');
+  assert.equal(await readFile(join(root, backup, 'src/main.ts'), 'utf8'), 'first');
+});
+
+test('an interrupted run keeps both lists, and markers naming "." are refused', async (t) => {
+  const { root, commit, app } = await fixture(t);
+  await commit({ 'vite.config.ts': 'export default {};\n', 'a.md': 'a\n' });
+  await prepareSource(root, 'quitter', quiet);
+  const done = JSON.parse(await readFile(join(app, '.euler-source.json'), 'utf8'));
+  // As if a run toward a tree with b.md stopped after writing it.
+  await put(app, 'b.md', 'b\n');
+  const b = { path: 'b.md', sha256: createHash('sha256').update('b\n').digest('hex'), mode: '100644' };
+  await writeFile(join(app, '.euler-source.json'), JSON.stringify({ ...done, complete: false, next: [...done.files, b] }));
+  // A second run that stops too (here on an edit to a.md made while it runs) must still list
+  // b.md as ours, so the next run removes it.
+  await commit({ 'vite.config.ts': 'export default {};\n', 'c.md': 'c\n' });
+  const edit = { log(line) { if (line.startsWith('Preparing')) writeFileSync(join(app, 'a.md'), 'EDITED'); } };
+  await assert.rejects(prepareSource(root, 'quitter', edit), /a\.md changed while setup was running/);
+  const interim = JSON.parse(await readFile(join(app, '.euler-source.json'), 'utf8'));
+  assert.equal(interim.complete, false);
+  assert.ok(interim.files.some((file) => file.path === 'b.md'));
+  await writeFile(join(app, 'a.md'), 'a\n');
+  await prepareSource(root, 'quitter', quiet);
+  assert.equal(await exists(join(app, 'b.md')), false);
+  assert.equal(await exists(join(app, 'a.md')), false);
+
+  await writeFile(join(app, '.euler-source.json'), JSON.stringify({ ...done, files: [{ path: '.', sha256: '0'.repeat(64), mode: '100644' }] }));
+  await assert.rejects(prepareSource(root, 'quitter', quiet), /unsafe source path: "\."/);
+});
+
+test('a linked .workspace-tmp is refused before anything is cleaned', { skip: process.platform === 'win32' }, async (t) => {
+  const { root, commit } = await fixture(t);
+  await commit({ 'vite.config.ts': 'export default {};\n' });
+  const outside = join(root, 'outside');
+  await put(outside, 'sources/quitter/keep.txt', 'keep');
+  await symlink(outside, join(root, '.workspace-tmp'));
+  await assert.rejects(prepareSource(root, 'quitter', quiet), /not a plain folder/);
+  assert.equal(await readFile(join(outside, 'sources/quitter/keep.txt'), 'utf8'), 'keep');
 });

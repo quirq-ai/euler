@@ -77,9 +77,13 @@ jobs:
       - run: qqsync validate infra/repo.toml
       - run: qqsync guard .
       - name: Each pin is on its app's main
+        shell: bash
         run: |
-          qqsync pins --strict infra/repo.toml | while IFS="$(printf '\t')" read -r pin digest source; do
+          set -euo pipefail
+          qqsync pins --strict infra/repo.toml | while IFS=$'\t' read -r pin digest source; do
             commit=${digest#git:}
+            want="https://github.com/quirq-ai/${pin#deps.}"
+            [ "$source" = "$want" ] || { echo "$pin: source is $source, expected $want"; exit 1; }
             dir="$RUNNER_TEMP/${pin#deps.}"
             git init --quiet "$dir"
             git -C "$dir" fetch --quiet --filter=tree:0 "$source" main
