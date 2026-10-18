@@ -1,6 +1,14 @@
 node_modules/
 # Legacy app data and builds can remain here after upgrading to app/.
 /apps/
+# Pinned app sources: qq sync links them here, npm run setup copies them to app/<name>.
+/.qq/
+/app/innernet/*
+!/app/innernet/project.json
+/app/quitter/*
+!/app/quitter/project.json
+/app/instants/*
+!/app/instants/project.json
 .workspace-state/
 .workspace-tmp/
 .nx/

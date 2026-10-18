@@ -1,0 +1,322 @@
+diff --git a/.gitignore b/.gitignore
+index 4a4a33e..4f8b21a 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -17,6 +17,7 @@
+ 
+ # next.js
+ /.next/
++/.next-euler/
+ /.vinext/
+ /out/
+ 
+diff --git a/README.md b/README.md
+index a70eff9..d3960be 100644
+--- a/README.md
++++ b/README.md
+@@ -52,6 +52,12 @@ Before the first browser test run, install its browser with `npx playwright inst
+ 
+ The default development, build, and production commands use standard Next.js. The optional Sites scaffold has separate `dev:sites`, `build:sites`, and `start:sites` commands; it is not needed to run locally or deploy to Vercel. See [architecture](docs/architecture.md#build-and-hosting-boundary) for that boundary.
+ 
++### Compiled quirq mount
++
++The optional Euler profile builds Instants with `QUIRQ_BASE_PATH=/app/instants` and `QUIRQ_DIST_DIR=.next-euler`. quirq loads that production Next.js application into its existing server and serves pages, assets and the session API below `/app/instants`. There is no iframe or separate Instants listener. The ordinary `npm run build` command accepts the same build-time variables; omitting them preserves the independent app at `/` with output in `.next`.
++
++For a host that loads several apps in one Node process, `INSTANTS_BASE_PATH` and `INSTANTS_DIST_DIR` take precedence over the generic variables. Use the same mount and build directory when preparing Next.js at runtime. `INSTANTS_SESSION_DIR` can select an absolute journal directory; quirq sets it to this repository's `session` folder. Session cookies are scoped to the mount and use `Secure` for HTTPS requests. Changing the mount requires rebuilding the client bundle.
++
+ ## Deploy to Vercel
+ 
+ Import `quirq-ai/instants` into Vercel with the repository root (`.`) as the **Root Directory**. The repository itself is the app; do not enter `instagram-ui` as a subdirectory. Use Node.js 22.x. No API keys or environment variables are required for this frontend demo.
+diff --git a/app/api/session/route.ts b/app/api/session/route.ts
+index 6b97696..ff03788 100644
+--- a/app/api/session/route.ts
++++ b/app/api/session/route.ts
+@@ -1,6 +1,7 @@
+ import { NextRequest, NextResponse } from "next/server";
+ import { createSessionStore } from "@/engine/session-store.mjs";
+ import { hasSameOrigin } from "@/engine/http.mjs";
++import { basePath } from "@/lib/app-path.mjs";
+ import {
+   isSessionId,
+   MAX_REQUEST_BYTES,
+@@ -99,8 +100,8 @@ export async function GET(request: NextRequest) {
+       response.cookies.set(COOKIE, session.id, {
+         httpOnly: true,
+         sameSite: "lax",
+-        secure: process.env.NODE_ENV === "production",
+-        path: "/",
++        secure: request.nextUrl.protocol === "https:",
++        path: basePath || "/",
+         maxAge: 60 * 60 * 24 * 365,
+       });
+     }
+diff --git a/app/layout.tsx b/app/layout.tsx
+index d37c044..f96bc78 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -1,6 +1,7 @@
+ import type { Metadata } from "next";
+ import { brand, brandStyles } from "@/lib/brand";
+ import { motionStyles } from "@/lib/motion-tokens";
++import { appPath } from "@/lib/app-path.mjs";
+ import "./globals.css";
+ const icon =
+   brand.favicon ||
+@@ -8,7 +9,7 @@ const icon =
+ export const metadata: Metadata = {
+   title: brand.name,
+   description: brand.description,
+-  icons: { icon },
++  icons: { icon: appPath(icon) },
+ };
+ export default function RootLayout({
+   children,
+@@ -17,7 +18,7 @@ export default function RootLayout({
+     <html lang="en" data-theme={brand.defaultTheme} suppressHydrationWarning>
+       <head>
+         {brand.fontStylesheet && (
+-          <link rel="stylesheet" href={brand.fontStylesheet} />
++          <link rel="stylesheet" href={appPath(brand.fontStylesheet)} />
+         )}
+         <style
+           dangerouslySetInnerHTML={{ __html: brandStyles + motionStyles }}
+diff --git a/components/instagram/app.tsx b/components/instagram/app.tsx
+index d139f20..e93c369 100644
+--- a/components/instagram/app.tsx
++++ b/components/instagram/app.tsx
+@@ -26,6 +26,7 @@ import {
+ } from "@/components/ui/dropdown-menu";
+ import { Toaster, toast } from "sonner";
+ import { brand, Theme } from "@/lib/brand";
++import { appPath } from "@/lib/app-path.mjs";
+ import {
+   HomeIcon,
+   Avatar,
+@@ -271,7 +272,7 @@ export default function InstantsApp() {
+                 <Download size={18} /> Export session
+               </DropdownMenuItem>
+               <DropdownMenuItem asChild>
+-                <a href="/motion">
++                <a href={appPath("/motion")}>
+                   <Zap size={18} /> Motion lab
+                 </a>
+               </DropdownMenuItem>
+@@ -471,7 +472,7 @@ export default function InstantsApp() {
+                     <button className="text-action" onClick={scrollToTop}>
+                       Back to top
+                     </button>
+-                    <a className="motion-lab-link" href="/motion">
++                    <a className="motion-lab-link" href={appPath("/motion")}>
+                       Explore the motion lab <ChevronRight size={14} />
+                     </a>
+                     <p className="session-status" role="status">
+diff --git a/components/instagram/overlays.tsx b/components/instagram/overlays.tsx
+index a101334..40bcc82 100644
+--- a/components/instagram/overlays.tsx
++++ b/components/instagram/overlays.tsx
+@@ -18,6 +18,7 @@ import { toast } from "sonner";
+ import { InstantResponse } from "./instant-response";
+ import { type QueueItem } from "@/lib/data";
+ import { MotionCarousel } from "@/components/motion/carousel";
++import { appPath } from "@/lib/app-path.mjs";
+ 
+ export function SidePanel({
+   panel,
+@@ -495,7 +496,7 @@ export function ShareDialog({
+                   return;
+                 }
+                 await navigator.clipboard.writeText(
+-                  `${window.location.origin}/?post=${post?.id}`,
++                  `${window.location.origin}${appPath("/")}?post=${post?.id}`,
+                 );
+                 toast("Link copied");
+               } catch {
+diff --git a/components/instagram/shared.tsx b/components/instagram/shared.tsx
+index 687b0e2..b5bb4f2 100644
+--- a/components/instagram/shared.tsx
++++ b/components/instagram/shared.tsx
+@@ -2,6 +2,7 @@
+ import { useEffect, useRef, useState } from "react";
+ import { BadgeCheck, Camera } from "lucide-react";
+ import { brand } from "@/lib/brand";
++import { appPath } from "@/lib/app-path.mjs";
+ export { mock, getUser, getCompany } from "@/lib/data";
+ export type { User, Instant, Post } from "@/lib/data";
+ export function Photo({
+@@ -30,7 +31,7 @@ export function Photo({
+   ) : (
+     <img
+       ref={image}
+-      src={src}
++      src={appPath(src)}
+       alt={alt}
+       className={className}
+       loading={eager ? "eager" : "lazy"}
+@@ -70,7 +71,7 @@ export function Verified() {
+ }
+ export function Wordmark() {
+   return brand.logo.image ? (
+-    <img className="brand-image" src={brand.logo.image} alt={brand.name} />
++    <img className="brand-image" src={appPath(brand.logo.image)} alt={brand.name} />
+   ) : (
+     <span className="wordmark">{brand.logo.text}</span>
+   );
+@@ -81,7 +82,7 @@ export function PoweredBy({ className = "" }: { className?: string }) {
+     <span className={`powered-by ${className}`}>
+       <span>{brand.poweredBy.label}</span>
+       <img
+-        src={brand.poweredBy.logo}
++        src={appPath(brand.poweredBy.logo)}
+         alt={brand.poweredBy.name}
+         width={42}
+         height={17}
+diff --git a/engine/session-store.mjs b/engine/session-store.mjs
+index bdf63ba..960c271 100644
+--- a/engine/session-store.mjs
++++ b/engine/session-store.mjs
+@@ -27,7 +27,7 @@ async function serialize(key, operation) {
+ }
+ 
+ export function createSessionStore({
+-  directory = path.join(process.cwd(), "session"),
++  directory = process.env.INSTANTS_SESSION_DIR || path.join(process.cwd(), "session"),
+ } = {}) {
+   // Runtime journals are created on this machine, never deployment inputs.
+   const root = path.resolve(/* turbopackIgnore: true */ directory);
+diff --git a/eslint.config.mjs b/eslint.config.mjs
+index 27ed84a..20a016b 100644
+--- a/eslint.config.mjs
++++ b/eslint.config.mjs
+@@ -8,6 +8,7 @@ const eslintConfig = defineConfig([
+   // Generated state and vendored build tooling are outside application lint.
+   globalIgnores([
+     ".next/**",
++    ".next-euler/**",
+     ".vinext/**",
+     ".wrangler/**",
+     ".sites-runtime/**",
+diff --git a/hooks/use-session.ts b/hooks/use-session.ts
+index 71bafc9..c0b7fbf 100644
+--- a/hooks/use-session.ts
++++ b/hooks/use-session.ts
+@@ -16,6 +16,7 @@ import type {
+ } from "@/engine/types";
+ import { projectSession } from "@/engine/projection";
+ import { mock } from "@/lib/data";
++import { appPath } from "@/lib/app-path.mjs";
+ const DEVICE_KEY = "instants-session-v1";
+ const outboxKey = (id: string) => "instants-outbox:" + id;
+ type Mode = "loading" | "file" | "browser" | "unavailable";
+@@ -136,7 +137,7 @@ export function useSession() {
+       while (pending.current.length && active()) {
+         // One event per request bounds payloads containing image data.
+         const batch = pending.current.slice(0, 1);
+-        const response = await fetch("/api/session", {
++        const response = await fetch(appPath("/api/session"), {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify({ events: batch }),
+@@ -208,7 +209,7 @@ export function useSession() {
+       setError("");
+     }
+     try {
+-      const response = await fetch("/api/session", {
++      const response = await fetch(appPath("/api/session"), {
+         cache: "no-store",
+         signal: controller.signal,
+       });
+diff --git a/lib/app-path.d.mts b/lib/app-path.d.mts
+new file mode 100644
+index 0000000..f790b9d
+--- /dev/null
++++ b/lib/app-path.d.mts
+@@ -0,0 +1,2 @@
++export const basePath: string;
++export function appPath(value: string): string;
+diff --git a/lib/app-path.mjs b/lib/app-path.mjs
+new file mode 100644
+index 0000000..b5f8b5f
+--- /dev/null
++++ b/lib/app-path.mjs
+@@ -0,0 +1,10 @@
++// Next applies basePath to its own router, but plain fetch, img and anchor URLs
++// need the same build-time prefix. External, data and blob URLs stay untouched.
++export const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
++
++export function appPath(value) {
++  if (!basePath || !value.startsWith("/") || value.startsWith("//")) return value;
++  if (value === basePath || value.startsWith(`${basePath}/`) ||
++      value.startsWith(`${basePath}?`) || value.startsWith(`${basePath}#`)) return value;
++  return `${basePath}${value}`;
++}
+diff --git a/next.config.ts b/next.config.ts
+index 80b2559..2862de4 100644
+--- a/next.config.ts
++++ b/next.config.ts
+@@ -2,8 +2,12 @@ import type { NextConfig } from "next";
+ import { fileURLToPath } from "node:url";
+ 
+ const projectRoot = fileURLToPath(new URL(".", import.meta.url));
++const basePath = (process.env.INSTANTS_BASE_PATH || process.env.QUIRQ_BASE_PATH || "").replace(/\/$/, "");
+ 
+ const nextConfig: NextConfig = {
++  basePath,
++  distDir: process.env.INSTANTS_DIST_DIR || process.env.QUIRQ_DIST_DIR || ".next",
++  env: { NEXT_PUBLIC_BASE_PATH: basePath },
+   // Keep nested local checkouts and Vercel builds scoped to this repository.
+   turbopack: { root: projectRoot },
+   outputFileTracingRoot: projectRoot,
+diff --git a/tests/app-path.test.mjs b/tests/app-path.test.mjs
+new file mode 100644
+index 0000000..210675b
+--- /dev/null
++++ b/tests/app-path.test.mjs
+@@ -0,0 +1,33 @@
++import assert from "node:assert/strict";
++import { test } from "node:test";
++import { execFileSync } from "node:child_process";
++
++function paths(basePath) {
++  return JSON.parse(execFileSync(process.execPath, ["--input-type=module", "-e", `
++    import { appPath } from './lib/app-path.mjs';
++    console.log(JSON.stringify([
++      '/', '/api/session', '/work/example.svg', '/motion?view=1#demo',
++      '/app/instants/api/session', 'https://example.com/photo.png',
++      '//example.com/photo.png', 'data:image/png;base64,abc', 'blob:example'
++    ].map(appPath)));
++  `], {
++    cwd: new URL("..", import.meta.url),
++    env: { ...process.env, NEXT_PUBLIC_BASE_PATH: basePath },
++    encoding: "utf8",
++  }));
++}
++
++test("mounted URLs stay under the app while external media remains unchanged", () => {
++  assert.deepEqual(paths("/app/instants"), [
++    '/app/instants/', '/app/instants/api/session', '/app/instants/work/example.svg',
++    '/app/instants/motion?view=1#demo', '/app/instants/api/session',
++    'https://example.com/photo.png', '//example.com/photo.png',
++    'data:image/png;base64,abc', 'blob:example',
++  ]);
++});
++
++test("independent builds preserve their original root URLs", () => {
++  assert.deepEqual(paths("").slice(0, 4), [
++    '/', '/api/session', '/work/example.svg', '/motion?view=1#demo',
++  ]);
++});
+diff --git a/tsconfig.json b/tsconfig.json
+index be170f5..60dace5 100644
+--- a/tsconfig.json
++++ b/tsconfig.json
+@@ -38,7 +38,9 @@
+     "**/*.tsx",
+     ".next/types/**/*.ts",
+     ".next/dev/types/**/*.ts",
+-    "**/*.mts"
++    "**/*.mts",
++    ".next-euler/types/**/*.ts",
++    ".next-euler/dev/types/**/*.ts"
+   ],
+   "exclude": [
+     "node_modules",

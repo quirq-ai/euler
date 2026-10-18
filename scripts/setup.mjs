@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { dirname, join, posix, resolve, win32 } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { prepareSource } from './sources.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const knownApps = ['home', 'innernet', 'quitter', 'instants'];
@@ -40,6 +41,7 @@ export async function setup(args = process.argv.slice(2)) {
 
   for (const id of selected.length ? selected : knownApps) {
     if (id === 'home') { console.log('Home is ready; no dependencies to install.'); continue; }
+    await prepareSource(root, id);
     const directory = join(root, 'app', id);
     const pkg = JSON.parse(await readFile(join(directory, 'package.json'), 'utf8'));
     console.log(`Installing ${pkg.name}…`);

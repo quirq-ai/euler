@@ -13,7 +13,7 @@ async function put(root, path, value = 'personal data') {
 async function fixture(t) {
   const root = await mkdtemp(join(tmpdir(), 'Euler migration with spaces '));
   t.after(() => rm(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }));
-  await put(root, 'app/upstream.json', JSON.stringify({ version: 1, applications: ids.map((id) => ({ id, directory: `app/${id}` })) }));
+  for (const id of ids) await put(root, `app/adapters/${id}.patch`, '');
   await put(root, 'euler.workspace.json', JSON.stringify({ projects: Object.fromEntries(ids.map((id) => [id, { directory: `app/${id}` }])) }));
   for (const id of ids) await put(root, `app/${id}/package.json`, '{}');
   return root;

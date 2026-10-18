@@ -1,8 +1,0 @@
-node_modules/
-dist/
-dist-euler/
-.vercel/
-*.tsbuildinfo
-.env*
-!.env.example
-.DS_Store

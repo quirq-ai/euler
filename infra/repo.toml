@@ -1,0 +1,36 @@
+# quirq infra (qq) manifest for euler, schema quirq-repo/1 (quirq-ai/sync). Read and edit it only
+# through qqsync (`qqsync show`, `qqsync pin`, or the qqsync.manifest library); never parse it any
+# other way.
+#
+# Euler does not carry the sources of the apps it hosts. Each app is pinned here to one commit of
+# its own repository; `qq sync` fetches that commit into qq's store and links it at
+# .qq/deps/<name>, and `npm run setup` copies it to app/<name> and applies Euler's subpath adapter
+# from app/adapters/<name>.patch. To move an app, change only its digest:
+#   qqsync pin deps innernet --digest git:<commit>
+# then `qq sync` and `npm run setup -- innernet` (docs/app-updates.md).
+schema = "quirq-repo/1"
+
+[qq]
+version = "0.1.0"
+
+[deps.innernet]
+source = "https://github.com/quirq-ai/innernet"
+digest = "git:4e9becef4af1593b05405fc9f2c4e698b980913d"
+
+[deps.quitter]
+source = "https://github.com/quirq-ai/quitter"
+digest = "git:f4ac9ca1ae6f9f82968a4c47af063ed859912773"
+
+[deps.instants]
+source = "https://github.com/quirq-ai/instants"
+digest = "git:d89db7982fa356e09cba8a01ff810bb9a6759587"
+
+# The kind is not in infra-config config/kinds.toml yet, so `qq build` and `qq test` do not build
+# euler: after `qq sync`, build with `npm ci`, `npm run setup` and `npm run build` (README).
+# TODO(suraj): a recipes kind for an npm workspace that hosts pinned apps, if euler joins quirq infra CI.
+[[targets]]
+name = "euler"
+kind = "node-workspace"
+srcs = ["bin/**", "src/**", "scripts/**", "tests/**", "app/home/**", "app/adapters/**", "app/*/project.json", "euler.workspace.json", "nx.json", "package.json", "package-lock.json"]
+outs = ["app/innernet/.next-euler/", "app/quitter/dist-euler/", "app/instants/.next-euler/"]
+cacheable = false
