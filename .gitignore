@@ -9,6 +9,7 @@ node_modules/
 !/app/quitter/project.json
 /app/instants/*
 !/app/instants/project.json
+/app/*.setup-backup-*/
 .workspace-state/
 .workspace-tmp/
 .nx/

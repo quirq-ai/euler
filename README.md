@@ -18,7 +18,7 @@ Euler brings **Innernet**, **Quitter**, and **Instants** into one local workspac
 
 ## Quick start
 
-Install **Node.js 24**, Git, Python 3.11.4 or newer, and [qq](https://github.com/quirq-ai/qq#install), the quirq command line. These commands work on **macOS and Linux**. qq needs a POSIX shell, so on Windows use WSL (not tested in CI).
+Install **Node.js 24**, Git, and qq, the quirq command line, with its `qqsync` tool ([install guide](https://docs.quirq.dev/docs/install); qq needs Python 3.11.4 or newer, and the guide covers macOS's older Python). These commands work on **macOS and Linux**. qq needs a POSIX shell, so on Windows use WSL (not tested in CI).
 
 ```sh
 qq fetch https://github.com/quirq-ai/euler
@@ -163,13 +163,13 @@ For updates, stop the service, run `git pull --ff-only`, `qq sync`, `npm ci`, `n
 
 **The complete Euler host is not currently supported as a Vercel deployment by this repository.** Each app can be deployed as a separate Vercel project from its own repository, since Euler no longer carries their sources. Each gets its own URL and standalone app behavior; the Euler Home, shared dock, and host controls are not part of those deployments.
 
-Import the app's repository, select production branch **`main`** and Node **24.x**, and use that repository's own install and build commands (its README says which):
+Import the app's repository, select production branch **`main`**, Node **24.x**, and the following settings. These are the commands at the commits Euler pins; an app's `main` can be ahead of its pin (check its README if a build fails).
 
-| App | Repository | Framework | Output |
-| --- | --- | --- | --- |
-| Quitter | [`quirq-ai/quitter`](https://github.com/quirq-ai/quitter) | Vite | `dist` |
-| Innernet | [`quirq-ai/innernet`](https://github.com/quirq-ai/innernet) | Next.js | Next.js default |
-| Instants | [`quirq-ai/instants`](https://github.com/quirq-ai/instants) | Next.js | Next.js default |
+| App | Repository | Framework | Install command | Build command | Output |
+| --- | --- | --- | --- | --- | --- |
+| Quitter | [`quirq-ai/quitter`](https://github.com/quirq-ai/quitter) | Vite | `npm ci` | `npm run build` | `dist` |
+| Innernet | [`quirq-ai/innernet`](https://github.com/quirq-ai/innernet) | Next.js | `npx --yes pnpm@9.12.3 install --frozen-lockfile` | `npm run build` | Next.js default |
+| Instants | [`quirq-ai/instants`](https://github.com/quirq-ai/instants) | Next.js | `npm ci` | `npm run build` | Next.js default |
 
 Use each app's build script, not the Euler build command. Leave `QUIRQ_BASE_PATH`, `QUIRQ_DIST_DIR`, `INNERNET_BASE_PATH`, `INNERNET_DIST_DIR`, `INSTANTS_BASE_PATH`, and `INSTANTS_DIST_DIR` unset: standalone deployments use `/` and their normal build output. Clear stale framework/output overrides when reusing an old Vercel project.
 
@@ -245,7 +245,7 @@ euler/
 | `npm run build -- --app instants` | Build one app even if disabled; leave its enabled setting unchanged. |
 | `npm test` | Run the host and Home test suites. |
 
-You can also `cd app/quitter` and run `npm run dev`, or use the other apps' own commands. `app/<name>` is a copy of the pinned commit plus its adapter, so change an app in its own repository, or change its adapter in `app/adapters/`; `npm run setup` replaces the copied files when the pin or the adapter changes and leaves everything else (local data, dependencies, builds) in place. Standalone development uses the app's original port and root path. Euler builds go into `.next-euler` or `dist-euler` to keep development output separate. Stop Euler before rebuilding a build it is serving.
+You can also `cd app/quitter` and run `npm run dev`, or use the other apps' own commands. `app/<name>` is a copy of the pinned commit plus its adapter, so change an app in its own repository, or change its adapter in `app/adapters/`. `npm run setup` records the bytes of every file it writes, and only ever replaces or removes a file that still has those bytes; local data, dependencies, and builds stay in place. If you have changed a file it wrote, setup stops and names it without changing anything. Move your change into the app's repository or its adapter, or run `npm run setup -- <name> --backup` to move the changed files to `app/<name>.setup-backup-<time>/` and continue. Standalone development uses the app's original port and root path. Euler builds go into `.next-euler` or `dist-euler` to keep development output separate. Stop Euler before rebuilding a build it is serving.
 
 Home is a first-class local app in [`app/home`](app/home/README.md). From that folder, `npm run dev` or `npm start` launches the same Euler host, API, and enabled apps at **http://localhost:2713/**. Stop an existing Euler process before starting another on that port. `npm run build` validates Home's HTML, CSS, and JavaScript, and `npm test` runs its focused tests. Home uses browser-ready source with no app dependencies or generated bundle; Nx also exposes its `start` and `setup` targets.
 
@@ -259,7 +259,7 @@ Already have an older checkout with sources in `apps/`? Stop Euler and follow th
 
 ### Update an app to a newer commit
 
-Each app's pin is one line in [`infra/repo.toml`](infra/repo.toml). Move it with qqsync (installed with qq; see the [qq guide](https://docs.quirq.dev/docs/qq)), then fetch, prepare, and test it:
+Each app's pin is one line in [`infra/repo.toml`](infra/repo.toml). Move it with `qqsync` (from the [install guide](https://docs.quirq.dev/docs/install)), then fetch, prepare, and test it:
 
 ```sh
 qqsync pin deps innernet --digest git:<commit>
@@ -269,7 +269,7 @@ npm run build -- --app innernet
 npm test
 ```
 
-Replace `innernet` with `quitter` or `instants` as needed, and stop Euler before rebuilding an app it is serving. If setup says the adapter does not apply, update `app/adapters/<name>.patch` for the new commit. Commit the pin and any adapter change together. See the [app maintenance guide](docs/app-updates.md) for details.
+Replace `innernet` with `quitter` or `instants` as needed, and stop Euler before rebuilding an app it is serving. If setup says the adapter does not apply, `app/<name>` is left as it was; regenerate `app/adapters/<name>.patch` for the new commit as the [app maintenance guide](docs/app-updates.md#regenerate-an-adapter) shows. Commit the pin and any adapter change together. See the [app maintenance guide](docs/app-updates.md) for details.
 
 ## Data and settings
 

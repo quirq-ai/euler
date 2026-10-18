@@ -26,17 +26,24 @@ flowchart TB
 1. `qq sync` (or `qq fetch`, which clones and then syncs) fetches each pin once per
    machine into qq's store, checks it against its commit, and links it at
    `.qq/deps/<name>`. The store copy is read only.
-2. `npm run setup` copies the files tracked at that commit into `app/<name>`,
-   applies the adapter with `git apply`, and installs the app from its lockfile. It
-   records what it wrote in `app/<name>/.euler-source.json`.
-3. When the pin or the adapter changes, the next setup removes the files it wrote
-   before and writes the new ones. Files it did not write stay: local indexes,
-   journals, `.env` files, dependencies, and builds. If a file it would write is
-   already there and it did not write it, setup stops and names it, so nothing of
-   yours is replaced.
+2. `npm run setup` checks that `.qq/deps/<name>` is a clean checkout at the pin and
+   that `infra/repo.toml` has not changed since the last `qq sync` (otherwise it
+   asks you to run `qq sync`). It then builds the pinned files plus the adapter in
+   `.workspace-tmp/sources/<name>`, brings `app/<name>` to exactly that tree, and
+   installs the app from its lockfile. If the adapter does not apply, `app/<name>`
+   is left as it was.
+3. `app/<name>/.euler-source.json` records the hash of every file setup wrote.
+   Setup only replaces or removes a file whose bytes are still the ones it wrote,
+   and takes over a file in the way only when it is identical to the one it would
+   write. Files it did not write stay: local indexes, journals, `.env` files,
+   dependencies, and builds.
 
-Edits made by hand inside `app/<name>` are replaced on the next pin or adapter
-change. Make app changes in the app's own repository, or in its adapter.
+If you have changed a file setup wrote, or a different file is where it would
+write one, setup stops, names the files, and changes nothing. Make app changes in
+the app's own repository or in its adapter. To keep going anyway, run
+`npm run setup -- <name> --backup`: it moves exactly those files to
+`app/<name>.setup-backup-<time>/` and continues. If the record is lost or
+damaged, setup rebuilds it from the files that match.
 
 ## Move an app to a newer commit
 
@@ -50,16 +57,33 @@ npm run build -- --app innernet
 npm test
 ```
 
-`qqsync` is installed with qq (see the [qq guide](https://docs.quirq.dev/docs/qq)).
+`qqsync` comes with the qq [install guide](https://docs.quirq.dev/docs/install).
 Stop Euler before rebuilding an app it is serving. Start Euler again with
 `npm start`, open the app, and check its pages, assets, and API behavior under
 `/app/innernet`. Replace `innernet` with `quitter` or `instants` as needed.
 
 If setup reports that the adapter does not apply, the new commit changed lines
-the adapter touches. Regenerate the adapter against the new commit: copy the
-prepared `app/<name>` into a checkout of the app at that commit, fix the
-conflicting lines, and save `git diff` there as `app/adapters/<name>.patch`. Then
-run setup again. Commit the pin and the adapter together.
+the adapter touches, and `app/<name>` is unchanged. Regenerate the adapter, then
+run setup again and commit the pin and the adapter together.
+
+## Regenerate an adapter
+
+Apply the current adapter to a clone of the app at the new commit, resolve what
+does not apply, and save the result without rename detection:
+
+```sh
+git clone https://github.com/quirq-ai/innernet /tmp/innernet-adapter
+cd /tmp/innernet-adapter
+git checkout --quiet <new commit>
+git apply --3way /path/to/euler/app/adapters/innernet.patch
+# resolve any conflicts, then:
+git add -A
+git diff --cached --no-renames --binary > /path/to/euler/app/adapters/innernet.patch
+```
+
+The same steps change an adapter on purpose: edit the files in the clone after
+`git apply`, then save the diff. Files Euler adds to an app, such as dock
+assets under `public/euler/`, are new files in its adapter.
 
 Running `git pull` in Euler brings the pins and adapters others have published;
 run `qq sync` and `npm run setup` after it.

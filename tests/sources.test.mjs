@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, mkdtemp, readdir, readFile, rm, stat, symlink, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
@@ -33,6 +33,9 @@ async function fixture(t) {
     return result.stdout.trim();
   };
   git('init', '-q');
+  // The manifest is older than every qq sync below, as after a clone followed by qq sync.
+  await put(root, 'infra/repo.toml', '');
+  await utimes(join(root, 'infra/repo.toml'), new Date(2000, 0, 1), new Date(2000, 0, 1));
   const commit = async (files) => {
     git('rm', '-rq', '--ignore-unmatch', '.');
     for (const [path, content] of Object.entries(files)) await put(source, path, content);
@@ -57,7 +60,7 @@ async function fixture(t) {
     '+Mounted by Euler.',
     '',
   ].join('\n'));
-  return { root, commit, app: join(root, 'app/quitter') };
+  return { root, commit, git, source, app: join(root, 'app/quitter') };
 }
 
 test('prepare copies the pinned commit, applies the adapter and keeps local data', async (t) => {
@@ -70,7 +73,8 @@ test('prepare copies the pinned commit, applies the adapter and keeps local data
   const marker = JSON.parse(await readFile(join(app, '.euler-source.json'), 'utf8'));
   assert.equal(marker.complete, true);
   assert.equal(marker.digest, `git:${sha}`);
-  assert.deepEqual(marker.files, ['docs/old.md', 'project.md', 'src/main.ts', 'vite.config.ts']);
+  assert.deepEqual(marker.files.map((file) => file.path), ['docs/old.md', 'project.md', 'src/main.ts', 'vite.config.ts']);
+  assert.ok(marker.files.every((file) => /^[0-9a-f]{64}$/.test(file.sha256) && file.mode === '100644'));
   assert.equal((await prepareSource(root, 'quitter', quiet)).changed, false);
 
   await commit({ 'vite.config.ts': 'export default {};\n', 'src/main.ts': 'two\n' });
@@ -80,12 +84,83 @@ test('prepare copies the pinned commit, applies the adapter and keeps local data
   assert.equal(await readFile(join(app, 'data/index.json'), 'utf8'), 'personal');
 });
 
-test('prepare never replaces a file it did not write', async (t) => {
+test('prepare never replaces a file it did not write, and takes over identical ones', async (t) => {
   const { root, commit, app } = await fixture(t);
-  await commit({ 'vite.config.ts': 'export default {};\n', 'src/main.ts': 'upstream\n' });
+  await commit({ 'vite.config.ts': 'export default {};\n', 'src/main.ts': 'upstream\n', 'src/same.ts': 'same\n' });
   await put(app, 'src/main.ts', 'mine');
-  await assert.rejects(prepareSource(root, 'quitter', quiet), /already has files the pinned source would replace: src\/main\.ts/);
+  await put(app, 'src/same.ts', 'same\n');
+  await assert.rejects(prepareSource(root, 'quitter', quiet), /differ from what setup wrote or would write: src\/main\.ts\. Nothing was changed/);
   assert.equal(await readFile(join(app, 'src/main.ts'), 'utf8'), 'mine');
+  assert.equal(await exists(join(app, 'vite.config.ts')), false);
+  const result = await prepareSource(root, 'quitter', { ...quiet, backup: true });
+  assert.equal(await readFile(join(root, result.backup, 'src/main.ts'), 'utf8'), 'mine');
+  assert.equal(await readFile(join(app, 'src/main.ts'), 'utf8'), 'upstream\n');
+});
+
+test('prepare stops on a hand edit to a file it wrote, with or without a pin change', async (t) => {
+  const { root, commit, app } = await fixture(t);
+  await commit({ 'vite.config.ts': 'export default {};\n', 'README.md': 'readme\n', 'gone.md': 'x\n' });
+  await prepareSource(root, 'quitter', quiet);
+  await appendFile(join(app, 'vite.config.ts'), '// my local fix\n');
+  await rm(join(app, 'README.md'));
+  await assert.rejects(prepareSource(root, 'quitter', quiet), /vite\.config\.ts\. Nothing was changed/);
+  assert.match(await readFile(join(app, 'vite.config.ts'), 'utf8'), /my local fix/);
+  await commit({ 'vite.config.ts': 'export default {};\n', 'README.md': 'readme two\n' });
+  await assert.rejects(prepareSource(root, 'quitter', quiet), /vite\.config\.ts/);
+  assert.match(await readFile(join(app, 'vite.config.ts'), 'utf8'), /my local fix/);
+  assert.equal(await exists(join(app, 'gone.md')), true);
+
+  // A file the marker lists with bytes setup never wrote is not deleted either.
+  await put(app, 'data/mine.json', 'PERSONAL');
+  const marker = JSON.parse(await readFile(join(app, '.euler-source.json'), 'utf8'));
+  marker.files.push({ path: 'data/mine.json', sha256: '0'.repeat(64), mode: '100644' });
+  marker.complete = false;
+  await writeFile(join(app, '.euler-source.json'), JSON.stringify(marker));
+  await assert.rejects(prepareSource(root, 'quitter', quiet), /data\/mine\.json/);
+  assert.equal(await readFile(join(app, 'data/mine.json'), 'utf8'), 'PERSONAL');
+  const { backup } = await prepareSource(root, 'quitter', { ...quiet, backup: true });
+  assert.equal(await readFile(join(root, backup, 'data/mine.json'), 'utf8'), 'PERSONAL');
+  assert.match(await readFile(join(root, backup, 'vite.config.ts'), 'utf8'), /my local fix/);
+  assert.equal(await readFile(join(app, 'README.md'), 'utf8'), 'readme two\n');
+  assert.equal(await exists(join(app, 'gone.md')), false);
+});
+
+test('a lost or broken marker recovers by taking over identical files', async (t) => {
+  const { root, commit, app } = await fixture(t);
+  await commit({ 'vite.config.ts': 'export default {};\n', 'src/main.ts': 'one\n' });
+  await prepareSource(root, 'quitter', quiet);
+  await writeFile(join(app, '.euler-source.json'), '{');
+  assert.equal((await prepareSource(root, 'quitter', quiet)).changed, true);
+  await rm(join(app, '.euler-source.json'));
+  assert.equal((await prepareSource(root, 'quitter', quiet)).changed, true);
+  assert.equal((await prepareSource(root, 'quitter', quiet)).changed, false);
+  assert.deepEqual((await readdir(app)).filter((name) => name.endsWith('.tmp')), []);
+});
+
+test('an adapter written with a rename keeps working on later runs', async (t) => {
+  const { root, commit, app } = await fixture(t);
+  await commit({ 'vite.config.ts': 'export default {};\n', 'app/icon.tsx': 'line one\nline two\nline three\nline four\n' });
+  await put(root, 'app/adapters/quitter.patch', [
+    'diff --git a/app/icon.tsx b/components/icon.tsx',
+    'similarity index 80%',
+    'rename from app/icon.tsx',
+    'rename to components/icon.tsx',
+    '--- a/app/icon.tsx',
+    '+++ b/components/icon.tsx',
+    '@@ -1,4 +1,4 @@',
+    ' line one',
+    ' line two',
+    ' line three',
+    '-line four',
+    '+line 4',
+    '',
+  ].join('\n'));
+  await prepareSource(root, 'quitter', quiet);
+  assert.equal(await exists(join(app, 'app/icon.tsx')), false);
+  assert.match(await readFile(join(app, 'components/icon.tsx'), 'utf8'), /line 4/);
+  await rm(join(app, 'vite.config.ts'));
+  assert.equal((await prepareSource(root, 'quitter', quiet)).changed, true);
+  assert.equal((await prepareSource(root, 'quitter', quiet)).changed, false);
 });
 
 test('prepare needs qq sync and an adapter that applies to the pin', async (t) => {
@@ -96,7 +171,7 @@ test('prepare needs qq sync and an adapter that applies to the pin', async (t) =
   await assert.rejects(prepareSource(root, 'quitter', quiet), /not at its pin/);
   await put(root, '.qq/sync.json', JSON.stringify([{ section: 'deps', name: 'quitter', digest: `git:${sha}` }]));
   await commit({ 'vite.config.ts': 'export default { changed: true };\n' });
-  await assert.rejects(prepareSource(root, 'quitter', quiet), /adapter app\/adapters\/quitter\.patch does not apply/);
+  await assert.rejects(prepareSource(root, 'quitter', quiet), /adapter app\/adapters\/quitter\.patch does not apply[\s\S]*app\/quitter is unchanged/);
   await assert.rejects(prepareSource(root, '../quitter', quiet), /Unknown pinned app/);
 });
 
@@ -109,4 +184,15 @@ test('prepare refuses to write or remove through a linked folder', { skip: proce
   await symlink(outside, join(app, 'data'));
   await assert.rejects(prepareSource(root, 'quitter', quiet), /not a plain folder/);
   assert.equal(await exists(join(outside, 'demo.json')), false);
+});
+
+test('prepare uses only the pin infra/repo.toml names now, unmodified', async (t) => {
+  const { root, commit, source } = await fixture(t);
+  await commit({ 'vite.config.ts': 'export default {};\n' });
+  await writeFile(join(root, 'infra/repo.toml'), '# moved pin');
+  await utimes(join(root, 'infra/repo.toml'), new Date(Date.now() + 60000), new Date(Date.now() + 60000));
+  await assert.rejects(prepareSource(root, 'quitter', quiet), /infra\/repo\.toml changed since the last qq sync/);
+  await utimes(join(root, 'infra/repo.toml'), new Date(2000, 0, 1), new Date(2000, 0, 1));
+  await writeFile(join(source, 'vite.config.ts'), 'export default { tampered: true };\n');
+  await assert.rejects(prepareSource(root, 'quitter', quiet), /has changed files/);
 });

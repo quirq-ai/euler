@@ -59,3 +59,30 @@ jobs:
       - run: npm run setup
       - run: npm run build
       - run: npx nx show projects
+
+  pins:
+    # The manifest is valid, nothing else parses it, and every app pin is a commit on that app's main.
+    name: Pins
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SYNC_COMMIT: 9821f745690d5150cac70cd2eee54c97d431e6c3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install qqsync
+        run: python -m pip install --quiet "qqsync @ git+https://github.com/quirq-ai/sync@$SYNC_COMMIT"
+      - run: qqsync validate infra/repo.toml
+      - run: qqsync guard .
+      - name: Each pin is on its app's main
+        run: |
+          qqsync pins --strict infra/repo.toml | while IFS="$(printf '\t')" read -r pin digest source; do
+            commit=${digest#git:}
+            dir="$RUNNER_TEMP/${pin#deps.}"
+            git init --quiet "$dir"
+            git -C "$dir" fetch --quiet --filter=tree:0 "$source" main
+            git -C "$dir" merge-base --is-ancestor "$commit" FETCH_HEAD || { echo "$pin: $commit is not on $source main"; exit 1; }
+            echo "$pin: $commit is on $source main"
+          done

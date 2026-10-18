@@ -32,8 +32,10 @@ export function npmCliCandidates({ platform = process.platform, execPath = proce
   return [...new Set(candidates)];
 }
 
-export async function setup(args = process.argv.slice(2)) {
-  const selected = setupApps(args);
+export async function setup(argv = process.argv.slice(2)) {
+  // --backup moves files that differ from the pinned source aside instead of stopping (scripts/sources.mjs).
+  const backup = argv.includes('--backup');
+  const selected = setupApps(argv.filter((arg) => arg !== '--backup'));
   // Run npm through Node instead of a shell so spaces and Windows .cmd launchers
   // do not change argument handling. npm itself supplies npm_execpath.
   const npmCli = selected.some((id) => id !== 'home') ? npmCliCandidates().find((file) => existsSync(file)) : null;
@@ -41,7 +43,7 @@ export async function setup(args = process.argv.slice(2)) {
 
   for (const id of selected.length ? selected : knownApps) {
     if (id === 'home') { console.log('Home is ready; no dependencies to install.'); continue; }
-    await prepareSource(root, id);
+    await prepareSource(root, id, { backup });
     const directory = join(root, 'app', id);
     const pkg = JSON.parse(await readFile(join(directory, 'package.json'), 'utf8'));
     console.log(`Installing ${pkg.name}…`);
