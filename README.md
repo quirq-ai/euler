@@ -18,10 +18,10 @@ Euler brings **Innernet**, **Quitter**, and **Instants** into one local workspac
 
 ## Quick start
 
-Install **Node.js 24** and Git. Node 22.13 or newer is supported. These commands work on **Windows, macOS, and Linux**:
+Install **Node.js 24**, Git, and qq, the quirq command line, with its `qqsync` tool ([install guide](https://docs.quirq.dev/docs/install); qq needs Python 3.11.4 or newer, and the guide covers macOS's older Python). These commands work on **macOS and Linux**. qq needs a POSIX shell, so on Windows use WSL (not tested in CI).
 
 ```sh
-git clone https://github.com/quirq-ai/euler.git
+qq fetch https://github.com/quirq-ai/euler
 cd euler
 npm ci
 npm run setup
@@ -33,12 +33,13 @@ Open **http://localhost:2713**. All three bundled apps are enabled initially; Ho
 
 | Step | What it does |
 | --- | --- |
+| `qq fetch …` | Clones Euler, then runs `qq sync`, which fetches Innernet, Quitter, and Instants at the commits [`infra/repo.toml`](infra/repo.toml) pins. In an existing clone, run `qq sync`. |
 | `npm ci` | Installs the root Nx and package-manager tools. |
-| `npm run setup` | Installs the bundled apps from their committed lockfiles; Home needs no dependencies. |
+| `npm run setup` | Copies each pinned app into `app/<name>`, applies Euler's adapter from `app/adapters/<name>.patch`, and installs it from its lockfile; Home needs no dependencies. |
 | `npm run build` | Validates Home and compiles enabled apps for their `/app/<name>` routes. |
 | `npm start` | Starts one HTTP server and mounts the enabled builds. |
 
-The app sources and routing changes are already included. No sibling repositories or patch-preparation step is required. For another port, use `npm start -- --port 2800`.
+Euler keeps only a commit hash for each app, not its source. The apps' own repositories hold their code; Euler holds the pins and the small adapters that mount each app under `/app/<name>`. For another port, use `npm start -- --port 2800`.
 
 ## How it works
 
@@ -89,7 +90,7 @@ Apps can also supply their own dock style or interface while sharing Euler's run
 
 | Destination | What works with this repository | Instructions |
 | --- | --- | --- |
-| Your Windows, macOS, or Linux machine | Complete Euler workspace | [Quick start](#quick-start) |
+| Your macOS or Linux machine (Windows through WSL) | Complete Euler workspace | [Quick start](#quick-start) |
 | Linux VM / VPS with SSH and persistent disk | Complete Euler workspace through a private SSH tunnel | [Full Euler on a server](#full-euler-on-a-linux-server) |
 | Vercel | Separate Quitter, Innernet demo, and Instants browser-session deployments | [Vercel](#vercel-individual-apps) |
 | Netlify / Cloudflare Pages | Standalone Quitter static app | [Static hosts](#netlify-and-cloudflare-pages) |
@@ -156,27 +157,27 @@ If you change the Node installation path, regenerate the unit and reload it. Ref
 
 </details>
 
-For updates, stop the service, run `git pull --ff-only`, `npm ci`, `npm run setup`, and `npm run build` in the checkout, then start the service. Preserve the [data directories](#data-and-settings) across updates and backups.
+For updates, stop the service, run `git pull --ff-only`, `qq sync`, `npm ci`, `npm run setup`, and `npm run build` in the checkout, then start the service. Preserve the [data directories](#data-and-settings) across updates and backups.
 
 ### Vercel: individual apps
 
-**The complete Euler host is not currently supported as a Vercel deployment by this repository.** The app folders can be deployed as separate Vercel projects. Each gets its own URL and standalone app behavior; the Euler Home, shared dock, and host controls are not part of those deployments.
+**The complete Euler host is not currently supported as a Vercel deployment by this repository.** Each app can be deployed as a separate Vercel project from its own repository, since Euler no longer carries their sources. Each gets its own URL and standalone app behavior; the Euler Home, shared dock, and host controls are not part of those deployments.
 
-Import `quirq-ai/euler` once for each app you want. Select production branch **`main`**, Node **24.x**, and the following settings. Root Directory is relative to the Git repository; build/output paths are relative to that app directory.
+Import the app's repository, select production branch **`main`**, Node **24.x**, and the following settings. These are the commands at the commits Euler pins; an app's `main` can be ahead of its pin (check its README if a build fails).
 
-| App | Root Directory | Framework | Install command | Build command | Output |
+| App | Repository | Framework | Install command | Build command | Output |
 | --- | --- | --- | --- | --- | --- |
-| Quitter | `app/quitter` | Vite | `npm ci` | `npm run build` | `dist` |
-| Innernet | `app/innernet` | Next.js | `npx --yes pnpm@9.12.3 install --frozen-lockfile` | `npm run build` | Next.js default |
-| Instants | `app/instants` | Next.js | `npm ci` | `npm run build` | Next.js default |
+| Quitter | [`quirq-ai/quitter`](https://github.com/quirq-ai/quitter) | Vite | `npm ci` | `npm run build` | `dist` |
+| Innernet | [`quirq-ai/innernet`](https://github.com/quirq-ai/innernet) | Next.js | `npx --yes pnpm@9.12.3 install --frozen-lockfile` | `npm run build` | Next.js default |
+| Instants | [`quirq-ai/instants`](https://github.com/quirq-ai/instants) | Next.js | `npm ci` | `npm run build` | Next.js default |
 
-Use each app's build script, not the repository-root Euler build command. Leave `QUIRQ_BASE_PATH`, `QUIRQ_DIST_DIR`, `INNERNET_BASE_PATH`, `INNERNET_DIST_DIR`, `INSTANTS_BASE_PATH`, and `INSTANTS_DIST_DIR` unset: standalone deployments use `/` and their normal build output. Clear stale framework/output overrides when reusing an old Vercel project.
+Use each app's build script, not the Euler build command. Leave `QUIRQ_BASE_PATH`, `QUIRQ_DIST_DIR`, `INNERNET_BASE_PATH`, `INNERNET_DIST_DIR`, `INSTANTS_BASE_PATH`, and `INSTANTS_DIST_DIR` unset: standalone deployments use `/` and their normal build output. Clear stale framework/output overrides when reusing an old Vercel project.
 
 Keep **Enable access to System Environment Variables** turned on in the Vercel project's Environment Variables settings. Innernet and Instants use Vercel's `VERCEL` variable to select their hosted behavior. See [Vercel system environment variables](https://vercel.com/docs/environment-variables/system-environment-variables#enable-system-environment-variables).
 
 - **Quitter:** deploys its in-memory demonstration UI. It has no production collaboration backend.
-- **Innernet:** Vercel selects public demo mode and uses the committed `data/demo/index.json`. It does not index your computer. No database is needed for the bundled demo; optional Neon configuration is described in the [Innernet README](app/innernet/README.md#the-public-demo-vercel).
-- **Instants:** on Vercel, the existing adapter keeps the session journal in browser storage. It is a device-local prototype, not shared team persistence. See the [Instants README](app/instants/README.md#deploy-to-vercel).
+- **Innernet:** Vercel selects public demo mode and uses the committed `data/demo/index.json`. It does not index your computer. No database is needed for the bundled demo; optional Neon configuration is described in the [Innernet README](https://github.com/quirq-ai/innernet#the-public-demo-vercel).
+- **Instants:** on Vercel, the existing adapter keeps the session journal in browser storage. It is a device-local prototype, not shared team persistence. See the [Instants README](https://github.com/quirq-ai/instants#deploy-to-vercel).
 
 After deployment, open the app, inspect browser/network errors, and refresh a nested route. For Instants, make a sample change and refresh to confirm browser persistence. Hosting instructions are provided here; this repository does not provision your Vercel projects or credentials.
 
@@ -188,16 +189,16 @@ Quitter is a static Vite app, so it can also be published independently:
 
 | Setting | Netlify | Cloudflare Pages |
 | --- | --- | --- |
-| Repository | `quirq-ai/euler` | `quirq-ai/euler` |
+| Repository | `quirq-ai/quitter` | `quirq-ai/quitter` |
 | Production branch | `main` | `main` |
-| Base / root directory | `app/quitter` | `app/quitter` |
+| Base / root directory | repository root | repository root |
 | Build command | `npm run build` | `npm run build` |
 | Publish / output directory | `dist` | `dist` |
 | Build Node version | `NODE_VERSION=24` | `NODE_VERSION=24` |
 
-Set Netlify's **Base directory** explicitly to `app/quitter`, so dependencies are installed there; it is not enough to select only its Package directory. The publish directory is relative to that base. Keep `QUIRQ_BASE_PATH` and `QUIRQ_DIST_DIR` unset. These deployments do not include Euler's Node server, dock, or the two Next.js apps.
+Keep `QUIRQ_BASE_PATH` and `QUIRQ_DIST_DIR` unset. These deployments do not include Euler's Node server, dock, or the two Next.js apps.
 
-Reference: [Netlify monorepo settings](https://docs.netlify.com/build/configure-builds/monorepos/) and [Cloudflare Pages build settings](https://developers.cloudflare.com/pages/configuration/build-configuration/).
+Reference: [Netlify build settings](https://docs.netlify.com/build/configure-builds/overview/) and [Cloudflare Pages build settings](https://developers.cloudflare.com/pages/configuration/build-configuration/).
 
 ### Public hosting limits
 
@@ -207,12 +208,13 @@ A full public deployment on Vercel, Render, Railway, Fly.io, or another containe
 
 ## Development
 
-The repository owns its manifest and app sources:
+The repository owns its manifests, Home, and the adapters; the other apps' sources come from their pins:
 
 ```text
 euler/
 ├── bin/euler.mjs           # executable
 ├── euler.workspace.json   # apps and build commands
+├── infra/repo.toml        # the commit each app is pinned to (read by qq sync)
 ├── nx.json                # task orchestration
 ├── src/                   # HTTP host, builds, settings, app lifecycle
 ├── app/
@@ -221,9 +223,10 @@ euler/
 │   │   ├── src/           # dock document integration
 │   │   ├── server.mjs     # Home assets, routes, document hooks
 │   │   └── tests/         # Home and shared UI tests
-│   ├── innernet/           # Next.js
-│   ├── quitter/            # Vite + React
-│   └── instants/           # Next.js
+│   ├── adapters/           # one patch per app: its /app/<name> subpath changes
+│   ├── innernet/           # Next.js, prepared by npm run setup (only project.json is tracked)
+│   ├── quitter/            # Vite + React, prepared the same way
+│   └── instants/           # Next.js, prepared the same way
 └── tests/                 # host regression tests
 ```
 
@@ -242,7 +245,7 @@ euler/
 | `npm run build -- --app instants` | Build one app even if disabled; leave its enabled setting unchanged. |
 | `npm test` | Run the host and Home test suites. |
 
-You can also `cd app/quitter` and run `npm run dev`, or use the other apps' own commands. Standalone development uses the app's original port and root path. Euler builds go into `.next-euler` or `dist-euler` to keep development output separate. Stop Euler before rebuilding a build it is serving.
+You can also `cd app/quitter` and run `npm run dev`, or use the other apps' own commands. `app/<name>` is a copy of the pinned commit plus its adapter, so change an app in its own repository, or change its adapter in `app/adapters/`. `npm run setup` records the bytes of every file it writes, and only ever replaces or removes a file that still has those bytes; local data, dependencies, and builds stay in place. If you have changed a file it wrote, setup stops and names it without changing anything. Move your change into the app's repository or its adapter, or run `npm run setup -- <name> --backup` to move the changed files to `app/<name>.setup-backup-<time>/` and continue. Standalone development uses the app's original port and root path. Euler builds go into `.next-euler` or `dist-euler` to keep development output separate. Stop Euler before rebuilding a build it is serving.
 
 Home is a first-class local app in [`app/home`](app/home/README.md). From that folder, `npm run dev` or `npm start` launches the same Euler host, API, and enabled apps at **http://localhost:2713/**. Stop an existing Euler process before starting another on that port. `npm run build` validates Home's HTML, CSS, and JavaScript, and `npm test` runs its focused tests. Home uses browser-ready source with no app dependencies or generated bundle; Nx also exposes its `start` and `setup` targets.
 
@@ -252,25 +255,21 @@ To adapt the dock for a particular app, add an optional `dock` configuration to 
 
 `npm start` resolves `euler.workspace.json` from this repository, regardless of your terminal's current directory. Use `--workspace /path/to/euler` or `--config /path/to/euler.workspace.json` to choose a custom installation. Nx runtime/build targets disable caching because local settings and data affect their behavior.
 
-Already have an older checkout with sources in `apps/`? Stop Euler and follow the [folder migration instructions](docs/app-updates.md#upgrade-from-the-apps-folder) to preserve local app data, then reinstall and rebuild under `app/`. Existing hosting projects must also update their app Root Directory or Base directory to the paths above.
+Already have an older checkout with sources in `apps/`? Stop Euler and follow the [folder migration instructions](docs/app-updates.md#upgrade-from-the-apps-folder) to preserve local app data, then reinstall and rebuild under `app/`. Hosting projects that built from `app/<name>` in this repository now build from the app's own repository ([Vercel](#vercel-individual-apps)).
 
-### Update an app from its upstream repository
+### Update an app to a newer commit
 
-App updates are manual. Innernet, Quitter, and Instants keep their own repositories; Euler tracks their sources as Git subtrees under `app/`. Ordinary cloning, setup, and builds are unchanged.
-
-Commit your local Euler changes first, then run these commands from the repository root:
+Each app's pin is one line in [`infra/repo.toml`](infra/repo.toml). Move it with `qqsync` (from the [install guide](https://docs.quirq.dev/docs/install)), then fetch, prepare, and test it:
 
 ```sh
-npm run apps:check
-npm run apps:sync -- innernet
+qqsync pin deps innernet --digest git:<commit>
+qq sync
 npm run setup -- innernet
 npm run build -- --app innernet
 npm test
 ```
 
-`apps:check` fetches upstream information without changing app files. `apps:sync` merges **one app at a time** and creates a local Euler commit containing its source changes and updated upstream pin. Replace `innernet` with `quitter` or `instants` as needed. Stop Euler before rebuilding an app it is serving.
-
-If a merge conflicts, resolve the files, stage them with `git add`, then run `npm run apps:sync -- --continue`; use `npm run apps:sync -- --abort` to cancel that merge. After validation, push your Euler branch through your normal workflow. These commands do not push changes to the standalone app repositories or schedule future updates. See the [app maintenance guide](docs/app-updates.md) for the full workflow and recovery steps.
+Replace `innernet` with `quitter` or `instants` as needed, and stop Euler before rebuilding an app it is serving. If setup says the adapter does not apply, `app/<name>` is left as it was; regenerate `app/adapters/<name>.patch` for the new commit as the [app maintenance guide](docs/app-updates.md#regenerate-an-adapter) shows. Commit the pin and any adapter change together. See the [app maintenance guide](docs/app-updates.md) for details.
 
 ## Data and settings
 
@@ -284,13 +283,13 @@ If a merge conflicts, resolve the files, stage them with `git add`, then run `np
 | Avatar and dock opacity | Browser local storage | Per browser and origin |
 | Last route and scroll | Browser session storage | Per browser tab |
 
-Keep a persistent disk for server-hosted Euler and back up local data with the service stopped. Fresh clones contain source and bundled public demo material, not your personal index or journals. Browser preferences use separate storage when the host or port changes.
+Keep a persistent disk for server-hosted Euler and back up local data with the service stopped. Fresh clones contain Euler's source and the app pins; `qq sync` and `npm run setup` bring the apps and their bundled public demo material, not your personal index or journals. Browser preferences use separate storage when the host or port changes.
 
 ## Project notes
 
 - This repository is [quirq-ai/euler](https://github.com/quirq-ai/euler). It replaces the older Python watcher with the standalone app workspace.
 - The original iframe-based quirq dashboard remains separate on [quirq-ai/quirq's `feat/standalone-dashboard`](https://github.com/quirq-ai/quirq/tree/feat/standalone-dashboard), at port 4400.
 - In the larger local quirq workspace, `npm run euler` starts `apps/euler`, while `npm start` opens the separate dashboard. This repository also works as a fresh independent clone.
-- [Source provenance](app/upstream.json) records imported app revisions and adapters. [Architecture](docs/architecture.md) and the [user guide](docs/euler.md) explain the host in more detail.
+- [`infra/repo.toml`](infra/repo.toml) pins each app's commit and [`app/adapters/`](app/adapters) holds Euler's changes to it. [Architecture](docs/architecture.md) and the [user guide](docs/euler.md) explain the host in more detail.
 - Blobatar is vendored locally under its MIT license in [app/home/public/vendor/blobatar](app/home/public/vendor/blobatar). Avatar rendering and saving do not contact an external service.
-- [CI](https://github.com/quirq-ai/euler/actions/workflows/check.yml) runs host tests on Node 22/24 and application builds on Node 24 across Windows, macOS, and Linux.
+- [CI](https://github.com/quirq-ai/euler/actions/workflows/check.yml) runs host tests on Node 22/24 across Windows, macOS, and Linux, and the `qq sync` then setup and build sequence on Node 24 on macOS and Linux.

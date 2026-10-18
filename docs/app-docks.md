@@ -30,8 +30,11 @@ At least one of `module` or `stylesheet` is required when `dock` is present.
 | `module` only | App-provided dock; the module supplies its own presentation. |
 | `module` and `stylesheet` | App-provided dock with a separate stylesheet inside its shadow root. |
 
-For the bundled Next.js and Vite apps, place the files in their `public/euler/`
-folder so they are available at the configured URLs:
+For the bundled Next.js and Vite apps, the files go in their `public/euler/`
+folder so they are available at the configured URLs. `app/<name>` is prepared
+from the app's pinned commit, so add them there through the app's adapter (as new
+files, see [Regenerate an adapter](app-updates.md#regenerate-an-adapter)) or in
+the app's own repository; files placed only in `app/<name>` are not committed:
 
 ```text
 app/quitter/
@@ -102,8 +105,8 @@ Use the complete, dependency-free example:
   overflow for many apps, visible focus, and reduced-motion and high-contrast
   support.
 
-Copy both files into the chosen app's `public/euler/` folder and configure both
-`module` and `stylesheet` as shown above. Customize the example there; the files
+Add both files to the chosen app's `public/euler/` folder through its adapter and
+configure both `module` and `stylesheet` as shown above. Customize the example there; the files
 under `docs/examples/` are a reusable starting point and are not loaded by Euler.
 No framework or package installation is required for this example.
 

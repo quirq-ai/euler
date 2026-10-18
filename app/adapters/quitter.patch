@@ -1,0 +1,108 @@
+diff --git a/.gitignore b/.gitignore
+index 050edc9..aff5bbc 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,5 +1,6 @@
+ node_modules/
+ dist/
++dist-euler/
+ .vercel/
+ *.tsbuildinfo
+ .env*
+diff --git a/README.md b/README.md
+index 50c4346..079b3e7 100644
+--- a/README.md
++++ b/README.md
+@@ -2,7 +2,7 @@
+ 
+ All your agent and thread activity in one place. A frontend prototype based on the approved navy feed UI, with sample agent narratives and a small post-design editor. The UI and engine can be developed independently.
+ 
+-Use Node 22 (`nvm use` if you use nvm).
++Use Node 22.13 or newer (`nvm use` selects Node 22 if you use nvm).
+ 
+ ```sh
+ npm install
+@@ -11,6 +11,10 @@ npm run dev
+ 
+ Open `http://127.0.0.1:5174/`. Run `npm run build` for type checks and a production bundle; run `npm test` for engine contract checks.
+ 
++## Compiled quirq mount
++
++The optional Euler profile builds this frontend with `QUIRQ_BASE_PATH=/app/quitter/` and `QUIRQ_DIST_DIR=dist-euler`. Vite prefixes scripts, styles, favicons and the quirq artwork; hash navigation stays inside that mount. quirq serves the compiled directory directly with no iframe or separate quitter server. These build-time variables also work with the ordinary `npm run build` command. Omitting them keeps the independent root-path app and `dist` output unchanged.
++
+ ## Customize a post
+ 
+ Open any post’s **More options → Customize design**. Choose Plain, Card, or Compact and a blue, mint, or violet accent. Preview changes live, then Apply or Cancel. Reset previews the default until you apply it. Designs change your view and preserve the post’s full content and existing interactions.
+@@ -41,6 +45,6 @@ See [responsive verification](docs/RESPONSIVE.md) for the checked viewport sizes
+ 
+ ## Deploy on Vercel
+ 
+-Import `quirq-ai/quitter` with the repository root (`./`) as the Root Directory and `main` as the production branch. The committed configuration selects Vite, `npm ci`, `npm run build`, and the `dist` output directory. Node 22 is selected in `package.json`; no environment variables are required for this frontend prototype.
++Import `quirq-ai/quitter` with the repository root (`./`) as the Root Directory and `main` as the production branch. The committed configuration selects Vite, `npm ci`, `npm run build`, and the `dist` output directory. Use Node 22.13 or newer; no environment variables are required for this frontend prototype.
+ 
+ See [deployment guide](docs/DEPLOYMENT.md) for settings and verification. The deployed frontend uses the same in-memory sample engine; activity and post designs reset on refresh.
+diff --git a/package-lock.json b/package-lock.json
+index 3eeae6a..ad2bf36 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -21,7 +21,7 @@
+         "vite": "8.0.13"
+       },
+       "engines": {
+-        "node": "22.x"
++        "node": ">=22.13.0"
+       }
+     },
+     "node_modules/@emnapi/core": {
+diff --git a/package.json b/package.json
+index bcec3f6..e4d9bf6 100644
+--- a/package.json
++++ b/package.json
+@@ -4,7 +4,7 @@
+   "private": true,
+   "type": "module",
+   "engines": {
+-    "node": "22.x"
++    "node": ">=22.13.0"
+   },
+   "scripts": {
+     "dev": "vite --host 127.0.0.1 --port 5174 --strictPort",
+diff --git a/src/ui/components/QuitterNavigation.tsx b/src/ui/components/QuitterNavigation.tsx
+index ef614d5..e4f76db 100644
+--- a/src/ui/components/QuitterNavigation.tsx
++++ b/src/ui/components/QuitterNavigation.tsx
+@@ -20,7 +20,7 @@ export function QuitterNavigation({ path, navigate, onCompose, onAppearance }: {
+   useEffect(() => { const close = () => setMore(false); window.addEventListener('resize', close); return () => window.removeEventListener('resize', close); }, []);
+   return <>
+     <aside className="left-rail">
+-      <a href="#/home" className="brand" aria-label="quitter activity, by quirq"><img src="/quirq-logo.svg" alt="quirq" width="296" height="119" /><span className="app-name">quitter</span></a>
++      <a href="#/home" className="brand" aria-label="quitter activity, by quirq"><img src={`${import.meta.env.BASE_URL}quirq-logo.svg`} alt="quirq" width="296" height="119" /><span className="app-name">quitter</span></a>
+       <nav className="main-navigation" aria-label="Main navigation">{navigation.map(item => {
+         const active = item.path === '/profile/you' ? path === `/profile/${user.id}` : path.startsWith(item.path);
+         const count = item.path === '/notifications' ? unread : item.path === '/messages' ? unreadMessages : 0;
+diff --git a/src/ui/components/Screens.tsx b/src/ui/components/Screens.tsx
+index 0f4980b..3853a01 100644
+--- a/src/ui/components/Screens.tsx
++++ b/src/ui/components/Screens.tsx
+@@ -46,7 +46,7 @@ export function ActorProfileScreen({ actorId, actions }: { actorId: string; acti
+   const following = snapshot.followingIds.includes(actorId);
+   const edit = () => { setForm({ name: profile.name, bio: profile.bio, location: profile.location ?? '', website: profile.website ?? '' }); editDialog.current?.showModal(); };
+   const save = async () => { setSaving(true); if (await actions.act(engine.updateProfile(form), 'Profile updated')) editDialog.current?.close(); setSaving(false); };
+-  return <><div className="profile-cover"><img src="/quirq-logo.svg" alt="" width="296" height="119" /></div><div className="profile-intro"><div className="profile-avatar-row"><Avatar user={profile} size={94} />{own ? <button className="outline-button" onClick={edit}>Edit profile</button> : <button className={following ? 'outline-button' : 'primary-button'} onClick={() => void actions.act(engine.setFollowing(actorId, !following))}>{following ? 'Following' : 'Follow'}</button>}</div><h2 className="profile-name">{profile.name}{profile.verified && <span className="verified"><Icon name="check" size={11} /></span>}</h2><p className="profile-handle">@{profile.handle}</p><p className="profile-bio">{profile.bio}</p><div className="profile-meta">{profile.location && <span><Icon name="pin" size={16} />{profile.location}</span>}{profile.website && <span className="profile-website"><Icon name="link" size={16} />{profile.website}</span>}<span><Icon name="calendar" size={16} />Joined {new Date(profile.joinedAt).toLocaleDateString('en', { month: 'long', year: 'numeric' })}</span></div><div className="profile-counts"><span><strong>{compactNumber(profile.following)}</strong> Following</span><span><strong>{compactNumber(profile.followers)}</strong> Followers</span></div></div><Tabs value={tab} onChange={setTab} label="Profile posts" panelId="profile-feed" options={[{ value: "posts", label: "Posts" }, { value: "replies", label: "Replies" }, { value: "media", label: "Media" }]} /><div id="profile-feed" role="tabpanel" aria-labelledby={`profile-feed-${tab}`}><ActivityFeed query={{ kind: 'profile', actorId, profileTab: tab }} actions={actions} emptyTitle={tab === 'media' ? 'No attachments yet' : tab === 'replies' ? 'No replies yet' : 'No updates yet'} emptyText={tab === 'media' ? 'Images shared here will appear here.' : 'Posts and conversations will appear here.'} /></div>
++  return <><div className="profile-cover"><img src={`${import.meta.env.BASE_URL}quirq-logo.svg`} alt="" width="296" height="119" /></div><div className="profile-intro"><div className="profile-avatar-row"><Avatar user={profile} size={94} />{own ? <button className="outline-button" onClick={edit}>Edit profile</button> : <button className={following ? 'outline-button' : 'primary-button'} onClick={() => void actions.act(engine.setFollowing(actorId, !following))}>{following ? 'Following' : 'Follow'}</button>}</div><h2 className="profile-name">{profile.name}{profile.verified && <span className="verified"><Icon name="check" size={11} /></span>}</h2><p className="profile-handle">@{profile.handle}</p><p className="profile-bio">{profile.bio}</p><div className="profile-meta">{profile.location && <span><Icon name="pin" size={16} />{profile.location}</span>}{profile.website && <span className="profile-website"><Icon name="link" size={16} />{profile.website}</span>}<span><Icon name="calendar" size={16} />Joined {new Date(profile.joinedAt).toLocaleDateString('en', { month: 'long', year: 'numeric' })}</span></div><div className="profile-counts"><span><strong>{compactNumber(profile.following)}</strong> Following</span><span><strong>{compactNumber(profile.followers)}</strong> Followers</span></div></div><Tabs value={tab} onChange={setTab} label="Profile posts" panelId="profile-feed" options={[{ value: "posts", label: "Posts" }, { value: "replies", label: "Replies" }, { value: "media", label: "Media" }]} /><div id="profile-feed" role="tabpanel" aria-labelledby={`profile-feed-${tab}`}><ActivityFeed query={{ kind: 'profile', actorId, profileTab: tab }} actions={actions} emptyTitle={tab === 'media' ? 'No attachments yet' : tab === 'replies' ? 'No replies yet' : 'No updates yet'} emptyText={tab === 'media' ? 'Images shared here will appear here.' : 'Posts and conversations will appear here.'} /></div>
+     <dialog ref={editDialog} className="compose-dialog edit-profile-dialog" aria-labelledby="edit-profile-title"><div className="dialog-heading"><button className="icon-button" onClick={() => editDialog.current?.close()} aria-label="Close edit profile"><Icon name="close" /></button><h2 id="edit-profile-title">Edit profile</h2><button className="primary-button" disabled={saving || !form.name.trim()} onClick={() => void save()}>{saving ? 'Saving…' : 'Save'}</button></div><div className="profile-form">{([{ key: 'name', label: 'Name', max: 50 }, { key: 'bio', label: 'Bio', max: 160 }, { key: 'location', label: 'Location', max: 50 }, { key: 'website', label: 'Website', max: 100 }] as const).map(field => <label key={field.key}>{field.label}<span>{form[field.key].length}/{field.max}</span>{field.key === 'bio' ? <textarea value={form.bio} maxLength={field.max} onChange={e => setForm({ ...form, bio: e.target.value })} rows={3} /> : <input value={form[field.key]} maxLength={field.max} onChange={e => setForm({ ...form, [field.key]: e.target.value })} />}</label>)}</div></dialog>
+   </>;
+ }
+diff --git a/vite.config.ts b/vite.config.ts
+index f777695..55a6f76 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
+ import react from '@vitejs/plugin-react';
+ 
+ export default defineConfig({
++  base: `${(process.env.QUIRQ_BASE_PATH || '').replace(/\/+$/, '')}/`,
++  build: { outDir: process.env.QUIRQ_DIST_DIR || 'dist' },
+   plugins: [react()],
+   server: { watch: { usePolling: true } },
+ });

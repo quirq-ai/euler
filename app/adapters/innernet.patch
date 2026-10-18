@@ -1,0 +1,527 @@
+diff --git a/.gitignore b/.gitignore
+index dda69bf..5b6fe47 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,5 +1,6 @@
+ node_modules
+ .next
++.next-euler
+ next-env.d.ts
+ *.tsbuildinfo
+ # The index holds local paths and README text from this machine. Never commit it.
+diff --git a/app/api/db/store/route.ts b/app/api/db/store/route.ts
+index 60ce32d..7e9f597 100644
+--- a/app/api/db/store/route.ts
++++ b/app/api/db/store/route.ts
+@@ -1,3 +1,4 @@
++import { appPath } from "@/lib/base-path";
+ import { getIndex } from "@/lib/data";
+ import { dbState, getDb } from "@/lib/db";
+ import { rememberStore, storeLocal, type LastStore } from "@/lib/db/ingest";
+@@ -35,7 +36,7 @@ export async function POST(req: Request) {
+   rememberStore(last);
+ 
+   if (req.headers.get("sec-fetch-mode") === "navigate" || (req.headers.get("accept") ?? "").includes("text/html")) {
+-    return new Response(null, { status: 303, headers: { ...headers, Location: "/activity#database" } });
++    return new Response(null, { status: 303, headers: { ...headers, Location: appPath("/activity#database") } });
+   }
+   return Response.json(last, { status: last.error ? 503 : 200, headers });
+ }
+diff --git a/app/apple-icon.tsx b/app/apple-icon.tsx
+deleted file mode 100644
+index db989d2..0000000
+--- a/app/apple-icon.tsx
++++ /dev/null
+@@ -1,23 +0,0 @@
+-import fs from "node:fs";
+-import path from "node:path";
+-import { ImageResponse } from "next/og";
+-
+-// The home-screen icon: the favicon's aurora disc on warm paper, since iOS wants an
+-// opaque square.
+-
+-export const size = { width: 180, height: 180 };
+-export const contentType = "image/png";
+-
+-export default function AppleIcon() {
+-  const svg = fs.readFileSync(path.join(process.cwd(), "app", "icon.svg"));
+-  const src = `data:image/svg+xml;base64,${svg.toString("base64")}`;
+-  return new ImageResponse(
+-    (
+-      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#f7f5f0" }}>
+-        {/* eslint-disable-next-line @next/next/no-img-element */}
+-        <img src={src} width={132} height={132} alt="" />
+-      </div>
+-    ),
+-    size,
+-  );
+-}
+diff --git a/app/apple-icon/route.ts b/app/apple-icon/route.ts
+new file mode 100644
+index 0000000..c71d211
+--- /dev/null
++++ b/app/apple-icon/route.ts
+@@ -0,0 +1,6 @@
++import AppleIcon from "@/components/apple-icon";
++
++// Keep the existing /apple-icon endpoint, but declare its URL in layout metadata.
++// Next 16.3's generated apple-icon metadata drops basePath in Turbopack builds.
++export const dynamic = "force-static";
++export const GET = AppleIcon;
+diff --git a/app/guide/page.tsx b/app/guide/page.tsx
+index d808a38..63265c5 100644
+--- a/app/guide/page.tsx
++++ b/app/guide/page.tsx
+@@ -1,3 +1,4 @@
++import { appPath } from "@/lib/base-path";
+ import type { Metadata } from "next";
+ import { permanentRedirect } from "next/navigation";
+ import { DEMO } from "@/lib/mode";
+@@ -11,7 +12,7 @@ export const metadata: Metadata = {
+   description: DEMO
+     ? "How the folders on your machine become a search engine and an encyclopedia, and how to add to both."
+     : "How the folders on this machine become a search engine and an encyclopedia, and how to add to both.",
+-  alternates: { canonical: "/#guide" },
++  alternates: { canonical: appPath("/#guide") },
+ };
+ 
+ export const dynamic = "force-dynamic";
+diff --git a/app/layout.tsx b/app/layout.tsx
+index 1fd8ef1..8bd223f 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -1,3 +1,4 @@
++import { appPath } from "@/lib/base-path";
+ import type { Metadata, Viewport } from "next";
+ import { Inter, Instrument_Serif, JetBrains_Mono, Newsreader } from "next/font/google";
+ import { Suspense } from "react";
+@@ -17,6 +18,7 @@ export const metadata: Metadata = {
+   description: "Your personal internet. Search your folders like the web, read your projects like an encyclopedia.",
+   creator: "quirq",
+   robots: { index: false, follow: false },
++  icons: { apple: { url: appPath("/apple-icon"), sizes: "180x180", type: "image/png" } },
+ };
+ 
+ export const viewport: Viewport = {
+diff --git a/components/activity/database-card.tsx b/components/activity/database-card.tsx
+index c342af7..79b3b63 100644
+--- a/components/activity/database-card.tsx
++++ b/components/activity/database-card.tsx
+@@ -1,3 +1,4 @@
++import { appPath } from "@/lib/base-path";
+ import type { LastStore } from "@/lib/db/ingest";
+ import type { DbStatus } from "@/lib/db/status";
+ import { bytes, num, plural, timeAgo } from "@/lib/format";
+@@ -134,7 +135,7 @@ export function DatabaseCard({
+       </ul>
+ 
+       {ready && (
+-        <form method="post" action="/api/db/store" className="mt-4">
++        <form method="post" action={appPath("/api/db/store")} className="mt-4">
+           <button
+             type="submit"
+             className="rounded-full border border-line-strong px-3 py-1 text-[12.5px] text-ink-2 transition-colors hover:border-ink hover:text-ink"
+diff --git a/components/activity/trail.ts b/components/activity/trail.ts
+index 760fb87..6808fc5 100644
+--- a/components/activity/trail.ts
++++ b/components/activity/trail.ts
+@@ -1,3 +1,4 @@
++import { appPath } from "@/lib/base-path";
+ import {
+   APP,
+   DEMO_MAX_IDS,
+@@ -155,7 +156,7 @@ export function record(fields: Fields, demo: boolean, server = !demo) {
+ 
+ /** A JSON body to /api/activity: ids and events travel in bodies, never in the address. */
+ function send(method: "POST" | "DELETE", body: string, keepalive = false): Promise<Response> {
+-  return fetch("/api/activity", { method, headers: { "Content-Type": "application/json" }, body, keepalive, credentials: "same-origin", cache: "no-store" });
++  return fetch(appPath("/api/activity"), { method, headers: { "Content-Type": "application/json" }, body, keepalive, credentials: "same-origin", cache: "no-store" });
+ }
+ 
+ /** Whether a session id is recent enough that the demo's server may still hold it. */
+diff --git a/components/apple-icon.tsx b/components/apple-icon.tsx
+new file mode 100644
+index 0000000..66ad206
+--- /dev/null
++++ b/components/apple-icon.tsx
+@@ -0,0 +1,22 @@
++import fs from "node:fs";
++import path from "node:path";
++import { ImageResponse } from "next/og";
++import { PROJECT_ROOT } from "@/lib/project-root";
++
++// The home-screen icon: the favicon's aurora disc on warm paper, since iOS wants an
++// opaque square.
++
++export const size = { width: 180, height: 180 };
++export default function AppleIcon() {
++  const svg = fs.readFileSync(path.join(PROJECT_ROOT, "app", "icon.svg"));
++  const src = `data:image/svg+xml;base64,${svg.toString("base64")}`;
++  return new ImageResponse(
++    (
++      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#f7f5f0" }}>
++        {/* eslint-disable-next-line @next/next/no-img-element */}
++        <img src={src} width={132} height={132} alt="" />
++      </div>
++    ),
++    size,
++  );
++}
+diff --git a/components/guide/contribute.tsx b/components/guide/contribute.tsx
+index 0f7611d..a33c27c 100644
+--- a/components/guide/contribute.tsx
++++ b/components/guide/contribute.tsx
+@@ -1,3 +1,4 @@
++import { appPath } from "@/lib/base-path";
+ import Markdown from "react-markdown";
+ import remarkGfm from "remark-gfm";
+ import { num } from "@/lib/format";
+@@ -430,7 +431,7 @@ function inline(md: string): React.ReactNode[] {
+   for (const m of md.matchAll(re)) {
+     if (m.index! > last) out.push(md.slice(last, m.index));
+     if (m[1]) out.push(<C key={m.index}>{m[1]}</C>);
+-    else out.push(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(m[3]) ? <a key={m.index} href={new URL(m[3]).pathname} className="link">{m[2]}</a> : <span key={m.index}>{m[2]}</span>);
++    else out.push(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(m[3]) ? <a key={m.index} href={appPath(new URL(m[3]).pathname)} className="link">{m[2]}</a> : <span key={m.index}>{m[2]}</span>);
+     last = m.index! + m[0].length;
+   }
+   if (last < md.length) out.push(md.slice(last));
+@@ -476,7 +477,7 @@ function Checklist() {
+               components={{
+                 h1: () => null,
+                 a: ({ href, children }) =>
+-                  href && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(href) ? <a href={new URL(href).pathname}>{children}</a> : <span className="font-mono text-[0.85em]">{children}</span>,
++                  href && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(href) ? <a href={appPath(new URL(href).pathname)}>{children}</a> : <span className="font-mono text-[0.85em]">{children}</span>,
+                 // The list above is the one to tick; these boxes are only the file's own.
+                 input: ({ checked }) => <input type="checkbox" checked={!!checked} disabled aria-hidden className="fg-check mr-2 cursor-default align-[-2px]" />,
+               }}
+diff --git a/components/guide/hero.tsx b/components/guide/hero.tsx
+index 1374dc4..2b8fda7 100644
+--- a/components/guide/hero.tsx
++++ b/components/guide/hero.tsx
+@@ -1,3 +1,4 @@
++import { appPath } from "@/lib/base-path";
+ import Link from "next/link";
+ import { getIndex } from "@/lib/data";
+ import { longDate, num } from "@/lib/format";
+@@ -122,13 +123,13 @@ function Film() {
+           controls
+           preload="metadata"
+           playsInline
+-          poster={has(POSTER) ? `/guide/${POSTER}` : undefined}
+-          src={`/guide/${film}`}
++          poster={has(POSTER) ? appPath(`/guide/${POSTER}`) : undefined}
++          src={appPath(`/guide/${film}`)}
+           className="block aspect-video w-full bg-bg-sunk"
+         >
+           {/* The film carries its own captions; this track is there for players and readers
+               that want them separately, so it starts switched off. */}
+-          {captions && <track kind="captions" src={`/guide/${CAPTIONS}`} srcLang="en" label="English" />}
++          {captions && <track kind="captions" src={appPath(`/guide/${CAPTIONS}`)} srcLang="en" label="English" />}
+         </video>
+       ) : (
+         <FilmPlaceholder />
+diff --git a/components/guide/plate.tsx b/components/guide/plate.tsx
+index 659b476..9a131a7 100644
+--- a/components/guide/plate.tsx
++++ b/components/guide/plate.tsx
+@@ -1,3 +1,4 @@
++import { PROJECT_ROOT } from "@/lib/project-root";
+ import fs from "node:fs";
+ import path from "node:path";
+ 
+@@ -10,7 +11,7 @@ import path from "node:path";
+ // so they are inlined, which lets the page colour them per theme and draw them on as
+ // they scroll into view. Until a drawing exists the frame holds a quiet placeholder.
+ 
+-const PLATES_DIR = path.join(process.cwd(), "public", "guide", "plates");
++const PLATES_DIR = path.join(PROJECT_ROOT, "public", "guide", "plates");
+ 
+ export const PLATE_IDS = ["pipeline", "crawl", "anatomy", "search", "names", "add-site", "codebase", "contribute", "privacy"] as const;
+ export type PlateId = (typeof PLATE_IDS)[number];
+diff --git a/components/guide/source.ts b/components/guide/source.ts
+index 8316720..ca9da25 100644
+--- a/components/guide/source.ts
++++ b/components/guide/source.ts
+@@ -1,3 +1,4 @@
++import { PROJECT_ROOT } from "@/lib/project-root";
+ import "server-only";
+ 
+ import fs from "node:fs";
+@@ -12,7 +13,7 @@ import { DEMO, repoFileUrl } from "@/lib/mode";
+ // are hidden from the bundler's tracer, which would otherwise ship the whole project
+ // with the server; next.config.ts names the files a deployment needs.
+ 
+-const ROOT = process.cwd();
++const ROOT = PROJECT_ROOT;
+ 
+ const cache = new Map<string, { mtime: number; lines: string[] }>();
+ 
+diff --git a/components/search-box.tsx b/components/search-box.tsx
+index ca15a93..6d630ae 100644
+--- a/components/search-box.tsx
++++ b/components/search-box.tsx
+@@ -1,4 +1,5 @@
+ "use client";
++import { appPath } from "@/lib/base-path";
+ 
+ import { useRouter } from "next/navigation";
+ import { useEffect, useId, useRef, useState } from "react";
+@@ -55,7 +56,7 @@ export function SearchBox({
+     const ctrl = new AbortController();
+     const timer = setTimeout(async () => {
+       try {
+-        const res = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`, { signal: ctrl.signal });
++        const res = await fetch(appPath(`/api/suggest?q=${encodeURIComponent(q)}`), { signal: ctrl.signal });
+         if (res.ok) {
+           setItems((await res.json()) as Suggestion[]);
+           setActive(-1);
+diff --git a/lib/base-path.ts b/lib/base-path.ts
+new file mode 100644
+index 0000000..b0718a9
+--- /dev/null
++++ b/lib/base-path.ts
+@@ -0,0 +1,9 @@
++// Next Link, router navigation and redirect() add basePath themselves. Browser
++// fetches, native forms, media and raw Location headers need it explicitly.
++export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
++
++export function appPath(pathname: string): string {
++  if (!pathname.startsWith("/") || pathname.startsWith("//")) return pathname;
++  if (BASE_PATH && (pathname === BASE_PATH || pathname.startsWith(`${BASE_PATH}/`) || pathname.startsWith(`${BASE_PATH}?`) || pathname.startsWith(`${BASE_PATH}#`))) return pathname;
++  return `${BASE_PATH}${pathname}`;
++}
+diff --git a/lib/data.ts b/lib/data.ts
+index ef1a34e..41f4cae 100644
+--- a/lib/data.ts
++++ b/lib/data.ts
+@@ -1,3 +1,4 @@
++import { PROJECT_ROOT } from "./project-root";
+ import "server-only";
+ 
+ import fs from "node:fs";
+@@ -18,8 +19,8 @@ import type { Page, SiteIndex } from "./types";
+ // bundled one once it has been read (lib/db/sync.ts). getIndex() itself never waits on
+ // a database: it answers from memory.
+ 
+-const LOCAL_INDEX = path.join(process.cwd(), "data", "index.json");
+-const DEMO_INDEX = path.join(process.cwd(), "data", "demo", "index.json");
++const LOCAL_INDEX = path.join(PROJECT_ROOT, "data", "index.json");
++const DEMO_INDEX = path.join(PROJECT_ROOT, "data", "demo", "index.json");
+ const INDEX_FILE = DEMO ? DEMO_INDEX : LOCAL_INDEX;
+ 
+ export interface Loaded {
+diff --git a/lib/db/sync.ts b/lib/db/sync.ts
+index 4b6c6b1..1bfacec 100644
+--- a/lib/db/sync.ts
++++ b/lib/db/sync.ts
+@@ -1,3 +1,4 @@
++import { PROJECT_ROOT } from "../project-root";
+ import "server-only";
+ 
+ import fs from "node:fs";
+@@ -181,7 +182,7 @@ export async function warmDb(): Promise<void> {
+   if (DEMO || !dbEnabled()) return;
+   // Named in full, as lib/data.ts names it: a path built from a variable would make the
+   // build trace the whole project into every server function.
+-  if (fs.existsSync(path.join(process.cwd(), "data", "index.json"))) {
++  if (fs.existsSync(path.join(PROJECT_ROOT, "data", "index.json"))) {
+     void getDb();
+     return;
+   }
+diff --git a/lib/logo.ts b/lib/logo.ts
+index aa05002..23a3e19 100644
+--- a/lib/logo.ts
++++ b/lib/logo.ts
+@@ -1,3 +1,4 @@
++import { appPath } from "./base-path";
+ import "server-only";
+ 
+ import { createHash } from "node:crypto";
+@@ -41,7 +42,7 @@ function logos(): Table {
+ export function logoSrc(page: Page | null | undefined): string | null {
+   if (!page?.logo) return null;
+   const id = logos().idOf.get(page.logo);
+-  return id ? `/api/logo/${id}` : null;
++  return id ? appPath(`/api/logo/${id}`) : null;
+ }
+ 
+ /** A logo's bytes and type, by its id. Null for an id the index does not hold. */
+diff --git a/lib/project-root.ts b/lib/project-root.ts
+new file mode 100644
+index 0000000..c7d860c
+--- /dev/null
++++ b/lib/project-root.ts
+@@ -0,0 +1,7 @@
++import "server-only";
++
++import path from "node:path";
++
++// A host such as Quirq may serve multiple apps from one process. It sets this
++// runtime-only path instead of changing the working directory for every request.
++export const PROJECT_ROOT = path.resolve(/*turbopackIgnore: true*/ process.env.INNERNET_PROJECT_ROOT || process.cwd());
+diff --git a/next.config.ts b/next.config.ts
+index 040f377..c3ea457 100644
+--- a/next.config.ts
++++ b/next.config.ts
+@@ -6,6 +6,16 @@ import type { NextConfig } from "next";
+ // Content-Security-Policy holds the browser to that. Development also needs eval for
+ // React's debugging and a websocket for hot reload.
+ const dev = process.env.NODE_ENV !== "production";
++// Quirq's Euler profile mounts a production build inside its own HTTP server.
++// Keep that build separate so ordinary `next dev` / `next start` still use /.
++const basePath = process.env.INNERNET_BASE_PATH || process.env.QUIRQ_BASE_PATH || "";
++const distDir = process.env.INNERNET_DIST_DIR || process.env.QUIRQ_DIST_DIR || ".next";
++if (basePath && !/^\/[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/.test(basePath)) {
++  throw new Error("QUIRQ_BASE_PATH must be a URL path without a trailing slash.");
++}
++if (!/^\.[a-zA-Z0-9._-]+$/.test(distDir) || distDir.includes("..")) {
++  throw new Error("QUIRQ_DIST_DIR must be a hidden build directory inside Innernet.");
++}
+ const csp = [
+   "default-src 'self'",
+   `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ""}`,
+@@ -85,6 +95,8 @@ const PGLITE_FILES = [`node_modules/${PGLITE}/**`, `node_modules/${PGLITE}-*`, `
+ const secretInEnv = !!(process.env.DATABASE_URL || process.env.DATABASE_URL_UNPOOLED);
+ 
+ const nextConfig: NextConfig = {
++  basePath,
++  distDir,
+   devIndicators: false,
+   poweredByHeader: false,
+   serverExternalPackages: [PGLITE],
+@@ -92,7 +104,7 @@ const nextConfig: NextConfig = {
+     turbopackFileSystemCacheForBuild: !secretInEnv,
+     turbopackFileSystemCacheForDev: !secretInEnv,
+   },
+-  env: { INNERNET_GUIDE_MEDIA: guideMedia, INNERNET_DEMO_BUILD: demoBuild ? "1" : "" },
++  env: { INNERNET_GUIDE_MEDIA: guideMedia, INNERNET_DEMO_BUILD: demoBuild ? "1" : "", NEXT_PUBLIC_BASE_PATH: basePath },
+   // What each server function carries when deployed: Vercel ships only traced files.
+   // Every page reads the demo index, and the home page's field guide reads its sources
+   // and plates. The local index, the film, its renders and the demo's clones never ship,
+diff --git a/package.json b/package.json
+index 631359b..03f9f7c 100644
+--- a/package.json
++++ b/package.json
+@@ -10,10 +10,11 @@
+     "db:store": "tsx --conditions=react-server scripts/db.ts store",
+     "db:load": "tsx --conditions=react-server scripts/db.ts load",
+     "dev": "next dev -p 3470 -H 127.0.0.1",
+-    "dev:demo": "INNERNET_DEMO=1 next dev -p 3470 -H 127.0.0.1",
++    "dev:demo": "node scripts/dev-demo.mjs",
+     "build": "next build",
+     "start": "next start -p 3470 -H 127.0.0.1",
+-    "typecheck": "tsc --noEmit"
++    "typecheck": "tsc --noEmit",
++    "test:mount": "node scripts/verify-mount.mjs"
+   },
+   "dependencies": {
+     "@electric-sql/pglite": "^0.5.8",
+diff --git a/scripts/dev-demo.mjs b/scripts/dev-demo.mjs
+new file mode 100644
+index 0000000..c160699
+--- /dev/null
++++ b/scripts/dev-demo.mjs
+@@ -0,0 +1,8 @@
++import { createRequire } from 'node:module';
++
++// Set the demo environment in Node so the same command works in every shell.
++const require = createRequire(import.meta.url);
++const nextCli = require.resolve('next/dist/bin/next');
++process.env.INNERNET_DEMO = '1';
++process.argv = [process.execPath, nextCli, 'dev', '-p', '3470', '-H', '127.0.0.1', ...process.argv.slice(2)];
++require(nextCli);
+diff --git a/scripts/verify-mount.mjs b/scripts/verify-mount.mjs
+new file mode 100644
+index 0000000..d94f241
+--- /dev/null
++++ b/scripts/verify-mount.mjs
+@@ -0,0 +1,74 @@
++import assert from "node:assert/strict";
++import { existsSync } from "node:fs";
++import { createServer } from "node:http";
++import { createRequire } from "node:module";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const project = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
++const basePath = process.env.INNERNET_BASE_PATH || "/app/innernet";
++process.env.NODE_ENV = "production";
++process.env.INNERNET_BASE_PATH = basePath;
++process.env.INNERNET_DIST_DIR ||= ".next-euler";
++process.env.INNERNET_PROJECT_ROOT = project;
++process.env.INNERNET_DB = "off";
++
++// Exercise the real custom handler from outside the app's working directory.
++process.chdir(path.dirname(project));
++const require = createRequire(path.join(project, "package.json"));
++const app = require("next")({ dev: false, dir: project, hostname: "127.0.0.1" });
++let server;
++let checks = 0;
++try {
++  await app.prepare();
++  const handle = app.getRequestHandler();
++  server = createServer((req, res) => handle(req, res));
++  await new Promise((resolve, reject) => {
++    server.once("error", reject);
++    server.listen(0, "127.0.0.1", resolve);
++  });
++  const origin = `http://127.0.0.1:${server.address().port}`;
++  const get = async (route, status = 200) => {
++    const response = await fetch(origin + basePath + route, { redirect: "manual" });
++    assert.equal(response.status, status, route);
++    checks++;
++    return response;
++  };
++  const home = await get("");
++  const html = await home.text();
++  assert.match(html, /Innernet/);
++  const resources = [...html.matchAll(/(?:src|href|action)="(\/[^\"]*)"/g)].map((match) => match[1]);
++  const outside = resources.filter((url) => !["/", "?", "#"].some((suffix) => url.startsWith(basePath + suffix)) && url !== basePath);
++  assert.deepEqual(outside, [], "all page resources and links must remain under the mount");
++  checks++;
++  for (const resource of [...new Set(resources.filter((url) => url.includes("/_next/")))]) {
++    const response = await fetch(origin + resource);
++    assert.equal(response.status, 200, resource);
++    checks++;
++  }
++  for (const route of ["/wiki", "/wiki/Special%3AAllPages", "/search?q=quirq", "/activity", "/icon.svg", "/apple-icon", "/guide/innernet-explainer.vtt"]) await get(route);
++  const guide = await get("/guide", 308);
++  assert.equal(guide.headers.get("location"), basePath + "/#guide");
++  const search = await get("/search", 307);
++  assert.equal(search.headers.get("location"), basePath + "/");
++  const suggestions = await get("/api/suggest?q=quirq");
++  assert.match(suggestions.headers.get("content-type"), /application\/json/);
++  const mutations = ["/api/activity", "/api/db/store"];
++  if (existsSync(path.join(project, "app", "api", "sources", "sync", "route.ts"))) mutations.push("/api/sources/sync");
++  for (const endpoint of mutations) {
++    const response = await fetch(origin + basePath + endpoint, {
++      method: "POST",
++      headers: { "Content-Type": "application/json", Origin: "http://unrelated.invalid" },
++      body: "{}",
++    });
++    assert.equal(response.status, 403, endpoint + " must retain its origin guard");
++    checks++;
++  }
++  console.log(`Innernet mounted production checks passed (${checks} checks).`);
++} catch (error) {
++  console.error(error);
++  process.exitCode = 1;
++} finally {
++  if (server) await new Promise((resolve) => server.close(resolve));
++  await app.close();
++}
+diff --git a/tsconfig.json b/tsconfig.json
+index 174f2cf..99d4e1b 100644
+--- a/tsconfig.json
++++ b/tsconfig.json
+@@ -33,7 +33,9 @@
+     "**/*.ts",
+     "**/*.tsx",
+     ".next/types/**/*.ts",
+-    ".next/dev/types/**/*.ts"
++    ".next/dev/types/**/*.ts",
++    ".next-euler/types/**/*.ts",
++    ".next-euler/dev/types/**/*.ts"
+   ],
+   "exclude": [
+     "node_modules",

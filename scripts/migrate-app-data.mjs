@@ -54,14 +54,15 @@ async function readJson(root, path) {
 }
 
 async function verifyLayout(root) {
-  const manifest = await readJson(root, join(root, 'app/upstream.json'));
   const workspace = await readJson(root, join(root, 'euler.workspace.json'));
   for (const id of appIds) {
-    if (manifest.version !== 1 || !manifest.applications?.some((app) => app.id === id && app.directory === `app/${id}`)
+    if (!(await inspect(root, join(root, 'app/adapters', `${id}.patch`)))?.isFile()
       || workspace.projects?.[id]?.directory !== `app/${id}`) {
       throw new Error('Pull the complete new app/ layout before migrating personal data.');
     }
-    await readJson(root, join(root, 'app', id, 'package.json'));
+    if (!(await inspect(root, join(root, 'app', id, 'package.json')))?.isFile()) {
+      throw new Error('Run qq sync and npm run setup to prepare app/ before migrating personal data.');
+    }
   }
 }
 

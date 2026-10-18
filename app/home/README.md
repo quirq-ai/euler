@@ -72,4 +72,4 @@ and a complete dependency-free example. An app's dock assets live in that app's
 restart Euler after changing its assets or manifest.
 
 Home is maintained directly in the Euler repository. It has no separate upstream
-repository and is not included in the `apps:sync` subtree workflow.
+repository and no pin in `infra/repo.toml`.

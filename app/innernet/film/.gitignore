@@ -1,8 +1,0 @@
-.env
-.env.*
-node_modules
-renders/
-.media/cache/
-.hyperframes/
-previews/
-index.html
