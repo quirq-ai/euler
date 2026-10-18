@@ -132,7 +132,8 @@ export async function prepareSource(root, id, { log = console.log } = {}) {
     if (mode === '120000') await symlink(await readlink(from), to);
     else await writeFile(to, await readFile(from), { mode: mode === '100755' ? 0o755 : 0o644 });
   }
-  const applied = spawnSync('git', ['apply', '--whitespace=nowarn', `--directory=${relative(root, directory).split('\\').join('/')}`, patch],
+  // Adapter files must match the pinned bytes, whatever line-ending conversion this machine's Git does.
+  const applied = spawnSync('git', ['-c', 'core.autocrlf=false', '-c', 'core.eol=lf', 'apply', '--whitespace=nowarn', `--directory=${relative(root, directory).split('\\').join('/')}`, patch],
     { cwd: root, encoding: 'utf8', windowsHide: true });
   if (applied.status !== 0) {
     throw new Error(`Euler's adapter app/adapters/${id}.patch does not apply to ${id} ${digest.slice(4, 11)}: `
